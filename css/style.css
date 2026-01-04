@@ -166,8 +166,15 @@ body {
 }
 
 .sidebar-link:hover {
-  color: var(--text-primary);
-  background: var(--bg-tertiary);
+  color: #10b981;
+  background: transparent;
+  border-color: transparent; /* Ensure no border on hover */
+}
+
+.sidebar-link.active {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 /* Sidebar Tooltip */

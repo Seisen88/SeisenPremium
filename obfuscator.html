@@ -70,7 +70,13 @@
                     </div>
                     <div class="control-group">
                         <label class="control-label" for="file-upload">Or Upload File</label>
-                        <input type="file" id="file-upload" accept=".lua,.txt">
+                        <div class="custom-file-upload">
+                            <label for="file-upload" class="file-upload-btn">
+                                <i class="fas fa-cloud-upload-alt"></i> Choose File
+                            </label>
+                            <span id="file-name" class="file-name">No file chosen</span>
+                            <input type="file" id="file-upload" accept=".lua,.txt">
+                        </div>
                     </div>
                 </div>
                 <div class="button-group">

@@ -73,7 +73,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // File upload handler
     fileUpload.addEventListener('change', function(e) {
         const file = e.target.files[0];
+        const fileNameDisplay = document.getElementById('file-name');
+        
         if (file) {
+            // Update filename display
+            if (fileNameDisplay) {
+                fileNameDisplay.textContent = file.name;
+                fileNameDisplay.style.color = 'var(--text-primary)';
+            }
+            
             const reader = new FileReader();
             reader.onload = function(event) {
                 inputCode.value = event.target.result;
@@ -85,6 +93,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 showNotification('Error reading file', 'error');
             };
             reader.readAsText(file);
+        } else {
+            // Reset if cancelled
+            if (fileNameDisplay) {
+                fileNameDisplay.textContent = 'No file chosen';
+                fileNameDisplay.style.color = 'var(--text-secondary)';
+            }
         }
     });
 

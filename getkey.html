@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Key - Lua Script Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path fill='%2310b981' d='M60,10 L35,55 L50,55 L40,90 L65,45 L50,45 Z'/></svg>">
+</head>
+<body>
+    <div id="header-container"></div>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-icon">
+                    <i class="fas fa-key"></i>
+                </div>
+                <h1>Access Key System</h1>
+                <p class="page-description">Choose your preferred method to access premium scripts</p>
+            </div>
+
+            <!-- Key Options Grid -->
+            <div class="key-options-grid">
+                <!-- Free Key Option -->
+                <div class="key-option-card">
+                    <div class="option-header">
+                        <i class="fas fa-ticket-alt"></i>
+                        <h2>Free Access Key</h2>
+                    </div>
+                    <p class="option-description">Complete a quick verification process to get your temporary access key.</p>
+                    
+                    <div class="key-features">
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Key valid for: <strong>1h, 10h, 24h, or 48h</strong></span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Page opens in new tab for verification</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Tip: Use different browser or disable ad-blockers if issues occur</span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-large btn-danger" onclick="openKeyPage()">
+                        <i class="fas fa-external-link-alt"></i>
+                        <span>Get Free Key</span>
+                    </button>
+                </div>
+
+                <!-- Premium Access Option -->
+                <div class="key-option-card premium-card">
+                    <div class="premium-badge">
+                        <i class="fas fa-crown"></i>
+                        <span>Premium</span>
+                    </div>
+                    <div class="option-header">
+                        <i class="fas fa-bolt"></i>
+                        <h2>Instant Premium Access</h2>
+                    </div>
+                    <p class="option-description">Skip the key system entirely with lifetime premium membership.</p>
+                    
+                    <div class="key-features">
+                        <div class="feature-item">
+                            <i class="fas fa-infinity"></i>
+                            <span>Unlimited access - no keys needed</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-rocket"></i>
+                            <span>Instant script execution</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-star"></i>
+                            <span>Priority support & early features</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-lock"></i>
+                            <span>Exclusive premium-only scripts</span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-large btn-primary" onclick="openPremium()">
+                        <i class="fas fa-gem"></i>
+                        <span>Get Premium</span>
+                    </button>
+                    <button class="btn btn-large btn-secondary" onclick="window.location.href='#terms'">
+                        <i class="fas fa-file-contract"></i>
+                        <span>View Terms</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Script Loader Section -->
+            <div class="loader-section">
+                <div class="loader-header">
+                    <i class="fas fa-code"></i>
+                    <h2>Script Loader</h2>
+                </div>
+                <p class="loader-description">Copy and paste this loader into your executor after obtaining a key</p>
+                <div class="code-container">
+                    <code id="loader-code">loadstring(game:HttpGet("https://api.junkie-development.de/api/v1/luascripts/public/8ac2e97282ac0718aeeb3bb3856a2821d71dc9e57553690ab508ebdb0d1569da/download"))()</code>
+                </div>
+                <div class="loader-actions">
+                    <button class="btn btn-secondary" onclick="copyLoader()">
+                        <i class="fas fa-copy"></i>
+                        <span>Copy Loader</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="window.location.href='scripts.html'">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Back to Scripts</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="js/components.js"></script>
+    <script src="js/getkey.js"></script>
+</body>
+</html>

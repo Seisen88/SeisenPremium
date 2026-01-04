@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Get premium access to Seisen Hub - Choose from PayPal, Robux, or GCash payment options">
+    <title>Premium - Seisen Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/premium.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path fill='%2310b981' d='M60,10 L35,55 L50,55 L40,90 L65,45 L50,45 Z'/></svg>">
+</head>
+<body>
+    <!-- Header Component -->
+    <div id="header-container"></div>
+
+    <!-- Main Content -->
+    <main class="main-content premium-page">
+        <div class="container">
+            <!-- Premium Header -->
+            <section class="premium-header">
+                <div class="premium-icon">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <h1>Premium Access</h1>
+                <p class="premium-subtitle">Unlock all features with instant access, no key system required</p>
+                <button class="btn btn-secondary" onclick="showSavedKeysModal()" style="margin-top: 1rem;">
+                    <i class="fas fa-history"></i> View My Saved Keys
+                </button>
+            </section>
+
+            <!-- Payment Method Tabs -->
+            <section class="payment-tabs">
+                <button class="payment-tab active" data-method="paypal">
+                    <i class="fab fa-paypal"></i>
+                    <span>PayPal</span>
+                </button>
+                <button class="payment-tab" data-method="robux">
+                    <i class="fas fa-coins"></i>
+                    <span>Robux</span>
+                </button>
+                <button class="payment-tab" data-method="gcash">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>GCash</span>
+                </button>
+            </section>
+
+            <!-- PayPal Pricing -->
+            <section class="pricing-section active" id="paypal-pricing">
+                <div class="pricing-grid">
+                    <!-- Weekly -->
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <h3>Weekly</h3>
+                            <div class="pricing-badge">7 Days</div>
+                        </div>
+                        <div class="pricing-price">
+                            <span class="currency">€</span>
+                            <span class="amount">3</span>
+                            <span class="period">/week</span>
+                        </div>
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check"></i> All premium scripts</li>
+                            <li><i class="fas fa-check"></i> No key system</li>
+                            <li><i class="fas fa-check"></i> Priority support</li>
+                            <li><i class="fas fa-check"></i> Early access</li>
+                        </ul>
+                        <button class="btn btn-primary btn-large paypal-btn" data-plan="weekly" data-amount="3">
+                            <i class="fab fa-paypal"></i>
+                            <span>Pay with PayPal</span>
+                        </button>
+                    </div>
+
+                    <!-- Monthly -->
+                    <div class="pricing-card featured">
+                        <div class="featured-badge">
+                            <i class="fas fa-star"></i>
+                            <span>Most Popular</span>
+                        </div>
+                        <div class="pricing-header">
+                            <h3>Monthly</h3>
+                            <div class="pricing-badge">30 Days</div>
+                        </div>
+                        <div class="pricing-price">
+                            <span class="currency">€</span>
+                            <span class="amount">5</span>
+                            <span class="period">/month</span>
+                        </div>
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check"></i> All premium scripts</li>
+                            <li><i class="fas fa-check"></i> No key system</li>
+                            <li><i class="fas fa-check"></i> Priority support</li>
+                            <li><i class="fas fa-check"></i> Early access</li>
+                            <li><i class="fas fa-check"></i> Exclusive updates</li>
+                        </ul>
+                        <button class="btn btn-primary btn-large paypal-btn" data-plan="monthly" data-amount="5">
+                            <i class="fab fa-paypal"></i>
+                            <span>Pay with PayPal</span>
+                        </button>
+                    </div>
+
+                    <!-- Lifetime -->
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <h3>Lifetime</h3>
+                            <div class="pricing-badge best-value">Best Value</div>
+                        </div>
+                        <div class="pricing-price">
+                            <span class="currency">€</span>
+                            <span class="amount">10</span>
+                            <span class="period">one-time</span>
+                        </div>
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check"></i> All premium scripts</li>
+                            <li><i class="fas fa-check"></i> No key system</li>
+                            <li><i class="fas fa-check"></i> Priority support</li>
+                            <li><i class="fas fa-check"></i> Early access</li>
+                            <li><i class="fas fa-check"></i> Exclusive updates</li>
+                            <li><i class="fas fa-check"></i> Lifetime access</li>
+                        </ul>
+                        <button class="btn btn-primary btn-large paypal-btn" data-plan="lifetime" data-amount="10">
+                            <i class="fab fa-paypal"></i>
+                            <span>Pay with PayPal</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Robux Pricing -->
+            <section class="pricing-section" id="robux-pricing">
+                <div class="pricing-grid">
+                    <!-- Weekly -->
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <h3>Weekly</h3>
+                            <div class="pricing-badge">7 Days</div>
+                        </div>
+                        <div class="pricing-price">
+                            <i class="fas fa-coins robux-icon"></i>
+                            <span class="amount">500</span>
+                            <span class="period">Robux</span>
+                        </div>
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check"></i> All premium scripts</li>
+                            <li><i class="fas fa-check"></i> No key system</li>
+                            <li><i class="fas fa-check"></i> Priority support</li>
+                            <li><i class="fas fa-check"></i> Early access</li>
+                        </ul>
+                        <button class="btn btn-secondary btn-large ticket-btn" data-plan="weekly" data-amount="500" data-currency="Robux">
+                            <i class="fas fa-ticket-alt"></i>
+                            <span>Open Ticket</span>
+                        </button>
+                    </div>
+
+                    <!-- Monthly -->
+                    <div class="pricing-card featured">
+                        <div class="featured-badge">
+                            <i class="fas fa-star"></i>
+                            <span>Most Popular</span>
+                        </div>
+                        <div class="pricing-header">
+                            <h3>Monthly</h3>
+                            <div class="pricing-badge">30 Days</div>
+                        </div>
+                        <div class="pricing-price">
+                            <i class="fas fa-coins robux-icon"></i>
+                            <span class="amount">800</span>
+                            <span class="period">Robux</span>
+                        </div>
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check"></i> All premium scripts</li>
+                            <li><i class="fas fa-check"></i> No key system</li>
+                            <li><i class="fas fa-check"></i> Priority support</li>
+                            <li><i class="fas fa-check"></i> Early access</li>
+                            <li><i class="fas fa-check"></i> Exclusive updates</li>
+                        </ul>
+                        <button class="btn btn-secondary btn-large ticket-btn" data-plan="monthly" data-amount="800" data-currency="Robux">
+                            <i class="fas fa-ticket-alt"></i>
+                            <span>Open Ticket</span>
+                        </button>
+                    </div>
+
+                    <!-- Lifetime -->
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <h3>Lifetime</h3>
+                            <div class="pricing-badge best-value">Best Value</div>
+                        </div>
+                        <div class="pricing-price">
+                            <i class="fas fa-coins robux-icon"></i>
+                            <span class="amount">1600</span>
+                            <span class="period">Robux</span>
+                        </div>
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check"></i> All premium scripts</li>
+                            <li><i class="fas fa-check"></i> No key system</li>
+                            <li><i class="fas fa-check"></i> Priority support</li>
+                            <li><i class="fas fa-check"></i> Early access</li>
+                            <li><i class="fas fa-check"></i> Exclusive updates</li>
+                            <li><i class="fas fa-check"></i> Lifetime access</li>
+                        </ul>
+                        <button class="btn btn-secondary btn-large ticket-btn" data-plan="lifetime" data-amount="1600" data-currency="Robux">
+                            <i class="fas fa-ticket-alt"></i>
+                            <span>Open Ticket</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- GCash Pricing -->
+            <section class="pricing-section" id="gcash-pricing">
+                <div class="pricing-grid">
+                    <!-- Weekly -->
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <h3>Weekly</h3>
+                            <div class="pricing-badge">7 Days</div>
+                        </div>
+                        <div class="pricing-price">
+                            <span class="currency">₱</span>
+                            <span class="amount">250</span>
+                            <span class="period">/week</span>
+                        </div>
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check"></i> All premium scripts</li>
+                            <li><i class="fas fa-check"></i> No key system</li>
+                            <li><i class="fas fa-check"></i> Priority support</li>
+                            <li><i class="fas fa-check"></i> Early access</li>
+                        </ul>
+                        <button class="btn btn-secondary btn-large ticket-btn" data-plan="weekly" data-amount="" data-currency="GCash">
+                            <i class="fas fa-ticket-alt"></i>
+                            <span>Open Ticket</span>
+                        </button>
+                    </div>
+
+                    <!-- Monthly -->
+                    <div class="pricing-card featured">
+                        <div class="featured-badge">
+                            <i class="fas fa-star"></i>
+                            <span>Most Popular</span>
+                        </div>
+                        <div class="pricing-header">
+                            <h3>Monthly</h3>
+                            <div class="pricing-badge">30 Days</div>
+                        </div>
+                        <div class="pricing-price">
+                            <span class="currency">₱</span>
+                            <span class="amount">400</span>
+                            <span class="period">/month</span>
+                        </div>
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check"></i> All premium scripts</li>
+                            <li><i class="fas fa-check"></i> No key system</li>
+                            <li><i class="fas fa-check"></i> Priority support</li>
+                            <li><i class="fas fa-check"></i> Early access</li>
+                            <li><i class="fas fa-check"></i> Exclusive updates</li>
+                        </ul>
+                        <button class="btn btn-secondary btn-large ticket-btn" data-plan="monthly" data-amount="400" data-currency="GCash">
+                            <i class="fas fa-ticket-alt"></i>
+                            <span>Open Ticket</span>
+                        </button>
+                    </div>
+
+                    <!-- Lifetime -->
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <h3>Lifetime</h3>
+                            <div class="pricing-badge best-value">Best Value</div>
+                        </div>
+                        <div class="pricing-price">
+                            <span class="currency">₱</span>
+                            <span class="amount">700</span>
+                            <span class="period">one-time</span>
+                        </div>
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check"></i> All premium scripts</li>
+                            <li><i class="fas fa-check"></i> No key system</li>
+                            <li><i class="fas fa-check"></i> Priority support</li>
+                            <li><i class="fas fa-check"></i> Early access</li>
+                            <li><i class="fas fa-check"></i> Exclusive updates</li>
+                            <li><i class="fas fa-check"></i> Lifetime access</li>
+                        </ul>
+                        <button class="btn btn-secondary btn-large ticket-btn" data-plan="lifetime" data-amount="700" data-currency="GCash">
+                            <i class="fas fa-ticket-alt"></i>
+                            <span>Open Ticket</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ Section -->
+            <section class="premium-faq">
+                <h2>Frequently Asked Questions</h2>
+                <div class="faq-grid">
+                    <div class="faq-item">
+                        <h3><i class="fas fa-question-circle"></i> How do I get premium?</h3>
+                        <p>Choose your preferred payment method and plan, then complete the payment. You'll receive instant access!</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3><i class="fas fa-question-circle"></i> What's included?</h3>
+                        <p>All premium scripts, no key system, priority support, early access to new features, and exclusive updates.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3><i class="fas fa-question-circle"></i> Can I cancel anytime?</h3>
+                        <p>Yes! Weekly and monthly subscriptions can be cancelled at any time. Lifetime is a one-time payment.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3><i class="fas fa-question-circle"></i> Need help?</h3>
+                        <p>Join our Discord server for support or open a ticket for payment assistance.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer Component -->
+    <div id="footer-container"></div>
+
+    <script src="js/components.js"></script>
+    <script src="js/premium.js"></script>
+</body>
+</html>

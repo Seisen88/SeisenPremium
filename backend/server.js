@@ -378,7 +378,8 @@ app.post('/api/obfuscate', async (req, res) => {
 
         // Prepare Prometheus command
         const presetCapitalized = preset.charAt(0).toUpperCase() + preset.slice(1);
-        const command = `"${LUA_EXECUTABLE}" "${prometheusCliPath}" --preset ${presetCapitalized} --out "${outputFileAbs}" "${inputFileAbs}"`;
+        const luauFlag = version.toLowerCase() === 'luau' ? '--LuaU ' : '';
+        const command = `"${LUA_EXECUTABLE}" "${prometheusCliPath}" ${luauFlag}--preset ${presetCapitalized} --out "${outputFileAbs}" "${inputFileAbs}"`;
 
         if (DEBUG) {
             console.log('Executing command:', command);

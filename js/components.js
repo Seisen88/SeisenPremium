@@ -268,6 +268,18 @@ function initLoadingScreen() {
     const loadingScreen = document.getElementById('loading-screen');
     if (!loadingScreen) return;
     
+    // Check if user has already seen loading screen in this session
+    const hasSeenLoading = sessionStorage.getItem('seisen_loading_shown');
+    
+    if (hasSeenLoading) {
+        // Skip loading screen, hide immediately
+        loadingScreen.style.display = 'none';
+        return;
+    }
+    
+    // Mark that loading screen has been shown
+    sessionStorage.setItem('seisen_loading_shown', 'true');
+    
     let progress = 0;
     const loadingBar = document.querySelector('.loading-bar');
     const loadingText = document.querySelector('.loading-text');

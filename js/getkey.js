@@ -12,13 +12,10 @@ function openKeyPage() {
 }
 
 function openPremium() {
-    // Replace with your actual premium purchase URL
-    const premiumUrl = 'https://your-premium-url.com';
-    
-    showNotification('Redirecting to premium access...', 'info');
+    showNotification('Redirecting to premium page...', 'info');
     
     setTimeout(() => {
-        window.open(premiumUrl, '_blank');
+        window.location.href = 'premium.html';
     }, 500);
 }
 

@@ -114,7 +114,7 @@ function loadHeader() {
             <i class="fas fa-check theme-check"></i>
         </button>
         <button class="theme-panel-option" data-theme="dracula">
-            <i class="fas fa-bat"></i>
+            <i class="fas fa-moon"></i>
             <span>Dracula</span>
             <i class="fas fa-check theme-check"></i>
         </button>
@@ -123,14 +123,14 @@ function loadHeader() {
             <span>Monokai</span>
             <i class="fas fa-check theme-check"></i>
         </button>
-        <button class="theme-panel-option" data-theme="github-light">
-            <i class="fab fa-github"></i>
-            <span>GitHub Light</span>
+        <button class="theme-panel-option" data-theme="cyberpunk">
+            <i class="fas fa-robot"></i>
+            <span>Cyberpunk</span>
             <i class="fas fa-check theme-check"></i>
         </button>
-        <button class="theme-panel-option" data-theme="github-dark">
-            <i class="fab fa-github"></i>
-            <span>GitHub Dark</span>
+        <button class="theme-panel-option" data-theme="tokyo-night">
+            <i class="fas fa-city"></i>
+            <span>Tokyo Night</span>
             <i class="fas fa-check theme-check"></i>
         </button>
     </div>
@@ -363,21 +363,21 @@ function applyTheme(theme) {
       text: '#f8f8f2',
       textSecondary: '#f92672'
     },
-    'github-light': {
-      primary: '#0969da',
-      bg: '#ffffff',
-      bgSecondary: '#f6f8fa',
-      bgTertiary: '#eaeef2',
-      text: '#24292f',
-      textSecondary: '#57606a'
+    cyberpunk: {
+      primary: '#ff00ff',
+      bg: '#0a0e27',
+      bgSecondary: '#16213e',
+      bgTertiary: '#1f2d5c',
+      text: '#00ffff',
+      textSecondary: '#ff00aa'
     },
-    'github-dark': {
-      primary: '#58a6ff',
-      bg: '#0d1117',
-      bgSecondary: '#161b22',
-      bgTertiary: '#21262d',
-      text: '#c9d1d9',
-      textSecondary: '#8b949e'
+    'tokyo-night': {
+      primary: '#7aa2f7',
+      bg: '#1a1b26',
+      bgSecondary: '#24283b',
+      bgTertiary: '#414868',
+      text: '#c0caf5',
+      textSecondary: '#9aa5ce'
     }
   };
   

@@ -79,6 +79,18 @@ function loadHeader() {
                         <button class="theme-option" onclick="setTheme('matrix')">
                             <i class="fas fa-terminal"></i> Matrix
                         </button>
+                        <button class="theme-option" onclick="setTheme('coffee')">
+                            <i class="fas fa-coffee"></i> Coffee
+                        </button>
+                        <button class="theme-option" onclick="setTheme('aqua')">
+                            <i class="fas fa-water"></i> Aqua
+                        </button>
+                        <button class="theme-option" onclick="setTheme('lavender')">
+                            <i class="fas fa-leaf"></i> Lavender
+                        </button>
+                        <button class="theme-option" onclick="setTheme('nord')">
+                            <i class="fas fa-snowflake"></i> Nord
+                        </button>
                     </div>
                 </div>
             </div>
@@ -198,6 +210,50 @@ const THEMES = {
         '--text-secondary': '#008f00',
         '--border-color': '#003300',
         '--border-color-light': '#004d00'
+    },
+    coffee: {
+        '--bg-primary': '#201616',
+        '--bg-secondary': '#2d1f1f',
+        '--bg-tertiary': '#3c2a2a',
+        '--bg-card': '#352525',
+        '--bg-card-hover': '#453030',
+        '--text-primary': '#e6d2d2',
+        '--text-secondary': '#b09595',
+        '--border-color': '#4a3535',
+        '--border-color-light': '#5e4343'
+    },
+    aqua: {
+        '--bg-primary': '#051a1a',
+        '--bg-secondary': '#0a2626',
+        '--bg-tertiary': '#113333',
+        '--bg-card': '#0d2b2b',
+        '--bg-card-hover': '#143838',
+        '--text-primary': '#ccffff',
+        '--text-secondary': '#4dd2d2',
+        '--border-color': '#1a4d4d',
+        '--border-color-light': '#266666'
+    },
+    lavender: {
+        '--bg-primary': '#16141a',
+        '--bg-secondary': '#1f1c24',
+        '--bg-tertiary': '#2a2630',
+        '--bg-card': '#242029',
+        '--bg-card-hover': '#2f2a36',
+        '--text-primary': '#e6e6fa',
+        '--text-secondary': '#b3b3e6',
+        '--border-color': '#3a3545',
+        '--border-color-light': '#4a4357'
+    },
+    nord: {
+        '--bg-primary': '#2e3440',
+        '--bg-secondary': '#3b4252',
+        '--bg-tertiary': '#434c5e',
+        '--bg-card': '#3b4252',
+        '--bg-card-hover': '#434c5e',
+        '--text-primary': '#eceff4',
+        '--text-secondary': '#d8dee9',
+        '--border-color': '#4c566a',
+        '--border-color-light': '#5e81ac'
     }
 };
 

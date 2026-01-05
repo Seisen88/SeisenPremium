@@ -1,0 +1,64 @@
+services:
+  # Backend Web Service
+  - type: web
+    name: seisen-backend
+    env: node
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: NODE_ENV
+        value: production
+      - key: PROMETHEUS_PATH
+        value: /opt/render/project/src/prometheus
+      - key: LUA_EXECUTABLE
+        value: lua5.3
+      - key: TEMP_DIR
+        value: /tmp
+      - key: DEBUG
+        value: false
+      - key: PAYPAL_SANDBOX
+        sync: false
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: JUNKIE_WEBHOOK_URL_WEEKLY
+        sync: false
+      - key: JUNKIE_WEBHOOK_URL_MONTHLY
+        sync: false
+      - key: JUNKIE_WEBHOOK_URL_LIFETIME
+        sync: false
+      - key: JUNKIE_HMAC_SECRET
+        sync: false
+      - key: JUNKIE_PROVIDER
+        sync: false
+      - key: JUNKIE_SERVICE
+        sync: false
+      - key: DB_PATH
+        value: /opt/render/project/src/payments.db
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+    # Install Lua before starting
+    buildCommand: |
+      apt-get update && apt-get install -y lua5.3
+      npm install
+
+  # Frontend Static Site
+  - type: web
+    name: seisen-frontend
+    env: static
+    region: oregon
+    plan: free
+    buildCommand: echo "No build needed for static site"
+    staticPublishPath: .
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

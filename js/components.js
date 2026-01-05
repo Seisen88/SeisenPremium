@@ -210,13 +210,13 @@ function initVisitorCounter() {
         localStorage.setItem(VISITOR_ID_KEY, visitorId);
         
         // Get current count and increment
-        let count = parseInt(localStorage.getItem(VISITOR_KEY) || '1247', 10);
+        let count = parseInt(localStorage.getItem(VISITOR_KEY) || '0', 10);
         count++;
         localStorage.setItem(VISITOR_KEY, count.toString());
     }
     
     // Display count
-    const count = parseInt(localStorage.getItem(VISITOR_KEY) || '1247', 10);
+    const count = parseInt(localStorage.getItem(VISITOR_KEY) || '0', 10);
     const counterElement = document.getElementById('visitor-count');
     if (counterElement) {
         counterElement.textContent = count.toLocaleString();

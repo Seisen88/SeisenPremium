@@ -9,7 +9,7 @@ const API_CONFIG = {
     timeout: 10000, // 10 seconds
     
     // Enable fallback to simulation if backend is unavailable
-    enableFallback: true,
+    enableFallback: false, // Disabled - always use real Prometheus backend
     
     // Retry configuration
     maxRetries: 1,

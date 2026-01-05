@@ -173,10 +173,14 @@ class LuaObfuscator {
             return `"${str}"`;
         }
 
-        // XOR-based encryption
+        // XOR-based encryption (simplified for compatibility)
         const key = Math.floor(Math.random() * 255) + 1;
-        const encrypted = str.split('').map(c => c.charCodeAt(0) ^ key).join(',');
-        return `(function() local t = {${encrypted}}; local s = ''; for i = 1, #t do s = s .. string.char(t[i] ~ ${key}) end; return s end)()`;
+        const bytes = [];
+        for (let i = 0; i < str.length; i++) {
+            bytes.push(str.charCodeAt(i) ^ key);
+        }
+        // Use direct string construction to avoid variable name conflicts
+        return `(function() return (function(t,k) local s='' for i=1,#t do s=s..string.char(bit32.bxor(t[i],k)) end return s end)({${bytes.join(',')}},${key}) end)()`;
     }
 
     // Variable name obfuscation

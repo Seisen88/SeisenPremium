@@ -46,9 +46,9 @@ const paymentDB = new PaymentDatabase(
 
 // Middleware
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '50mb' })); // Increased from 10mb to 50mb for large code files
 // PayPal IPN requires urlencoded body parser
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: false, limit: '50mb' }));
 
 // Serve static files from parent directory (frontend files)
 app.use(express.static(path.join(__dirname, '..')));
@@ -387,8 +387,8 @@ app.post('/api/obfuscate', async (req, res) => {
         // Execute Prometheus
         exec(command, { 
             cwd: __dirname,
-            timeout: 30000,
-            maxBuffer: 10 * 1024 * 1024
+            timeout: 120000, // Increased from 30s to 120s for large files
+            maxBuffer: 50 * 1024 * 1024 // Increased from 10MB to 50MB
         }, (error, stdout, stderr) => {
             // Clean up input file
             try {

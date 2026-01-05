@@ -6,7 +6,7 @@ const API_CONFIG = {
         : 'https://seisen-backend.onrender.com',
     
     // Request timeout in milliseconds
-    timeout: 10000, // 10 seconds
+    timeout: 120000, // 120 seconds (2 minutes) - matches backend timeout
     
     // Enable fallback to simulation if backend is unavailable
     enableFallback: false, // Disabled - always use real Prometheus backend

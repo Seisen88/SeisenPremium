@@ -1,7 +1,7 @@
 // Main Application Logic
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize obfuscator
-    const obfuscator = new LuaObfuscator();
+    const obfuscator = new ObfuscatorAPI();
     
     // Stats tracking
     const stats = {

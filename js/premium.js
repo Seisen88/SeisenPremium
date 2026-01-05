@@ -3,7 +3,7 @@
 // Backend URL - uses Vercel backend in production, localhost for development
 const BACKEND_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:3000'
-    : 'https://seisen-backend.vercel.app';
+    : 'https://seisen-backend.onrender.com';
 
 // Payment method tab switching
 document.addEventListener('DOMContentLoaded', function() {

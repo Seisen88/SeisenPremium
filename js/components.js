@@ -31,7 +31,7 @@ function loadHeader() {
             <a href="premium.html" class="sidebar-link" title="Premium">
                 <i class="fas fa-crown"></i>
             </a>
-            <a href="#" class="sidebar-link" title="Partners">
+            <a href="partners.html" class="sidebar-link" title="Partners">
                 <i class="fas fa-handshake"></i>
             </a>
             <a href="faq.html" class="sidebar-link" title="FAQ">

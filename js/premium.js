@@ -1,7 +1,7 @@
 // Premium Page JavaScript - PayPal SDK Integration
 
 // Backend URL - uses Render backend in production, localhost for development
-const BACKEND_URL = window.location.hostname === 'localhost' 
+const BACKEND_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
     ? 'http://localhost:3000'
     : 'https://seisen-backend.onrender.com';
 
@@ -90,7 +90,8 @@ async function handlePayPalPayment(plan, amount) {
 
     } catch (error) {
         console.error('PayPal payment error:', error);
-        showNotification('Failed to create payment. Please try again.', 'error');
+        console.error('Backend URL attempting to reach:', BACKEND_URL);
+        showNotification('Failed to create payment. check console for details.', 'error');
         
         // Re-enable buttons
         const buttons = document.querySelectorAll('.paypal-btn');
@@ -193,6 +194,8 @@ function showKeyModal(keys, tier) {
     
     const keyList = keys.map(k => `<div class="key-item">${k}</div>`).join('');
     
+    const loaderScript = `loadstring(game:HttpGet("https://api.junkie-development.de/api/v1/luascripts/public/d78ef9f0c5183f52d0e84d7efed327aa9a7abfb995f4ce86c22c3a7bc4d06a6f/download"))()`;
+
     modal.innerHTML = `
         <div class="modal-content">
             <div class="modal-header">
@@ -204,27 +207,32 @@ function showKeyModal(keys, tier) {
                     ${keyList}
                 </div>
                 <p><strong>Plan:</strong> ${tier.charAt(0).toUpperCase() + tier.slice(1)}</p>
+                
                 <hr>
-                <p><i class="fas fa-check-circle" style="color: #10b981;"></i> Your key has been saved to your browser</p>
-                <p>Your key has been sent to your PayPal email address.</p>
-                <h3>How to Use Your Key:</h3>
-                <ol>
-                    <li>Copy your key from above</li>
-                    <li>Launch Seisen Hub script in Roblox</li>
-                    <li>Paste your key when prompted</li>
-                    <li>Enjoy premium features!</li>
-                </ol>
-                <button class="btn btn-primary btn-large" style="width: 100%; margin-bottom: 10px;" onclick="copyKey('${keys[0]}')">
-                    <i class="fas fa-copy"></i> Copy Key
+                
+                <h3 style="margin-top: 15px;">Universal Loader:</h3>
+                <p style="font-size: 0.9em; color: var(--text-muted);">Execute this script to use your key:</p>
+                <div class="code-container" style="background: var(--bg-tertiary); padding: 10px; border-radius: 6px; margin: 5px 0 15px 0;">
+                    <code id="premium-loader" style="word-break: break-all; color: #10b981; font-size: 0.85em;">${loaderScript}</code>
+                </div>
+                
+                <button class="btn btn-secondary btn-small" style="width: 100%; margin-bottom: 20px;" onclick="copyText('${loaderScript.replace(/"/g, "&quot;")}')">
+                    <i class="fas fa-copy"></i> Copy Loader
                 </button>
-                <div style="display: flex; gap: 10px; justify-content: space-between;">
+
+                <p style="font-size: 0.9em;"><i class="fas fa-info-circle" style="color: #10b981;"></i> Keys are saved in your browser & sent to your email.</p>
+
+                <div style="display: flex; gap: 10px; justify-content: space-between; margin-top: 10px;">
+                    <button class="btn btn-primary" style="flex: 1;" onclick="copyKey('${keys[0]}')">
+                        <i class="fas fa-key"></i> Copy Key
+                    </button>
                     <button class="btn btn-secondary" style="flex: 1;" onclick="this.closest('.payment-modal').remove(); showSavedKeysModal()">
                         <i class="fas fa-history"></i> Saved Keys
                     </button>
-                    <button class="btn btn-secondary" style="flex: 1;" onclick="window.location.href='premium.html'">
-                        Close
-                    </button>
                 </div>
+                <button class="btn btn-secondary" style="width: 100%; margin-top: 10px;" onclick="window.location.href='premium.html'">
+                    Close
+                </button>
             </div>
         </div>
     `;
@@ -427,5 +435,22 @@ function showNotification(message, type = 'success') {
         notification.classList.remove('show');
         setTimeout(() => notification.remove(), 300);
     }, 3000);
+}
+
+// Generic copy helper
+function copyText(text) {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+            showNotification('Copied to clipboard!', 'success');
+        });
+    } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showNotification('Copied to clipboard!', 'success');
+    }
 }
 

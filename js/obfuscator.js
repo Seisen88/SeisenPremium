@@ -67,13 +67,13 @@ class LuaObfuscator {
             return data.obfuscatedCode;
 
         } catch (error) {
-            console.error('API Error:', error);
-
             // Check if it's a network error and fallback is enabled
-            if (enableFallback && (error.name === 'AbortError' || error.message.includes('fetch'))) {
-                console.warn('Backend unavailable, using fallback simulation');
+            if (enableFallback && (error.name === 'AbortError' || error.message.includes('fetch') || error.message.includes('Failed to fetch'))) {
+                console.warn('Backend unavailable/timed out, using fallback simulation.');
                 return this.simulateObfuscation(code, version, preset);
             }
+
+            console.error('API Error:', error);
 
             // Re-throw the error with helpful message
             if (error.name === 'AbortError') {

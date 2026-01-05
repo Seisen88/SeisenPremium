@@ -101,7 +101,8 @@ async function handlePayPalPayment(plan, amount) {
 // Capture PayPal Payment after user returns
 async function capturePayPalPayment(orderId) {
     try {
-        showNotification('Processing your payment...', 'info');
+        // Show persistent processing modal
+        showProcessingModal();
 
         const response = await fetch(`${BACKEND_URL}/api/paypal/capture-order`, {
             method: 'POST',
@@ -119,6 +120,9 @@ async function capturePayPalPayment(orderId) {
 
         const data = await response.json();
 
+        // Close processing modal
+        closeProcessingModal();
+
         if (data.success && data.keys && data.keys.length > 0) {
             // Save key to localStorage for future reference
             saveKeyToLocalStorage(data.keys[0], data.tier);
@@ -131,7 +135,41 @@ async function capturePayPalPayment(orderId) {
 
     } catch (error) {
         console.error('Payment capture error:', error);
+        closeProcessingModal();
         showNotification('Payment processing failed. Please contact support.', 'error');
+    }
+}
+
+// Show Processing Modal
+function showProcessingModal() {
+    const modal = document.createElement('div');
+    modal.className = 'payment-modal show processing-modal';
+    modal.id = 'processing-modal';
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="text-align: center;">
+            <div class="modal-body">
+                <div class="spinner" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                </div>
+                <h2>Processing Payment...</h2>
+                <p>Please wait while we confirm your payment and generate your key.</p>
+                <hr>
+                <p style="color: var(--warning); font-weight: bold;">
+                    ⚠️ DO NOT CLOSE THIS WINDOW
+                </p>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// Close Processing Modal
+function closeProcessingModal() {
+    const modal = document.getElementById('processing-modal');
+    if (modal) {
+        modal.remove();
     }
 }
 

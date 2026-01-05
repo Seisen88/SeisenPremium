@@ -3243,21 +3243,21 @@ select:focus {
 .footer {
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-color);
-  padding: 4rem 0 2rem;
+  padding: 2rem 0 1.5rem;
   margin-top: auto;
 }
 
 .footer-content {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 3rem;
-  margin-bottom: 3rem;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .footer-section h3 {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   color: var(--text-primary);
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.75rem 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -3265,16 +3265,16 @@ select:focus {
 
 .footer-section p {
   color: var(--text-secondary);
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: 0.9rem;
+  line-height: 1.5;
   max-width: 300px;
 }
 
 .footer-section h4 {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
-  margin: 0 0 1.25rem 0;
+  margin: 0 0 1rem 0;
 }
 
 .footer-links {
@@ -3284,13 +3284,13 @@ select:focus {
 }
 
 .footer-links li {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .footer-links a {
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   transition: all var(--transition-fast);
   display: inline-flex;
   align-items: center;

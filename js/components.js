@@ -83,9 +83,9 @@ function loadFooter() {
             <div class="footer-section">
                 <h4>Legal</h4>
                 <ul class="footer-links">
-                    <li><a href="#">Terms of Service</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">License (AGPL v3.0)</a></li>
+                    <li><a href="legal.html#terms">Terms of Service</a></li>
+                    <li><a href="legal.html#privacy">Privacy Policy</a></li>
+                    <li><a href="legal.html#license">License (AGPL v3.0)</a></li>
                 </ul>
             </div>
         </div>

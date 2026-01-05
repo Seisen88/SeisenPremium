@@ -44,6 +44,7 @@ const paymentDB = new PaymentDatabase(
 
 
 
+
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: '50mb' })); // Increased from 10mb to 50mb for large code files
@@ -56,6 +57,51 @@ app.use(express.static(path.join(__dirname, '..')));
 // Ensure temp directory exists
 if (!fs.existsSync(TEMP_DIR)) {
     fs.mkdirSync(TEMP_DIR, { recursive: true });
+}
+
+// Clean up old temp files on startup
+function cleanupTempFiles() {
+    try {
+        if (fs.existsSync(TEMP_DIR)) {
+            const files = fs.readdirSync(TEMP_DIR);
+            const now = Date.now();
+            let cleaned = 0;
+            
+            files.forEach(file => {
+                const filePath = path.join(TEMP_DIR, file);
+                try {
+                    const stats = fs.statSync(filePath);
+                    // Delete files older than 5 minutes
+                    if (now - stats.mtimeMs > 5 * 60 * 1000) {
+                        fs.unlinkSync(filePath);
+                        cleaned++;
+                    }
+                } catch (err) {
+                    console.error(`Error cleaning ${file}:`, err.message);
+                }
+            });
+            
+            if (cleaned > 0) {
+                console.log(`Cleaned up ${cleaned} old temp files`);
+            }
+        }
+    } catch (error) {
+        console.error('Error during temp cleanup:', error);
+    }
+}
+
+// Run cleanup on startup
+cleanupTempFiles();
+
+// Run cleanup every 5 minutes
+setInterval(cleanupTempFiles, 5 * 60 * 1000);
+
+// Force garbage collection periodically (if available)
+if (global.gc) {
+    setInterval(() => {
+        global.gc();
+        console.log('Manual garbage collection triggered');
+    }, 10 * 60 * 1000); // Every 10 minutes
 }
 
 // Logging middleware
@@ -389,7 +435,7 @@ app.post('/api/obfuscate', async (req, res) => {
         exec(command, { 
             cwd: __dirname,
             timeout: 120000, // Increased from 30s to 120s for large files
-            maxBuffer: 50 * 1024 * 1024 // Increased from 10MB to 50MB
+            maxBuffer: 20 * 1024 * 1024 // 20MB - reduced to prevent OOM on free tier
         }, (error, stdout, stderr) => {
             // Clean up input file
             try {

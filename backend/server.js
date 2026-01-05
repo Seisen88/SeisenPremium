@@ -102,9 +102,10 @@ app.post('/api/paypal/create-order', async (req, res) => {
 
         const amount = pricing[tier];
         
-        // Return URL - works for both local and production
-        const returnUrl = `${req.protocol}://${req.get('host')}/premium.html`;
-        const cancelUrl = `${req.protocol}://${req.get('host')}/premium.html`;
+        // Return URL - uses FRONTEND_URL env var or defaults to request host (for dev)
+        const baseUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
+        const returnUrl = `${baseUrl}/premium.html`;
+        const cancelUrl = `${baseUrl}/premium.html`;
 
         const order = await paypalSDK.createOrder({
             amount,

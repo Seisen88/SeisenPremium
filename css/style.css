@@ -976,7 +976,7 @@ select:focus {
 .footer {
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-color);
-  padding: var(--spacing-xl) 0 var(--spacing-md);
+  padding: var(--spacing-lg) 0 var(--spacing-sm);
   margin-top: var(--spacing-xl);
 }
 
@@ -984,7 +984,7 @@ select:focus {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
 }
 
 .footer-section h3,
@@ -995,12 +995,12 @@ select:focus {
 }
 
 .footer-section h3 {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
 .footer-section p {
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .footer-links {
@@ -1015,7 +1015,7 @@ select:focus {
   color: var(--text-secondary);
   text-decoration: none;
   transition: color var(--transition-fast);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .footer-links a:hover {
@@ -1024,10 +1024,10 @@ select:focus {
 
 .footer-bottom {
   border-top: 1px solid var(--border-color);
-  padding-top: var(--spacing-md);
+  padding-top: var(--spacing-sm);
   text-align: center;
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
 .footer-bottom a {

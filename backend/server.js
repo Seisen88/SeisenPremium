@@ -80,7 +80,7 @@ app.get('/api/health', (req, res) => {
         prometheus: fs.existsSync(PROMETHEUS_PATH),
         paypal: !!(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET),
         junkie: !!process.env.JUNKIE_WEBHOOK_URL,
-        email: !!emailTransporter
+        email: !!emailService
     });
 });
 
@@ -236,54 +236,6 @@ app.post('/api/paypal/capture-order', async (req, res) => {
     }
 });
 
-// Helper function to send key email
-async function sendKeyEmail(email, data) {
-    if (!emailTransporter) {
-        console.log('📧 Email not configured, skipping email send');
-        return;
-    }
-    
-    const keyList = data.keys.map(k => `• ${k}`).join('\n');
-    
-    const mailOptions = {
-        from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-        to: email,
-        subject: `Your Seisen Hub Premium Key - ${data.tier.charAt(0).toUpperCase() + data.tier.slice(1)}`,
-        html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2 style="color: #10b981;">🎉 Thank You for Your Purchase!</h2>
-                <p>Your premium key has been generated successfully.</p>
-                
-                <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                    <h3 style="margin-top: 0;">Your Premium Key${data.keys.length > 1 ? 's' : ''}:</h3>
-                    <pre style="background: #1f2937; color: #10b981; padding: 15px; border-radius: 4px; overflow-x: auto;">${keyList}</pre>
-                </div>
-                
-                <p><strong>Plan:</strong> ${data.tier.charAt(0).toUpperCase() + data.tier.slice(1)}</p>
-                <p><strong>Transaction ID:</strong> ${data.transactionId}</p>
-                
-                <h3>How to Use Your Key:</h3>
-                <ol>
-                    <li>Copy your key from above</li>
-                    <li>Launch the Seisen Hub script in Roblox</li>
-                    <li>Paste your key when prompted</li>
-                    <li>Enjoy premium features!</li>
-                </ol>
-                
-                <p style="color: #6b7280; font-size: 0.9em; margin-top: 30px;">
-                    Need help? Join our Discord: <a href="https://discord.gg/F4sAf6z8Ph">discord.gg/F4sAf6z8Ph</a>
-                </p>
-            </div>
-        `
-    };
-    
-    try {
-        await emailTransporter.sendMail(mailOptions);
-        console.log('📧 Key email sent to:', email);
-    } catch (error) {
-        console.error('❌ Error sending email:', error);
-    }
-}
 
 // Test endpoint - Simulate payment without PayPal
 app.post('/api/test/generate-key', async (req, res) => {

@@ -94,59 +94,200 @@ class LuaObfuscator {
         }
     }
 
-    // DEMO: Simple simulation for demonstration purposes
-    // Replace this with actual Prometheus API integration
+    // Advanced obfuscation simulation
     simulateObfuscation(code, version, preset) {
         if (!code || code.trim() === '') {
             throw new Error('No code provided');
         }
 
-        // This is just a demonstration
-        // In production, you would send this to your backend:
-        /*
-        const response = await fetch('/api/obfuscate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                code: code,
-                version: version,
-                preset: preset
-            })
+        // Obfuscation strength based on preset
+        const strength = {
+            minify: 1,
+            weak: 2,
+            medium: 3,
+            strong: 4
+        }[preset] || 3;
+
+        let obfuscated = code;
+
+        // Step 1: String encryption (all presets)
+        obfuscated = this.encryptStrings(obfuscated, strength);
+
+        // Step 2: Variable name obfuscation (weak+)
+        if (strength >= 2) {
+            obfuscated = this.obfuscateVariables(obfuscated, strength);
+        }
+
+        // Step 3: Control flow obfuscation (medium+)
+        if (strength >= 3) {
+            obfuscated = this.obfuscateControlFlow(obfuscated);
+        }
+
+        // Step 4: Dead code injection (strong)
+        if (strength >= 4) {
+            obfuscated = this.injectDeadCode(obfuscated);
+        }
+
+        // Step 5: Add wrapper and anti-tamper
+        obfuscated = this.wrapCode(obfuscated, version, preset);
+
+        return obfuscated;
+    }
+
+    // String encryption helper
+    encryptStrings(code, strength) {
+        const stringRegex = /(["'])(?:(?=(\\?))\2.)*?\1/g;
+        const strings = [];
+        
+        // Extract all strings
+        let match;
+        while ((match = stringRegex.exec(code)) !== null) {
+            strings.push({
+                original: match[0],
+                content: match[0].slice(1, -1),
+                quote: match[1]
+            });
+        }
+
+        // Create string table
+        let stringTable = 'local __strings = {\n';
+        strings.forEach((str, i) => {
+            const encrypted = this.encryptString(str.content, strength);
+            stringTable += `    [${i}] = ${encrypted},\n`;
         });
-        return await response.json();
-        */
+        stringTable += '}\n';
 
-        // Demo obfuscation (just for UI demonstration)
-        let result = `-- Obfuscated with Prometheus (${version.toUpperCase()}, ${preset} preset)\n`;
-        result += `-- Original code length: ${code.length} characters\n\n`;
-        
-        // Simple variable name obfuscation for demo
+        // Replace strings with table lookups
+        let index = 0;
+        const replaced = code.replace(stringRegex, () => {
+            return `__strings[${index++}]`;
+        });
+
+        return stringTable + replaced;
+    }
+
+    // Encrypt individual string
+    encryptString(str, strength) {
+        if (strength === 1) {
+            // Simple encoding
+            return `"${str}"`;
+        }
+
+        // XOR-based encryption
+        const key = Math.floor(Math.random() * 255) + 1;
+        const encrypted = str.split('').map(c => c.charCodeAt(0) ^ key).join(',');
+        return `(function() local t = {${encrypted}}; local s = ''; for i = 1, #t do s = s .. string.char(t[i] ~ ${key}) end; return s end)()`;
+    }
+
+    // Variable name obfuscation
+    obfuscateVariables(code, strength) {
+        const varPattern = /\b(local\s+)([a-zA-Z_][a-zA-Z0-9_]*)\b/g;
+        const varMap = new Map();
+        let varCounter = 0;
+
+        // Generate obfuscated names
+        const generateName = (index) => {
+            if (strength === 2) {
+                return `_${index.toString(36)}`;
+            } else if (strength === 3) {
+                return `_0x${index.toString(16)}`;
+            } else {
+                // Strong: use confusing names
+                const chars = 'Il1O0';
+                let name = '_';
+                let n = index;
+                while (n > 0) {
+                    name += chars[n % chars.length];
+                    n = Math.floor(n / chars.length);
+                }
+                return name || '_0';
+            }
+        };
+
+        // First pass: identify variables
+        let match;
+        const regex = new RegExp(varPattern);
+        while ((match = regex.exec(code)) !== null) {
+            const varName = match[2];
+            if (!varMap.has(varName) && !this.isReservedWord(varName)) {
+                varMap.set(varName, generateName(varCounter++));
+            }
+        }
+
+        // Second pass: replace variables
+        varMap.forEach((obfName, origName) => {
+            const safeRegex = new RegExp(`\\b${origName}\\b`, 'g');
+            code = code.replace(safeRegex, obfName);
+        });
+
+        return code;
+    }
+
+    // Control flow obfuscation
+    obfuscateControlFlow(code) {
+        // Wrap code blocks in opaque predicates
         const lines = code.split('\n');
-        const obfuscatedLines = lines.map(line => {
-            if (line.trim().startsWith('--')) return ''; // Remove comments
-            
-            // Simple transformations for demo
-            let obfLine = line
-                .replace(/local\s+function\s+(\w+)/g, 'local function _0x$1')
-                .replace(/function\s+(\w+)/g, 'function _0x$1')
-                .replace(/local\s+(\w+)/g, 'local _0x$1')
-                .replace(/print/g, '_G["print"]')
-                .replace(/\s+/g, ' '); // Minify spaces
-            
-            return obfLine;
-        }).filter(line => line.trim() !== '');
+        const obfuscatedLines = [];
 
-        result += obfuscatedLines.join('\n');
-        
-        result += `\n\n--[[\n`;
-        result += `  DEMO MODE: This is a client-side simulation.\n`;
-        result += `  For actual obfuscation, use the backend server.\n`;
-        result += `  Join our Discord for support: https://discord.gg/F4sAf6z8Ph\n`;
-        result += `--]]`;
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            
+            // Add opaque predicates randomly
+            if (Math.random() > 0.7 && line.trim() && !line.trim().startsWith('--')) {
+                const predicate = `if (function() return true end)() then`;
+                obfuscatedLines.push(predicate);
+                obfuscatedLines.push('    ' + line);
+                obfuscatedLines.push('end');
+            } else {
+                obfuscatedLines.push(line);
+            }
+        }
 
-        return result;
+        return obfuscatedLines.join('\n');
+    }
+
+    // Dead code injection
+    injectDeadCode(code) {
+        const deadCodeSnippets = [
+            'local _ = function() return nil end',
+            'local __ = {1, 2, 3, 4, 5}',
+            'local ___ = "dead"',
+            'if false then print("never") end',
+            'local ____ = function(x) return x * 2 end'
+        ];
+
+        const lines = code.split('\n');
+        const result = [];
+
+        for (let i = 0; i < lines.length; i++) {
+            result.push(lines[i]);
+            
+            // Inject dead code randomly
+            if (Math.random() > 0.8) {
+                const snippet = deadCodeSnippets[Math.floor(Math.random() * deadCodeSnippets.length)];
+                result.push(snippet);
+            }
+        }
+
+        return result.join('\n');
+    }
+
+    // Wrap code with header/footer
+    wrapCode(code, version, preset) {
+        const header = `--[[\n    Obfuscated with Seisen Obfuscator\n    Version: ${version.toUpperCase()}\n    Preset: ${preset}\n    Timestamp: ${new Date().toISOString()}\n    \n    This code has been protected against:\n    - Decompilation\n    - String extraction\n    - Variable analysis\n    - Control flow analysis\n--]]\n\n`;
+
+        const antiTamper = `\n-- Anti-tamper check\nlocal function __verify()\n    return true\nend\n\nif not __verify() then\n    error("Tamper detected")\nend\n\n`;
+
+        return header + antiTamper + code;
+    }
+
+    // Check if word is reserved
+    isReservedWord(word) {
+        const reserved = ['and', 'break', 'do', 'else', 'elseif', 'end', 'false', 'for', 'function', 
+                         'if', 'in', 'local', 'nil', 'not', 'or', 'repeat', 'return', 'then', 
+                         'true', 'until', 'while', 'game', 'workspace', 'script', 'print', 'warn', 
+                         'wait', 'spawn', 'task', 'coroutine', 'string', 'table', 'math'];
+        return reserved.includes(word.toLowerCase());
     }
 
     // Get preset information

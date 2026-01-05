@@ -44,256 +44,81 @@ function loadHeader() {
                 <i class="fab fa-youtube"></i>
             </a>
         </div>
-        <div class="sidebar-footer-actions">
-            <div class="theme-selector-container">
-                <button class="sidebar-link theme-toggle-btn" title="Change Theme" onclick="toggleThemeMenu()">
-                    <i class="fas fa-paint-brush"></i>
-                </button>
-                <div class="theme-menu" id="theme-menu">
-                    <div class="theme-menu-header">Select Theme</div>
-                    <div class="theme-options">
-                        <button class="theme-option" onclick="setTheme('default')">
-                            <i class="fas fa-moon"></i> Default
-                        </button>
-                        <button class="theme-option" onclick="setTheme('light')">
-                            <i class="fas fa-sun"></i> Light
-                        </button>
-                        <button class="theme-option" onclick="setTheme('forest')">
-                            <i class="fas fa-tree"></i> Forest
-                        </button>
-                        <button class="theme-option" onclick="setTheme('purple')">
-                            <i class="fas fa-ghost"></i> Purple
-                        </button>
-                        <button class="theme-option" onclick="setTheme('midnight')">
-                            <i class="fas fa-star"></i> Midnight
-                        </button>
-                        <button class="theme-option" onclick="setTheme('sunset')">
-                            <i class="fas fa-sun"></i> Sunset
-                        </button>
-                        <button class="theme-option" onclick="setTheme('ocean')">
-                            <i class="fas fa-water"></i> Ocean
-                        </button>
-                        <button class="theme-option" onclick="setTheme('cherry')">
-                            <i class="fas fa-spa"></i> Cherry
-                        </button>
-                        <button class="theme-option" onclick="setTheme('matrix')">
-                            <i class="fas fa-terminal"></i> Matrix
-                        </button>
-                        <button class="theme-option" onclick="setTheme('coffee')">
-                            <i class="fas fa-coffee"></i> Coffee
-                        </button>
-                        <button class="theme-option" onclick="setTheme('aqua')">
-                            <i class="fas fa-water"></i> Aqua
-                        </button>
-                        <button class="theme-option" onclick="setTheme('lavender')">
-                            <i class="fas fa-leaf"></i> Lavender
-                        </button>
-                        <button class="theme-option" onclick="setTheme('nord')">
-                            <i class="fas fa-snowflake"></i> Nord
-                        </button>
-                    </div>
-                </div>
-            </div>
+        <div class="theme-selector">
+            <button class="theme-toggle" id="themeToggle" title="Change Theme">
+                <i class="fas fa-palette"></i>
+            </button>
         </div>
     </div>
 </nav>
+
+<!-- Theme Selector Modal -->
+<div class="theme-modal" id="themeModal">
+    <div class="theme-modal-content">
+        <div class="theme-modal-header">
+            <h3>Select Theme</h3>
+            <button class="theme-modal-close" id="themeModalClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="theme-options">
+            <button class="theme-option" data-theme="default">
+                <i class="fas fa-circle"></i>
+                <span>Default</span>
+            </button>
+            <button class="theme-option" data-theme="light">
+                <i class="fas fa-sun"></i>
+                <span>Light</span>
+            </button>
+            <button class="theme-option" data-theme="forest">
+                <i class="fas fa-tree"></i>
+                <span>Forest</span>
+            </button>
+            <button class="theme-option" data-theme="purple">
+                <i class="fas fa-gem"></i>
+                <span>Purple</span>
+            </button>
+            <button class="theme-option" data-theme="midnight">
+                <i class="fas fa-moon"></i>
+                <span>Midnight</span>
+            </button>
+            <button class="theme-option" data-theme="sunset">
+                <i class="fas fa-cloud-sun"></i>
+                <span>Sunset</span>
+            </button>
+            <button class="theme-option" data-theme="ocean">
+                <i class="fas fa-water"></i>
+                <span>Ocean</span>
+            </button>
+            <button class="theme-option" data-theme="cherry">
+                <i class="fas fa-heart"></i>
+                <span>Cherry</span>
+            </button>
+            <button class="theme-option" data-theme="matrix">
+                <i class="fas fa-code"></i>
+                <span>Matrix</span>
+            </button>
+            <button class="theme-option" data-theme="coffee">
+                <i class="fas fa-mug-hot"></i>
+                <span>Coffee</span>
+            </button>
+            <button class="theme-option" data-theme="lavender">
+                <i class="fas fa-spa"></i>
+                <span>Lavender</span>
+            </button>
+            <button class="theme-option" data-theme="nord">
+                <i class="fas fa-snowflake"></i>
+                <span>Nord</span>
+            </button>
+        </div>
+    </div>
+</div>
     `;
     
     const headerContainer = document.getElementById('header-container');
     if (headerContainer) {
         headerContainer.innerHTML = headerHTML;
     }
-
-    // Initialize Theme
-    initializeTheme();
-}
-
-/* ========================================
-   THEME MANAGER
-   ======================================== */
-const THEMES = {
-    default: {
-        '--bg-primary': '#0f1419',
-        '--bg-secondary': '#1a1f2e',
-        '--bg-tertiary': '#252b3b',
-        '--bg-card': '#1e2433',
-        '--bg-card-hover': '#252b3d',
-        '--text-primary': '#ffffff',
-        '--text-secondary': '#9ca3af',
-        '--border-color': '#2d3748',
-        '--border-color-light': '#374151'
-    },
-    light: {
-        '--bg-primary': '#f3f4f6',
-        '--bg-secondary': '#ffffff',
-        '--bg-tertiary': '#e5e7eb',
-        '--bg-card': '#ffffff',
-        '--bg-card-hover': '#f9fafb',
-        '--text-primary': '#111827',
-        '--text-secondary': '#4b5563',
-        '--border-color': '#e5e7eb',
-        '--border-color-light': '#d1d5db'
-    },
-    forest: {
-        '--bg-primary': '#051a14',
-        '--bg-secondary': '#0a231b',
-        '--bg-tertiary': '#0f2e24',
-        '--bg-card': '#0d2820',
-        '--bg-card-hover': '#13352b',
-        '--text-primary': '#e2e8f0',
-        '--text-secondary': '#94a3b8',
-        '--border-color': '#163e30',
-        '--border-color-light': '#1e5240'
-    },
-    purple: {
-        '--bg-primary': '#130f1a',
-        '--bg-secondary': '#1e1628',
-        '--bg-tertiary': '#2a1f38',
-        '--bg-card': '#231a2f',
-        '--bg-card-hover': '#2d213d',
-        '--text-primary': '#e9d5ff',
-        '--text-secondary': '#a855f7',
-        '--border-color': '#3b2a4f',
-        '--border-color-light': '#4c3666'
-    },
-    midnight: {
-        '--bg-primary': '#02040a',
-        '--bg-secondary': '#0d1117',
-        '--bg-tertiary': '#161b22',
-        '--bg-card': '#161b22',
-        '--bg-card-hover': '#21262d',
-        '--text-primary': '#c9d1d9',
-        '--text-secondary': '#8b949e',
-        '--border-color': '#30363d',
-        '--border-color-light': '#484f58'
-    },
-    sunset: {
-        '--bg-primary': '#1a0b0b',
-        '--bg-secondary': '#2d1212',
-        '--bg-tertiary': '#401a1a',
-        '--bg-card': '#331515',
-        '--bg-card-hover': '#4a1f1f',
-        '--text-primary': '#ffd6cf',
-        '--text-secondary': '#ff9e91',
-        '--border-color': '#592424',
-        '--border-color-light': '#732e2e'
-    },
-    ocean: {
-        '--bg-primary': '#05111a',
-        '--bg-secondary': '#0a2336',
-        '--bg-tertiary': '#0f3552',
-        '--bg-card': '#0c2b42',
-        '--bg-card-hover': '#113c5c',
-        '--text-primary': '#cce7ff',
-        '--text-secondary': '#66b3ff',
-        '--border-color': '#164d75',
-        '--border-color-light': '#1d6499'
-    },
-    cherry: {
-        '--bg-primary': '#1a050d',
-        '--bg-secondary': '#2b0915',
-        '--bg-tertiary': '#3d0d1e',
-        '--bg-card': '#330b19',
-        '--bg-card-hover': '#4a1024',
-        '--text-primary': '#ffcce0',
-        '--text-secondary': '#ff66a3',
-        '--border-color': '#59142e',
-        '--border-color-light': '#731a3b'
-    },
-    matrix: {
-        '--bg-primary': '#000000',
-        '--bg-secondary': '#050a05',
-        '--bg-tertiary': '#0a140a',
-        '--bg-card': '#0a140a',
-        '--bg-card-hover': '#0f1f0f',
-        '--text-primary': '#00ff00',
-        '--text-secondary': '#008f00',
-        '--border-color': '#003300',
-        '--border-color-light': '#004d00'
-    },
-    coffee: {
-        '--bg-primary': '#201616',
-        '--bg-secondary': '#2d1f1f',
-        '--bg-tertiary': '#3c2a2a',
-        '--bg-card': '#352525',
-        '--bg-card-hover': '#453030',
-        '--text-primary': '#e6d2d2',
-        '--text-secondary': '#b09595',
-        '--border-color': '#4a3535',
-        '--border-color-light': '#5e4343'
-    },
-    aqua: {
-        '--bg-primary': '#051a1a',
-        '--bg-secondary': '#0a2626',
-        '--bg-tertiary': '#113333',
-        '--bg-card': '#0d2b2b',
-        '--bg-card-hover': '#143838',
-        '--text-primary': '#ccffff',
-        '--text-secondary': '#4dd2d2',
-        '--border-color': '#1a4d4d',
-        '--border-color-light': '#266666'
-    },
-    lavender: {
-        '--bg-primary': '#16141a',
-        '--bg-secondary': '#1f1c24',
-        '--bg-tertiary': '#2a2630',
-        '--bg-card': '#242029',
-        '--bg-card-hover': '#2f2a36',
-        '--text-primary': '#e6e6fa',
-        '--text-secondary': '#b3b3e6',
-        '--border-color': '#3a3545',
-        '--border-color-light': '#4a4357'
-    },
-    nord: {
-        '--bg-primary': '#2e3440',
-        '--bg-secondary': '#3b4252',
-        '--bg-tertiary': '#434c5e',
-        '--bg-card': '#3b4252',
-        '--bg-card-hover': '#434c5e',
-        '--text-primary': '#eceff4',
-        '--text-secondary': '#d8dee9',
-        '--border-color': '#4c566a',
-        '--border-color-light': '#5e81ac'
-    }
-};
-
-function toggleThemeMenu() {
-    const menu = document.getElementById('theme-menu');
-    menu.classList.toggle('active');
-    
-    // Close menu when clicking outside
-    document.addEventListener('click', function closeMenu(e) {
-        if (!e.target.closest('.theme-selector-container')) {
-            menu.classList.remove('active');
-            document.removeEventListener('click', closeMenu);
-        }
-    });
-
-    // Prevent button click from closing immediately
-    event.stopPropagation();
-}
-
-function setTheme(themeName) {
-    const theme = THEMES[themeName];
-    if (!theme) return;
-
-    // Apply CSS variables
-    const root = document.documentElement;
-    for (const [property, value] of Object.entries(theme)) {
-        root.style.setProperty(property, value);
-    }
-
-    // Save preference
-    localStorage.setItem('seisen-theme', themeName);
-
-    // Update active state in menu (optional visual feedback)
-    // Close menu
-    document.getElementById('theme-menu').classList.remove('active');
-}
-
-function initializeTheme() {
-    const savedTheme = localStorage.getItem('seisen-theme') || 'default';
-    setTheme(savedTheme);
 }
 
 function loadFooter() {
@@ -359,3 +184,182 @@ function updateActiveNavLink() {
     }
   });
 }
+
+// Theme Management
+function initTheme() {
+  // Load saved theme or use default
+  const savedTheme = localStorage.getItem('selectedTheme') || 'default';
+  applyTheme(savedTheme);
+  
+  // Set up event listeners after DOM is loaded
+  setTimeout(() => {
+    const themeToggle = document.getElementById('themeToggle');
+    const themeModal = document.getElementById('themeModal');
+    const themeModalClose = document.getElementById('themeModalClose');
+    const themeOptions = document.querySelectorAll('.theme-option');
+    
+    if (themeToggle && themeModal) {
+      // Open theme modal
+      themeToggle.addEventListener('click', () => {
+        themeModal.classList.add('active');
+      });
+      
+      // Close theme modal
+      if (themeModalClose) {
+        themeModalClose.addEventListener('click', () => {
+          themeModal.classList.remove('active');
+        });
+      }
+      
+      // Close on outside click
+      themeModal.addEventListener('click', (e) => {
+        if (e.target === themeModal) {
+          themeModal.classList.remove('active');
+        }
+      });
+      
+      // Theme option selection
+      themeOptions.forEach(option => {
+        option.addEventListener('click', () => {
+          const theme = option.getAttribute('data-theme');
+          applyTheme(theme);
+          localStorage.setItem('selectedTheme', theme);
+          themeModal.classList.remove('active');
+          
+          // Update active state
+          themeOptions.forEach(opt => opt.classList.remove('active'));
+          option.classList.add('active');
+        });
+        
+        // Set active theme
+        if (option.getAttribute('data-theme') === savedTheme) {
+          option.classList.add('active');
+        }
+      });
+    }
+  }, 100);
+}
+
+function applyTheme(theme) {
+  const root = document.documentElement;
+  
+  // Theme color definitions
+  const themes = {
+    default: {
+      primary: '#10b981',
+      bg: '#0f1419',
+      bgSecondary: '#1a1f2e',
+      bgTertiary: '#242b3d',
+      text: '#e6edf3',
+      textSecondary: '#8b92a0'
+    },
+    light: {
+      primary: '#10b981',
+      bg: '#ffffff',
+      bgSecondary: '#f8f9fa',
+      bgTertiary: '#e9ecef',
+      text: '#1a1f2e',
+      textSecondary: '#6c757d'
+    },
+    forest: {
+      primary: '#34d399',
+      bg: '#0a1f0f',
+      bgSecondary: '#1a2f1e',
+      bgTertiary: '#2a3f2e',
+      text: '#d1fae5',
+      textSecondary: '#86efac'
+    },
+    purple: {
+      primary: '#a78bfa',
+      bg: '#1e1b4b',
+      bgSecondary: '#312e81',
+      bgTertiary: '#4c1d95',
+      text: '#e9d5ff',
+      textSecondary: '#c4b5fd'
+    },
+    midnight: {
+      primary: '#60a5fa',
+      bg: '#0c0a1f',
+      bgSecondary: '#1e1b3e',
+      bgTertiary: '#2e2b5e',
+      text: '#dbeafe',
+      textSecondary: '#93c5fd'
+    },
+    sunset: {
+      primary: '#fb923c',
+      bg: '#1f1108',
+      bgSecondary: '#2f2118',
+      bgTertiary: '#3f3128',
+      text: '#fed7aa',
+      textSecondary: '#fdba74'
+    },
+    ocean: {
+      primary: '#22d3ee',
+      bg: '#083344',
+      bgSecondary: '#164e63',
+      bgTertiary: '#155e75',
+      text: '#cffafe',
+      textSecondary: '#67e8f9'
+    },
+    cherry: {
+      primary: '#f43f5e',
+      bg: '#1f0510',
+      bgSecondary: '#2f1520',
+      bgTertiary: '#3f2530',
+      text: '#fecdd3',
+      textSecondary: '#fda4af'
+    },
+    matrix: {
+      primary: '#00ff41',
+      bg: '#0d0208',
+      bgSecondary: '#1a1a1a',
+      bgTertiary: '#2a2a2a',
+      text: '#00ff41',
+      textSecondary: '#00cc33'
+    },
+    coffee: {
+      primary: '#d97706',
+      bg: '#1c1410',
+      bgSecondary: '#2c2420',
+      bgTertiary: '#3c3430',
+      text: '#fde68a',
+      textSecondary: '#fbbf24'
+    },
+    lavender: {
+      primary: '#c084fc',
+      bg: '#1f1729',
+      bgSecondary: '#2f2739',
+      bgTertiary: '#3f3749',
+      text: '#f3e8ff',
+      textSecondary: '#e9d5ff'
+    },
+    nord: {
+      primary: '#88c0d0',
+      bg: '#2e3440',
+      bgSecondary: '#3b4252',
+      bgTertiary: '#434c5e',
+      text: '#eceff4',
+      textSecondary: '#d8dee9'
+    }
+  };
+  
+  const selectedTheme = themes[theme] || themes.default;
+  
+  // Apply CSS variables
+  root.style.setProperty('--color-primary', selectedTheme.primary);
+  root.style.setProperty('--bg-primary', selectedTheme.bg);
+  root.style.setProperty('--bg-secondary', selectedTheme.bgSecondary);
+  root.style.setProperty('--bg-tertiary', selectedTheme.bgTertiary);
+  root.style.setProperty('--bg-card', selectedTheme.bgSecondary);
+  root.style.setProperty('--bg-card-hover', selectedTheme.bgTertiary);
+  root.style.setProperty('--text-primary', selectedTheme.text);
+  root.style.setProperty('--text-secondary', selectedTheme.textSecondary);
+  
+  // Update document attribute for theme-specific styles
+  document.documentElement.setAttribute('data-theme', theme);
+}
+
+// Initialize theme on load
+document.addEventListener('DOMContentLoaded', function() {
+  initTheme();
+});

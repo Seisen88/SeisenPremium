@@ -68,24 +68,14 @@ function loadHeader() {
             <span>Light</span>
             <i class="fas fa-check theme-check"></i>
         </button>
+        <button class="theme-panel-option" data-theme="dark">
+            <i class="fas fa-moon"></i>
+            <span>Dark</span>
+            <i class="fas fa-check theme-check"></i>
+        </button>
         <button class="theme-panel-option" data-theme="forest">
             <i class="fas fa-tree"></i>
             <span>Forest</span>
-            <i class="fas fa-check theme-check"></i>
-        </button>
-        <button class="theme-panel-option" data-theme="purple">
-            <i class="fas fa-gem"></i>
-            <span>Purple</span>
-            <i class="fas fa-check theme-check"></i>
-        </button>
-        <button class="theme-panel-option" data-theme="midnight">
-            <i class="fas fa-moon"></i>
-            <span>Midnight</span>
-            <i class="fas fa-check theme-check"></i>
-        </button>
-        <button class="theme-panel-option" data-theme="sunset">
-            <i class="fas fa-cloud-sun"></i>
-            <span>Sunset</span>
             <i class="fas fa-check theme-check"></i>
         </button>
         <button class="theme-panel-option" data-theme="ocean">
@@ -93,9 +83,24 @@ function loadHeader() {
             <span>Ocean</span>
             <i class="fas fa-check theme-check"></i>
         </button>
-        <button class="theme-panel-option" data-theme="cherry">
+        <button class="theme-panel-option" data-theme="sunset">
+            <i class="fas fa-cloud-sun"></i>
+            <span>Sunset</span>
+            <i class="fas fa-check theme-check"></i>
+        </button>
+        <button class="theme-panel-option" data-theme="purple">
+            <i class="fas fa-gem"></i>
+            <span>Purple</span>
+            <i class="fas fa-check theme-check"></i>
+        </button>
+        <button class="theme-panel-option" data-theme="rose">
             <i class="fas fa-heart"></i>
-            <span>Cherry</span>
+            <span>Rose</span>
+            <i class="fas fa-check theme-check"></i>
+        </button>
+        <button class="theme-panel-option" data-theme="midnight">
+            <i class="fas fa-star"></i>
+            <span>Midnight</span>
             <i class="fas fa-check theme-check"></i>
         </button>
         <button class="theme-panel-option" data-theme="matrix">
@@ -103,19 +108,29 @@ function loadHeader() {
             <span>Matrix</span>
             <i class="fas fa-check theme-check"></i>
         </button>
-        <button class="theme-panel-option" data-theme="coffee">
-            <i class="fas fa-mug-hot"></i>
-            <span>Coffee</span>
-            <i class="fas fa-check theme-check"></i>
-        </button>
-        <button class="theme-panel-option" data-theme="lavender">
-            <i class="fas fa-spa"></i>
-            <span>Lavender</span>
-            <i class="fas fa-check theme-check"></i>
-        </button>
         <button class="theme-panel-option" data-theme="nord">
             <i class="fas fa-snowflake"></i>
             <span>Nord</span>
+            <i class="fas fa-check theme-check"></i>
+        </button>
+        <button class="theme-panel-option" data-theme="dracula">
+            <i class="fas fa-bat"></i>
+            <span>Dracula</span>
+            <i class="fas fa-check theme-check"></i>
+        </button>
+        <button class="theme-panel-option" data-theme="monokai">
+            <i class="fas fa-palette"></i>
+            <span>Monokai</span>
+            <i class="fas fa-check theme-check"></i>
+        </button>
+        <button class="theme-panel-option" data-theme="github-light">
+            <i class="fab fa-github"></i>
+            <span>GitHub Light</span>
+            <i class="fas fa-check theme-check"></i>
+        </button>
+        <button class="theme-panel-option" data-theme="github-dark">
+            <i class="fab fa-github"></i>
+            <span>GitHub Dark</span>
             <i class="fas fa-check theme-check"></i>
         </button>
     </div>
@@ -260,6 +275,14 @@ function applyTheme(theme) {
       text: '#1a1f2e',
       textSecondary: '#6c757d'
     },
+    dark: {
+      primary: '#10b981',
+      bg: '#0a0a0a',
+      bgSecondary: '#1a1a1a',
+      bgTertiary: '#2a2a2a',
+      text: '#e6e6e6',
+      textSecondary: '#999999'
+    },
     forest: {
       primary: '#34d399',
       bg: '#0a1f0f',
@@ -267,30 +290,6 @@ function applyTheme(theme) {
       bgTertiary: '#2a3f2e',
       text: '#d1fae5',
       textSecondary: '#86efac'
-    },
-    purple: {
-      primary: '#a78bfa',
-      bg: '#1e1b4b',
-      bgSecondary: '#312e81',
-      bgTertiary: '#4c1d95',
-      text: '#e9d5ff',
-      textSecondary: '#c4b5fd'
-    },
-    midnight: {
-      primary: '#60a5fa',
-      bg: '#0c0a1f',
-      bgSecondary: '#1e1b3e',
-      bgTertiary: '#2e2b5e',
-      text: '#dbeafe',
-      textSecondary: '#93c5fd'
-    },
-    sunset: {
-      primary: '#fb923c',
-      bg: '#1f1108',
-      bgSecondary: '#2f2118',
-      bgTertiary: '#3f3128',
-      text: '#fed7aa',
-      textSecondary: '#fdba74'
     },
     ocean: {
       primary: '#22d3ee',
@@ -300,13 +299,37 @@ function applyTheme(theme) {
       text: '#cffafe',
       textSecondary: '#67e8f9'
     },
-    cherry: {
+    sunset: {
+      primary: '#fb923c',
+      bg: '#1f1108',
+      bgSecondary: '#2f2118',
+      bgTertiary: '#3f3128',
+      text: '#fed7aa',
+      textSecondary: '#fdba74'
+    },
+    purple: {
+      primary: '#a78bfa',
+      bg: '#1e1b4b',
+      bgSecondary: '#312e81',
+      bgTertiary: '#4c1d95',
+      text: '#e9d5ff',
+      textSecondary: '#c4b5fd'
+    },
+    rose: {
       primary: '#f43f5e',
       bg: '#1f0510',
       bgSecondary: '#2f1520',
       bgTertiary: '#3f2530',
       text: '#fecdd3',
       textSecondary: '#fda4af'
+    },
+    midnight: {
+      primary: '#60a5fa',
+      bg: '#0c0a1f',
+      bgSecondary: '#1e1b3e',
+      bgTertiary: '#2e2b5e',
+      text: '#dbeafe',
+      textSecondary: '#93c5fd'
     },
     matrix: {
       primary: '#00ff41',
@@ -316,22 +339,6 @@ function applyTheme(theme) {
       text: '#00ff41',
       textSecondary: '#00cc33'
     },
-    coffee: {
-      primary: '#d97706',
-      bg: '#1c1410',
-      bgSecondary: '#2c2420',
-      bgTertiary: '#3c3430',
-      text: '#fde68a',
-      textSecondary: '#fbbf24'
-    },
-    lavender: {
-      primary: '#c084fc',
-      bg: '#1f1729',
-      bgSecondary: '#2f2739',
-      bgTertiary: '#3f3749',
-      text: '#f3e8ff',
-      textSecondary: '#e9d5ff'
-    },
     nord: {
       primary: '#88c0d0',
       bg: '#2e3440',
@@ -339,6 +346,38 @@ function applyTheme(theme) {
       bgTertiary: '#434c5e',
       text: '#eceff4',
       textSecondary: '#d8dee9'
+    },
+    dracula: {
+      primary: '#bd93f9',
+      bg: '#282a36',
+      bgSecondary: '#44475a',
+      bgTertiary: '#6272a4',
+      text: '#f8f8f2',
+      textSecondary: '#8be9fd'
+    },
+    monokai: {
+      primary: '#a6e22e',
+      bg: '#272822',
+      bgSecondary: '#3e3d32',
+      bgTertiary: '#49483e',
+      text: '#f8f8f2',
+      textSecondary: '#f92672'
+    },
+    'github-light': {
+      primary: '#0969da',
+      bg: '#ffffff',
+      bgSecondary: '#f6f8fa',
+      bgTertiary: '#eaeef2',
+      text: '#24292f',
+      textSecondary: '#57606a'
+    },
+    'github-dark': {
+      primary: '#58a6ff',
+      bg: '#0d1117',
+      bgSecondary: '#161b22',
+      bgTertiary: '#21262d',
+      text: '#c9d1d9',
+      textSecondary: '#8b949e'
     }
   };
   

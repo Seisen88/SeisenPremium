@@ -3,10 +3,25 @@ document.addEventListener('DOMContentLoaded', function() {
     loadHeader();
     loadFooter();
     updateActiveNavLink();
+    initLoadingScreen();
 });
 
 function loadHeader() {
     const headerHTML = `
+<!-- Loading Screen -->
+<div id="loading-screen" class="loading-screen">
+    <div class="loading-content">
+        <div class="loading-logo">
+            <i class="fas fa-bolt"></i>
+        </div>
+        <h2 class="loading-title">Seisen</h2>
+        <div class="loading-bar-container">
+            <div class="loading-bar"></div>
+        </div>
+        <p class="loading-text">Loading...</p>
+    </div>
+</div>
+
 <div class="page-background-text">Seisen</div>
 
 <!-- Sidebar Navigation -->

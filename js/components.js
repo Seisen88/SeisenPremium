@@ -214,17 +214,16 @@ function loadFooter() {
 // Visitor Counter
 function initVisitorCounter() {
     const VISITOR_KEY = 'seisen_visitor_count';
-    const VISITOR_ID_KEY = 'seisen_visitor_id';
+    const SESSION_VISITOR_KEY = 'seisen_session_visitor';
     
-    // Check if this is a unique visitor
-    let hasVisited = localStorage.getItem(VISITOR_ID_KEY);
+    // Check if this session has already been counted
+    let hasVisitedThisSession = sessionStorage.getItem(SESSION_VISITOR_KEY);
     
-    if (!hasVisited) {
-        // New visitor - generate unique ID and increment counter
-        const visitorId = Date.now() + Math.random().toString(36);
-        localStorage.setItem(VISITOR_ID_KEY, visitorId);
+    if (!hasVisitedThisSession) {
+        // New session - mark it and increment counter
+        sessionStorage.setItem(SESSION_VISITOR_KEY, 'true');
         
-        // Get current count and increment
+        // Get current count from localStorage and increment
         let count = parseInt(localStorage.getItem(VISITOR_KEY) || '0', 10);
         count++;
         localStorage.setItem(VISITOR_KEY, count.toString());

@@ -134,24 +134,7 @@ body {
   font-size: 1.2rem;
 }
 
-/* Mobile Sidebar Styles */
-@media (max-width: 768px) {
-  body {
-    padding-left: 0; /* Remove padding on mobile */
-  }
-
-  .sidebar {
-    transform: translateX(-100%); /* Hide by default */
-    width: 250px; /* Wider sidebar on mobile */
-    box-shadow: var(--shadow-lg);
-  }
-  
-  .hamburger-menu {
-    display: flex; /* Show on mobile */
-    align-items: center;
-    justify-content: center;
-  }
-}
+/* Mobile Sidebar Styles moved to end of file */
 
 .sidebar-content {
   display: flex;
@@ -3940,4 +3923,57 @@ select:focus {
   font-size: 0.95rem;
   font-weight: 500;
   line-height: 1.4;
+}
+
+/* ========================================
+   MOBILE SIDEBAR OVERRIDES (FORCE)
+   ======================================== */
+@media (max-width: 768px) {
+  /* Reset Body Padding */
+  body {
+    padding-left: 0 !important;
+  }
+
+  /* Force Sidebar to be a vertical drawer */
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 250px !important;
+    height: 100vh !important;
+    transform: translateX(-100%) !important; /* Hide by default */
+    transition: transform 0.3s ease !important;
+    background: var(--bg-secondary) !important;
+    border-right: 1px solid var(--border-color) !important;
+    border-top: none !important; /* Remove potential bottom-bar top border */
+    z-index: 2000 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-shadow: var(--shadow-lg) !important;
+  }
+
+  /* Show Sidebar when Active */
+  .sidebar.active {
+    transform: translateX(0) !important;
+  }
+
+  /* Sidebar Links - Vertical Column */
+  .sidebar-links {
+    flex-direction: column !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 100% !important;
+    height: auto !important;
+    justify-content: center !important;
+  }
+
+  /* Hamburger Menu - Visible */
+  .hamburger-menu {
+    display: flex !important; /* Force Show */
+    align-items: center;
+    justify-content: center;
+  }
 }

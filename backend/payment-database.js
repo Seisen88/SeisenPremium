@@ -24,7 +24,7 @@ class PaymentDatabase {
             CREATE TABLE IF NOT EXISTS payments (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 transaction_id TEXT UNIQUE NOT NULL,
-                payer_email TEXT NOT NULL,
+                payer_email TEXT,
                 payer_id TEXT,
                 roblox_username TEXT,
                 tier TEXT NOT NULL,

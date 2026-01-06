@@ -18,6 +18,7 @@ const bodyParser = require('body-parser');
 const PayPalSDK = require('./paypal-sdk');
 const JunkieKeySystem = require('./junkie-integration');
 const PaymentDatabase = require('./payment-database');
+const RobloxIntegration = require('./roblox-integration');
 
 // Initialize PayPal SDK
 const paypalSDK = new PayPalSDK({
@@ -41,6 +42,12 @@ const junkieSystem = new JunkieKeySystem({
 const paymentDB = new PaymentDatabase(
     process.env.DB_PATH || path.join(__dirname, 'payments.db')
 );
+
+// Initialize Roblox integration
+const robloxIntegration = new RobloxIntegration({
+    apiKey: process.env.ROBLOX_API_KEY, // Secret key for security
+    productId: 16906166414 // Seisen Hub Perm product ID
+});
 
 
 
@@ -274,6 +281,126 @@ app.post('/api/paypal/capture-order', async (req, res) => {
     } catch (error) {
         console.error('❌ Error capturing payment:', error);
         res.status(500).json({ error: 'Failed to capture payment' });
+    }
+});
+
+
+// Roblox Purchase Verification Endpoint
+// User enters their Roblox username, we check if they own the product
+app.post('/api/roblox/verify-purchase', async (req, res) => {
+    try {
+        const { username, tier: requestedTier } = req.body;
+
+        if (!username || typeof username !== 'string' || username.trim() === '') {
+            return res.status(400).json({ error: 'Roblox username is required' });
+        }
+
+        console.log(`🎮 Verifying Roblox purchase for username: ${username}, Target Tier: ${requestedTier || 'Any'}`);
+
+        // Verify the user owns the product
+        // Pass the specific tier to verification logic if provided
+        const verification = await robloxIntegration.verifyPurchase(username.trim(), requestedTier);
+
+        if (!verification.success) {
+            console.error('❌ Verification failed:', verification.error);
+            return res.status(400).json({
+                success: false,
+                error: verification.error || 'Failed to verify purchase'
+            });
+        }
+
+        console.log('✅ User owns product:', verification);
+
+        // Generate transaction ID
+        const transactionId = robloxIntegration.generateTransactionId(
+            verification.userId,
+            verification.productId
+        );
+
+        // Check for duplicate (user already claimed key)
+        const isDuplicate = await paymentDB.transactionExists(transactionId);
+        
+        if (isDuplicate) {
+            console.log('⚠️  User already claimed key');
+            const existingPayment = await paymentDB.getPayment(transactionId);
+            return res.json({
+                success: true,
+                keys: existingPayment.generated_keys,
+                message: 'You have already claimed your key',
+                alreadyClaimed: true
+            });
+        }
+
+        // Get tier for product
+        const tier = robloxIntegration.getTierForProduct(verification.productId);
+
+        // Determine validity based on tier
+        const validityMap = {
+            weekly: 168,
+            monthly: 720,
+            lifetime: 0
+        };
+        const validity = validityMap[tier] || 0;
+
+        // Save purchase to database
+        await paymentDB.savePayment({
+            transactionId: transactionId,
+            payerEmail: null,
+            payerId: `ROBLOX_${verification.userId}`,
+            robloxUsername: verification.username,
+            tier: tier,
+            amount: 0, // Roblox handles payment
+            currency: 'ROBUX',
+            status: 'completed',
+            keys: null
+        });
+
+        console.log('💾 Roblox purchase saved to database');
+
+        // Generate key via Junkie webhook
+        console.log('🔑 Generating premium key for Roblox user...');
+        const keyResult = await junkieSystem.generateKey({
+            tier: tier,
+            validity: validity,
+            quantity: 1,
+            userInfo: {
+                email: `${verification.username}@roblox.com`, // Fake email for Junkie
+                payerId: `ROBLOX_${verification.userId}`,
+                robloxUsername: verification.username
+            },
+            paymentInfo: {
+                amount: 0,
+                currency: 'ROBUX',
+                transactionId: transactionId
+            }
+        });
+
+        if (keyResult.success && keyResult.keys && keyResult.keys.length > 0) {
+            console.log('✅ Key generated for Roblox user:', keyResult.keys);
+
+            // Update database with keys
+            await paymentDB.updatePaymentKeys(transactionId, keyResult.keys);
+
+            res.json({
+                success: true,
+                keys: keyResult.keys,
+                tier: tier,
+                userId: verification.userId,
+                username: verification.username
+            });
+
+            console.log('🎉 Roblox purchase verified and key generated!');
+        } else {
+            console.error('❌ Key generation failed:', keyResult.error);
+            res.status(500).json({
+                success: false,
+                error: 'Key generation failed. Please contact support.'
+            });
+        }
+
+    } catch (error) {
+        console.error('❌ Error verifying Roblox purchase:', error);
+        res.status(500).json({ error: 'Failed to verify purchase' });
     }
 });
 

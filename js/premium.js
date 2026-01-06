@@ -41,7 +41,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const plan = this.dataset.plan;
             const amount = this.dataset.amount;
             const currency = this.dataset.currency;
-            openDiscordTicket(plan, amount, currency);
+            
+            // Check if this is Robux payment
+            if (currency === 'Robux') {
+                // Show Roblox verification modal with selected tier
+                showRobloxVerificationModal(plan);
+            } else {
+                openDiscordTicket(plan, amount, currency);
+            }
         });
     });
 
@@ -452,6 +459,137 @@ function copyText(text) {
         document.execCommand('copy');
         document.body.removeChild(textArea);
         showNotification('Copied to clipboard!', 'success');
+    }
+}
+
+// Show Roblox Verification Modal
+function showRobloxVerificationModal(tier = 'lifetime') {
+    const modal = document.createElement('div');
+    modal.className = 'payment-modal show';
+    modal.id = 'roblox-modal';
+    
+    const productLinks = {
+        weekly: { url: 'https://www.roblox.com/catalog/16902313522/Seisen-Hub-Weekly', name: 'Weekly' },
+        monthly: { url: 'https://www.roblox.com/catalog/16902308978/Seisen-Hub-Monthly', name: 'Monthly' },
+        lifetime: { url: 'https://www.roblox.com/catalog/16906166414/Seisen-Hub-Perm', name: 'Lifetime' }
+    };
+
+    const selectedProduct = productLinks[tier] || productLinks.lifetime;
+    
+    // Store the selected tier for verification
+    modal.dataset.selectedTier = tier;
+
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-check-circle"></i> Verify Roblox Purchase</h2>
+                <button class="modal-close" onclick="this.closest('.payment-modal').remove()">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Enter your Roblox username to verify you own the Seisen Hub product.</p>
+                
+                <div class="product-preview" style="background: var(--bg-tertiary); padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.9em;">Selected Product:</span>
+                        <div style="font-weight: bold; font-size: 1.1em; color: var(--accent);">${selectedProduct.name}</div>
+                    </div>
+                    <a href="${selectedProduct.url}" target="_blank" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-external-link-alt"></i> Buy on Roblox
+                    </a>
+                </div>
+
+                <div class="form-group" style="margin: 20px 0;">
+                    <label for="roblox-username" style="display: block; margin-bottom: 8px; color: var(--text-muted);">Roblox Username</label>
+                    <input type="text" id="roblox-username" class="form-control" placeholder="e.g. Seisen88" style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary);">
+                </div>
+                
+                <div class="info-box" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                    <p style="font-size: 0.9em; margin: 0; color: #10b981;">
+                        <i class="fas fa-info-circle"></i> Make sure your inventory is public!
+                    </p>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" style="flex: 1;" onclick="verifyRobloxPurchase()">
+                        <i class="fas fa-check"></i> Verify & Get Key
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// Verify Roblox Purchase
+async function verifyRobloxPurchase() {
+    const usernameInput = document.getElementById('roblox-username');
+    const username = usernameInput.value.trim();
+    // Get tier from modal dataset
+    const modal = document.getElementById('roblox-modal');
+    const tier = modal.dataset.selectedTier || 'lifetime';
+    
+    if (!username) {
+        showNotification('Please enter your Roblox username', 'error');
+        return;
+    }
+    
+    try {
+        // Show loading state
+        const verifyBtn = document.querySelector('#roblox-modal .btn-primary');
+        const originalText = verifyBtn.innerHTML;
+        verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+        verifyBtn.disabled = true;
+        
+        const response = await fetch(`${BACKEND_URL}/api/roblox/verify-purchase`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, tier }) // Send tier to backend
+        });
+        
+        const data = await response.json();
+        
+        // Reset button
+        verifyBtn.innerHTML = originalText;
+        verifyBtn.disabled = false;
+        
+        if (data.success && data.keys && data.keys.length > 0) {
+            // Close verify modal
+            document.getElementById('roblox-modal').remove();
+            
+            // Save key
+            saveKeyToLocalStorage(data.keys[0], data.tier);
+            
+            // Show success modal
+            showKeyModal(data.keys, data.tier);
+            
+            if (data.alreadyClaimed) {
+                showNotification('Welcome back! Retrieved your existing key.', 'info');
+            } else {
+                showNotification('Purchase verified! Key generated.', 'success');
+            }
+        } else {
+            const errorMessage = data.error || 'Verification failed. Make sure you own the product and inventory is public.';
+            
+            // Special handling for private inventory
+            if (errorMessage.includes('private')) {
+                showNotification('Your inventory is private! Please make it public in Roblox settings.', 'error');
+            } else {
+                showNotification(errorMessage, 'error');
+            }
+        }
+    } catch (error) {
+        console.error('Verification error:', error);
+        showNotification('Failed to connect to server', 'error');
+        
+        // Reset button
+        const verifyBtn = document.querySelector('#roblox-modal .btn-primary');
+        if (verifyBtn) {
+            verifyBtn.innerHTML = '<i class="fas fa-check"></i> Verify & Get Key';
+            verifyBtn.disabled = false;
+        }
     }
 }
 

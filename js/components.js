@@ -24,8 +24,13 @@ function loadHeader() {
 
 <div class="page-background-text">Seisen</div>
 
+<!-- Hamburger Menu Button -->
+<button class="hamburger-menu" id="hamburgerMenu">
+    <i class="fas fa-bars"></i>
+</button>
+
 <!-- Sidebar Navigation -->
-<nav class="sidebar">
+<nav class="sidebar" id="sidebar">
     <div class="sidebar-content">
         <a href="#" class="sidebar-logo">
             <i class="fas fa-bolt"></i>
@@ -161,6 +166,24 @@ function loadHeader() {
     const headerContainer = document.getElementById('header-container');
     if (headerContainer) {
         headerContainer.innerHTML = headerHTML;
+        
+        // Hamburger Menu Logic
+        const hamburgerBtn = document.getElementById('hamburgerMenu');
+        const sidebar = document.getElementById('sidebar');
+        
+        if (hamburgerBtn && sidebar) {
+            hamburgerBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sidebar.classList.toggle('active');
+            });
+            
+            // Close sidebar when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        }
     }
 }
 

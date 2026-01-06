@@ -111,6 +111,46 @@ body {
   z-index: 2000;
   display: flex;
   flex-direction: column;
+  transition: transform var(--transition-normal);
+}
+
+.sidebar.active {
+  transform: translateX(0);
+}
+
+/* Hamburger Menu Button */
+.hamburger-menu {
+  display: none; /* Hidden on desktop */
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  z-index: 2001; /* Above sidebar */
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+/* Mobile Sidebar Styles */
+@media (max-width: 768px) {
+  body {
+    padding-left: 0; /* Remove padding on mobile */
+  }
+
+  .sidebar {
+    transform: translateX(-100%); /* Hide by default */
+    width: 250px; /* Wider sidebar on mobile */
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .hamburger-menu {
+    display: flex; /* Show on mobile */
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .sidebar-content {

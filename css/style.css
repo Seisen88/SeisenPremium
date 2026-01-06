@@ -3951,7 +3951,7 @@ select:focus {
     top: 0 !important;
     left: 0 !important;
     bottom: 0 !important;
-    width: 250px !important;
+    width: 70px !important;
     height: 100vh !important;
     transform: translateX(-100%) !important; /* Hide by default */
     transition: transform 0.3s ease !important;

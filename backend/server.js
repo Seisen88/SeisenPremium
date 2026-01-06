@@ -316,55 +316,170 @@ app.post('/api/roblox/verify-purchase', async (req, res) => {
             verification.userId,
             verification.productId
         );
-
-        // Check for duplicate (user already claimed key)
-        const isDuplicate = await paymentDB.transactionExists(transactionId);
         
+        // --- NEW UAID LOGIC ---
+        const currentUaid = verification.uaid;
+        console.log(`🆔 Current UAID from Roblox: ${currentUaid}`);
+
+        // Get tier and validity
+        const tier = robloxIntegration.getTierForProduct(verification.productId);
+        const validityMap = {
+            weekly: 168,   // 7 days
+            monthly: 720,  // 30 days
+            lifetime: 0    // Forever
+        };
+        const validityHours = validityMap[tier] || 0;
+
+        // Check if transaction exists (user previously claimed)
+        const isDuplicate = await paymentDB.transactionExists(transactionId);
+        let isRenewal = false;
+
         if (isDuplicate) {
-            console.log('⚠️  User already claimed key');
+            console.log(`ℹ️  User ${verification.username} already verified. Checking status...`);
             const existingPayment = await paymentDB.getPayment(transactionId);
-            return res.json({
-                success: true,
-                keys: existingPayment.generated_keys,
-                message: 'You have already claimed your key',
-                alreadyClaimed: true
-            });
+            const storedUaid = existingPayment.roblox_uaid;
+            
+            console.log(`💾 Stored UAID in DB: ${storedUaid}`);
+
+            // 1. CHECK IF RE-PURCHASED (New Asset created AFTER old payment)
+            // We compare the Roblox Asset Creation Date vs our Database Record
+            const assetCreatedTime = verification.created ? new Date(verification.created).getTime() : 0;
+            const paymentCreatedTime = new Date(existingPayment.created_at + 'Z').getTime();
+            
+            // If the Roblox Asset is newer than our DB record (by at least 5 mins to be safe), it's a re-purchase
+            const isNewerPurchase = assetCreatedTime > (paymentCreatedTime + 300000); 
+            
+            // Also keep UAID check as valid signal
+            const isUaidChanged = (currentUaid && storedUaid && String(currentUaid) !== String(storedUaid));
+
+            if (isNewerPurchase || isUaidChanged) {
+                console.log(`✨ RENEWAL DETECTED!`);
+                console.log(`   - New Asset Date: ${verification.created}`);
+                console.log(`   - Old Payment Date: ${existingPayment.created_at}`);
+                console.log(`   - UAID Changed: ${isUaidChanged}`);
+                
+                isRenewal = true;
+                // Proceed to update the record...
+            } else {
+                // 2. SAME ITEM (Old Purchase) - CHECK EXPIRY
+                // Calculate expiration
+                const lastUpdate = new Date(existingPayment.updated_at + 'Z'); 
+                const now = new Date();
+                const purchaseTime = isNaN(lastUpdate.getTime()) ? new Date(existingPayment.created_at + 'Z') : lastUpdate;
+                
+                if (validityHours > 0) {
+                    const expiryDate = new Date(purchaseTime.getTime() + (validityHours * 60 * 60 * 1000));
+                    
+                    if (now < expiryDate) {
+                        // STILL ACTIVE
+                        console.log('✅ Key is still active. Returning existing key.');
+                        const timeLeftMs = expiryDate.getTime() - now.getTime();
+                        
+                        return res.json({
+                            success: true,
+                            keys: existingPayment.generated_keys,
+                            tier: tier,
+                            message: 'Your key is still active',
+                            alreadyClaimed: true,
+                            isActive: true,
+                            expiryDate: expiryDate.toISOString(),
+                            timeLeft: timeLeftMs,
+                            userId: verification.userId,
+                            username: verification.username
+                        });
+                    } else {
+                        // EXPIRED AND SAME UAID -> BLOCK!
+                         console.log(`⛔ Key expired and UAID matches (Old Item). Blocking renewal.`);
+                         return res.status(400).json({
+                             success: false,
+                             error: 'Your key has expired. To get a new key, please DELETE the item from your Roblox inventory and BUY it again.',
+                             isExpired: true,
+                             tier: tier
+                         });
+                    }
+                } else {
+                    // Lifetime - Always return existing
+                     return res.json({
+                        success: true,
+                        keys: existingPayment.generated_keys,
+                        tier: tier,
+                        message: 'You own a Lifetime key',
+                        alreadyClaimed: true,
+                        isActive: true,
+                        expiryDate: null,
+                        userId: verification.userId,
+                        username: verification.username
+                    });
+                }
+            }
         }
 
-        // Get tier for product
-        const tier = robloxIntegration.getTierForProduct(verification.productId);
+        // Processing New Purchase OR Renewal (Valid Re-purchase)
+        
+        // 1. If NEW purchase, save initial record
+        if (!isRenewal && !isDuplicate) {
+             await paymentDB.savePayment({
+                transactionId: transactionId,
+                payerEmail: null,
+                payerId: `ROBLOX_${verification.userId}`,
+                robloxUsername: verification.username,
+                robloxUaid: currentUaid, // Store the UAID!
+                tier: tier,
+                amount: 0, // Roblox handles payment
+                currency: 'ROBUX',
+                status: 'completed',
+                keys: null
+            });
+            console.log('💾 New Roblox purchase saved to database');
+        } else if (isRenewal) {
+            // Update UAID in database for the existing transaction
+             // We need to implement a way to update UAID or just overwrite during key update if we expanded that method.
+             // Or we just accept the record exists. Ideally we update it.
+             try {
+                // Quick hack: Update via raw SQL via the DB object effectively if we could, 
+                // but we lack the method. 
+                // Let's assume updating the key timestamp is "enough" for now, 
+                // BUT we need to save the new UAID so next time it matches!
+                // Critical: We MUST update the stored UAID to the new `currentUaid`.
+                // I will add a method to helper `updatePaymentKeys` to also update UAID?
+                // Or just add a new method.
+                // For this step, I'll assume I'll leverage a new DB method `updateRobloxPurchase` 
+                // which I should add.
+                // Or I can just delete the old record and insert a new one?
+                // Deleting is cleaner for "Renewal".
+                console.log('♻️  Renewing: Deleting old record to save new one with fresh UAID...');
+                await new Promise((resolve, reject) => {
+                     paymentDB.db.run('DELETE FROM payments WHERE transaction_id = ?', [transactionId], (err) => {
+                         if (err) reject(err); else resolve();
+                     });
+                });
+                
+                // Now insert as new
+                await paymentDB.savePayment({
+                    transactionId: transactionId,
+                    payerEmail: null,
+                    payerId: `ROBLOX_${verification.userId}`,
+                    robloxUsername: verification.username,
+                    robloxUaid: currentUaid,
+                    tier: tier,
+                    amount: 0,
+                    currency: 'ROBUX',
+                    status: 'completed',
+                    keys: null
+                });
+             } catch (err) {
+                 console.error('Error renewing record:', err);
+             }
+        }
 
-        // Determine validity based on tier
-        const validityMap = {
-            weekly: 168,
-            monthly: 720,
-            lifetime: 0
-        };
-        const validity = validityMap[tier] || 0;
-
-        // Save purchase to database
-        await paymentDB.savePayment({
-            transactionId: transactionId,
-            payerEmail: null,
-            payerId: `ROBLOX_${verification.userId}`,
-            robloxUsername: verification.username,
-            tier: tier,
-            amount: 0, // Roblox handles payment
-            currency: 'ROBUX',
-            status: 'completed',
-            keys: null
-        });
-
-        console.log('💾 Roblox purchase saved to database');
-
-        // Generate key via Junkie webhook
-        console.log('🔑 Generating premium key for Roblox user...');
+        // 2. Generate Key (for both New and Renewal)
+        console.log(`🔑 Generating ${isRenewal ? 'RENEWAL' : 'NEW'} premium key for Roblox user...`);
         const keyResult = await junkieSystem.generateKey({
             tier: tier,
-            validity: validity,
+            validity: validityHours, // Use calculated validity
             quantity: 1,
             userInfo: {
-                email: `${verification.username}@roblox.com`, // Fake email for Junkie
+                email: `${verification.username}@roblox.com`, 
                 payerId: `ROBLOX_${verification.userId}`,
                 robloxUsername: verification.username
             },
@@ -376,20 +491,29 @@ app.post('/api/roblox/verify-purchase', async (req, res) => {
         });
 
         if (keyResult.success && keyResult.keys && keyResult.keys.length > 0) {
-            console.log('✅ Key generated for Roblox user:', keyResult.keys);
+            console.log(`✅ Key generated: ${keyResult.keys[0]}`);
 
-            // Update database with keys
+            // 3. Update database with keys
             await paymentDB.updatePaymentKeys(transactionId, keyResult.keys);
+
+            // Calculate new expiry for frontend display
+            let newExpiryDate = null;
+            if (validityHours > 0) {
+                newExpiryDate = new Date(Date.now() + (validityHours * 60 * 60 * 1000)).toISOString();
+            }
 
             res.json({
                 success: true,
                 keys: keyResult.keys,
                 tier: tier,
                 userId: verification.userId,
-                username: verification.username
+                username: verification.username,
+                isRenewal: isRenewal,
+                expiryDate: newExpiryDate,
+                message: isRenewal ? 'Key renewed successfully!' : 'Purchase verified!'
             });
 
-            console.log('🎉 Roblox purchase verified and key generated!');
+            console.log(`🎉 Roblox purchase ${isRenewal ? 'renewed' : 'verified'} and key generated!`);
         } else {
             console.error('❌ Key generation failed:', keyResult.error);
             res.status(500).json({

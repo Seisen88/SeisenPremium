@@ -27,6 +27,7 @@ class PaymentDatabase {
                 payer_email TEXT,
                 payer_id TEXT,
                 roblox_username TEXT,
+                roblox_uaid TEXT,
                 tier TEXT NOT NULL,
                 amount REAL NOT NULL,
                 currency TEXT NOT NULL,
@@ -41,6 +42,19 @@ class PaymentDatabase {
             if (err) {
                 console.error('Error creating payments table:', err);
             } else {
+                // Check if roblox_uaid column exists (migration)
+                this.db.all("PRAGMA table_info(payments)", (err, rows) => {
+                    if (!err && rows) {
+                        const hasUaid = rows.some(r => r.name === 'roblox_uaid');
+                        if (!hasUaid) {
+                            console.log('Migrating database: Adding roblox_uaid column...');
+                            this.db.run("ALTER TABLE payments ADD COLUMN roblox_uaid TEXT", (err) => {
+                                if (err) console.error('Migration failed:', err);
+                                else console.log('✅ Migration successful: roblox_uaid added');
+                            });
+                        }
+                    }
+                });
                 console.log('✅ Payments table ready');
             }
         });
@@ -74,9 +88,9 @@ class PaymentDatabase {
         return new Promise((resolve, reject) => {
             const sql = `
                 INSERT INTO payments (
-                    transaction_id, payer_email, payer_id, roblox_username,
+                    transaction_id, payer_email, payer_id, roblox_username, roblox_uaid,
                     tier, amount, currency, payment_status, generated_keys
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `;
 
             const params = [
@@ -84,6 +98,7 @@ class PaymentDatabase {
                 paymentData.payerEmail,
                 paymentData.payerId || null,
                 paymentData.robloxUsername || null,
+                paymentData.robloxUaid || null,
                 paymentData.tier,
                 paymentData.amount,
                 paymentData.currency,

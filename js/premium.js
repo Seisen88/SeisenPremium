@@ -195,13 +195,25 @@ function closeProcessingModal() {
 }
 
 // Show Key Modal
-function showKeyModal(keys, tier) {
+function showKeyModal(keys, tier, expiryDate = null) {
     const modal = document.createElement('div');
     modal.className = 'payment-modal show';
     
     const keyList = keys.map(k => `<div class="key-item">${k}</div>`).join('');
     
     const loaderScript = `loadstring(game:HttpGet("https://api.junkie-development.de/api/v1/luascripts/public/d78ef9f0c5183f52d0e84d7efed327aa9a7abfb995f4ce86c22c3a7bc4d06a6f/download"))()`;
+
+    // Countdown HTML
+    let countdownHtml = '';
+    if (expiryDate) {
+        countdownHtml = `
+            <div class="countdown-container" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); padding: 10px; border-radius: 8px; margin: 15px 0;">
+                <div style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 5px;">Key Valid For:</div>
+                <div id="key-countdown" style="font-size: 1.2em; font-weight: bold; color: #10b981; font-family: monospace;">Loading...</div>
+                <div style="font-size: 0.8em; color: var(--text-muted); margin-top: 5px;">You can claim a new key after this timer ends.</div>
+            </div>
+        `;
+    }
 
     modal.innerHTML = `
         <div class="modal-content">
@@ -215,6 +227,8 @@ function showKeyModal(keys, tier) {
                 </div>
                 <p><strong>Plan:</strong> ${tier.charAt(0).toUpperCase() + tier.slice(1)}</p>
                 
+                ${countdownHtml}
+
                 <hr>
                 
                 <h3 style="margin-top: 15px;">Universal Loader:</h3>
@@ -245,6 +259,46 @@ function showKeyModal(keys, tier) {
     `;
     
     document.body.appendChild(modal);
+
+    // Start Countdown
+    if (expiryDate) {
+        startCountdown(new Date(expiryDate), document.getElementById('key-countdown'));
+    }
+}
+
+// Countdown Logic
+function startCountdown(targetDate, element) {
+    function update() {
+        if (!element) return;
+        
+        const now = new Date();
+        const diff = targetDate - now;
+
+        if (diff <= 0) {
+            element.innerHTML = "EXPIRED - REFRESH TO RENEW";
+            element.style.color = "#ef4444";
+            return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        element.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    update(); // Initial call
+    const timer = setInterval(update, 1000);
+    
+    // Clean up interval when modal is closed
+    // (This is a bit quick-and-dirty, but simpler than observing DOM removal)
+    const checkRemoval = setInterval(() => {
+        if (!document.body.contains(element)) {
+            clearInterval(timer);
+            clearInterval(checkRemoval);
+        }
+    }, 1000);
 }
 
 // Copy key to clipboard
@@ -562,8 +616,8 @@ async function verifyRobloxPurchase() {
             // Save key
             saveKeyToLocalStorage(data.keys[0], data.tier);
             
-            // Show success modal
-            showKeyModal(data.keys, data.tier);
+            // Show success modal with expiration
+            showKeyModal(data.keys, data.tier, data.expiryDate);
             
             if (data.alreadyClaimed) {
                 showNotification('Welcome back! Retrieved your existing key.', 'info');

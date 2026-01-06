@@ -57,44 +57,51 @@ class RobloxIntegration {
             console.log(`🔍 Checking ownership for User: ${userId}, Product: ${productId}`);
 
             // 1. Try checking as an ASSET (Catalog item)
+            // We use the inventory endpoint to get the UserAssetId (UAID) which is unique per purchase
             try {
                 const assetResponse = await axios.get(
-                    `${this.robloxApiUrl}/${userId}/items/Asset/${productId}/is-owned`,
+                    `${this.robloxApiUrl}/${userId}/items/Asset/${productId}`,
                     { headers: { 'Accept': 'application/json' } }
                 );
                 
-                if (assetResponse.data === true || assetResponse.data.isOwned === true) {
-                    console.log(`✅ Found ownership via Asset endpoint for product ${productId}`);
-                    return true;
+                if (assetResponse.data && assetResponse.data.data && assetResponse.data.data.length > 0) {
+                    const item = assetResponse.data.data[0];
+                    console.log(`✅ Found ownership via Asset endpoint for product ${productId}. UAID: ${item.instanceId}`);
+                    return { owned: true, uaid: item.instanceId, created: item.created };
                 }
             } catch (err) {
-                // Ignore 400/404 errors here as it might be a GamePass
-                // console.log('Asset check failed, trying GamePass...', err.message);
+                // Ignore errors, try next method
+                // console.log('Asset check failed:', err.message);
             }
 
             // 2. Try checking as a GAMEPASS
             try {
                 const gamePassResponse = await axios.get(
-                    `${this.robloxApiUrl}/${userId}/items/GamePass/${productId}/is-owned`,
+                    `${this.robloxApiUrl}/${userId}/items/GamePass/${productId}`,
                     { headers: { 'Accept': 'application/json' } }
                 );
                 
-                if (gamePassResponse.data === true || gamePassResponse.data.isOwned === true) {
-                    console.log(`✅ Found ownership via GamePass endpoint for product ${productId}`);
-                    return true;
+                if (gamePassResponse.data && gamePassResponse.data.data && gamePassResponse.data.data.length > 0) {
+                     const item = gamePassResponse.data.data[0];
+                    console.log(`✅ Found ownership via GamePass endpoint for product ${productId}. UAID: ${item.instanceId}`);
+                    // GamePasses might typically reuse IDs or behave differently, but for deletion/rebuy flow, 
+                    // the instanceId should strictly change or ideally we rely on Asset flow for this logic.
+                    // Note: GamePass instances might not change ID as reliably as Assets on re-purchase without deletion.
+                    // But deleting a GamePass is harder. Assuming Asset workflow primarily.
+                    return { owned: true, uaid: item.instanceId, created: item.created };
                 }
             } catch (err) {
                 // console.log('GamePass check failed:', err.message);
             }
 
-            return false;
+            return { owned: false, uaid: null };
 
         } catch (error) {
             // console.error('Error checking ownership:', error.response?.data || error.message);
             if (error.response?.status === 403) {
                 throw new Error('Your inventory is private. Please make it public to verify.');
             }
-            return false;
+            return { owned: false, uaid: null };
         }
     }
 
@@ -116,16 +123,17 @@ class RobloxIntegration {
                 const productId = this.products[targetTier];
                 console.log(`🔒 STRICT MODE: Checking only ${targetTier} tier (ID: ${productId})...`);
                 
-                const ownsProduct = await this.userOwnsProduct(userId, productId);
+                const result = await this.userOwnsProduct(userId, productId);
                 
-                if (ownsProduct) {
-                    console.log(`🎉 User owns ${targetTier} tier!`);
+                if (result.owned) {
+                    console.log(`🎉 User owns ${targetTier} tier! UAID: ${result.uaid}`);
                     return {
                         success: true,
                         userId,
                         username,
                         productId: productId,
-                        tier: targetTier
+                        tier: targetTier,
+                        uaid: result.uaid
                     };
                 } else {
                     console.log(`❌ User does not own ${targetTier} tier.`);
@@ -145,16 +153,17 @@ class RobloxIntegration {
                 const productId = this.products[tier];
                 console.log(`Checking ${tier} tier (ID: ${productId})...`);
                 
-                const ownsProduct = await this.userOwnsProduct(userId, productId);
+                const result = await this.userOwnsProduct(userId, productId);
                 
-                if (ownsProduct) {
-                    console.log(`🎉 User owns ${tier} tier!`);
+                if (result.owned) {
+                    console.log(`🎉 User owns ${tier} tier! UAID: ${result.uaid}`);
                     return {
                         success: true,
                         userId,
                         username,
                         productId: productId,
-                        tier: tier
+                        tier: tier,
+                        uaid: result.uaid
                     };
                 }
             }

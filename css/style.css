@@ -210,44 +210,43 @@ body {
   opacity: 1;
 }
 
-/* Theme Selector */
-.theme-selector {
-  margin-top: auto;
-  padding: 1rem 0;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  position: relative;
-}
-
-.theme-toggle {
+/* Theme FAB */
+.theme-fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  font-size: 1.1rem;
   cursor: pointer;
+  z-index: 9999;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transition: all var(--transition-fast);
 }
 
-.theme-toggle:hover {
+.theme-fab:hover {
+  background: var(--bg-card-hover);
   color: #10b981;
-  background: rgba(16, 185, 129, 0.1);
-  border-color: rgba(16, 185, 129, 0.3);
-  transform: scale(1.05);
+  transform: translateY(-4px) scale(1.05);
+  border-color: #10b981;
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.2);
 }
 
 /* Theme Panel Dropdown */
 .theme-panel {
   position: fixed;
-  left: 70px;
-  bottom: 80px;
+  right: 2rem;
+  bottom: 6rem; /* Position above FAB */
+  left: auto; /* Reset left */
   width: 180px;
+  max-height: 400px; /* Limit height */
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);

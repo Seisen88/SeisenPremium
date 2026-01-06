@@ -65,13 +65,13 @@ function loadHeader() {
                 document.getElementById('getKeyLink').style.display = 'flex';
             }
         </script>
-        <div class="theme-selector">
-            <button class="theme-toggle" id="themeToggle" title="Change Theme">
-                <i class="fas fa-palette"></i>
-            </button>
-        </div>
     </div>
 </nav>
+
+<!-- Theme FAB -->
+<button class="theme-fab" id="themeToggle" title="Change Theme">
+    <i class="fas fa-palette"></i>
+</button>
 
 <!-- Theme Selector Panel -->
 <div class="theme-panel" id="themePanel">

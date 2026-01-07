@@ -387,19 +387,23 @@ function showSavedKeysModal() {
     }
     
     const keysList = savedKeys.reverse().map(item => {
-        const date = new Date(item.purchaseDate).toLocaleDateString();
+        const date = new Date(item.purchaseDate).toLocaleDateString('en-US', { 
+            month: 'numeric', 
+            day: 'numeric', 
+            year: 'numeric' 
+        });
         return `
-            <div class="saved-key-item">
+            <div class="saved-key-card">
                 <div class="saved-key-header">
                     <strong>${item.tier.charAt(0).toUpperCase() + item.tier.slice(1)}</strong>
                     <span class="saved-key-date">${date}</span>
                 </div>
-                <div class="key-item">${item.key}</div>
-                <div style="display: flex; gap: 8px; margin-top: 10px;">
-                    <button class="btn btn-small btn-secondary" onclick="copyKey('${item.key}')" style="flex: 1;">
+                <div class="saved-key-code">${item.key}</div>
+                <div class="saved-key-actions">
+                    <button class="saved-key-btn saved-key-btn-copy" onclick="copyKey('${item.key}')">
                         <i class="fas fa-copy"></i> Copy
                     </button>
-                    <button class="btn btn-small btn-primary" onclick="viewOrder('${item.key}', '${item.tier}', '${item.purchaseDate}')" style="flex: 1;">
+                    <button class="saved-key-btn saved-key-btn-view" onclick="viewOrder('${item.key}', '${item.tier}', '${item.purchaseDate}')">
                         <i class="fas fa-eye"></i> View
                     </button>
                 </div>
@@ -410,21 +414,176 @@ function showSavedKeysModal() {
     const modal = document.createElement('div');
     modal.className = 'payment-modal show';
     modal.innerHTML = `
-        <div class="modal-content">
-            <div class="modal-header">
+        <style>
+            .saved-keys-modal-content {
+                background: #1a1d29;
+                border-radius: 16px;
+                max-width: 600px;
+                width: 90%;
+                max-height: 80vh;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .saved-keys-header {
+                padding: 24px;
+                border-bottom: 1px solid #2a2d3a;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .saved-keys-header h2 {
+                font-size: 20px;
+                font-weight: 600;
+                color: #e5e7eb;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin: 0;
+            }
+            
+            .saved-keys-header h2 i {
+                color: #6366f1;
+            }
+            
+            .saved-keys-close {
+                background: none;
+                border: none;
+                color: #9ca3af;
+                font-size: 28px;
+                cursor: pointer;
+                padding: 0;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: color 0.2s;
+            }
+            
+            .saved-keys-close:hover {
+                color: #e5e7eb;
+            }
+            
+            .saved-keys-body {
+                padding: 24px;
+                overflow-y: auto;
+                flex: 1;
+            }
+            
+            .saved-keys-description {
+                color: #9ca3af;
+                font-size: 14px;
+                margin-bottom: 20px;
+            }
+            
+            .saved-key-card {
+                background: #252836;
+                border-radius: 12px;
+                padding: 20px;
+                margin-bottom: 16px;
+            }
+            
+            .saved-key-card:last-child {
+                margin-bottom: 0;
+            }
+            
+            .saved-key-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+            }
+            
+            .saved-key-header strong {
+                color: #e5e7eb;
+                font-size: 16px;
+                font-weight: 600;
+            }
+            
+            .saved-key-date {
+                color: #9ca3af;
+                font-size: 13px;
+            }
+            
+            .saved-key-code {
+                background: #1a1d29;
+                border: 1px solid #2a2d3a;
+                border-radius: 8px;
+                padding: 12px;
+                font-family: 'Courier New', monospace;
+                font-size: 14px;
+                color: #10b981;
+                margin-bottom: 12px;
+                word-break: break-all;
+            }
+            
+            .saved-key-actions {
+                display: flex;
+                gap: 10px;
+            }
+            
+            .saved-key-btn {
+                flex: 1;
+                padding: 10px 16px;
+                border: none;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                transition: all 0.2s;
+            }
+            
+            .saved-key-btn-copy {
+                background: #374151;
+                color: #e5e7eb;
+            }
+            
+            .saved-key-btn-copy:hover {
+                background: #4b5563;
+            }
+            
+            .saved-key-btn-view {
+                background: #6366f1;
+                color: white;
+            }
+            
+            .saved-key-btn-view:hover {
+                background: #4f46e5;
+            }
+            
+            .saved-keys-footer {
+                padding: 20px 24px;
+                border-top: 1px solid #2a2d3a;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: #9ca3af;
+                font-size: 13px;
+            }
+            
+            .saved-keys-footer i {
+                color: #6366f1;
+            }
+        </style>
+        <div class="saved-keys-modal-content">
+            <div class="saved-keys-header">
                 <h2><i class="fas fa-history"></i> My Saved Keys</h2>
-                <button class="modal-close" onclick="this.closest('.payment-modal').remove()">×</button>
+                <button class="saved-keys-close" onclick="this.closest('.payment-modal').remove()">×</button>
             </div>
-            <div class="modal-body">
-                <p>Your previously purchased keys are saved in your browser:</p>
-                <div class="saved-keys-list">
-                    ${keysList}
-                </div>
-                <hr>
-                <p style="font-size: 0.9rem; color: var(--text-muted);">
-                    <i class="fas fa-info-circle"></i> Keys are stored locally in your browser. 
-                    Clear browser data will remove them.
-                </p>
+            <div class="saved-keys-body">
+                <p class="saved-keys-description">Your previously purchased keys are saved in your browser:</p>
+                ${keysList}
+            </div>
+            <div class="saved-keys-footer">
+                <i class="fas fa-info-circle"></i>
+                <span>Keys are stored locally in your browser. Clear browser data will remove them.</span>
             </div>
         </div>
     `;

@@ -174,7 +174,7 @@ function renderPaymentsTable(payments) {
                     ${key !== 'N/A' ? `<i class="fas fa-copy copy-btn" onclick="copyToClipboard('${key}')" title="Copy key"></i>` : ''}
                 </td>
                 <td>
-                    <a href="/success.html?orderId=${payment.transaction_id}" target="_blank" class="btn-icon" title="View Order" style="background: var(--bg-tertiary); width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--text-secondary); transition: all 0.2s;">
+                    <a href="/success.html?orderId=${payment.transaction_id}&tier=${tier}&amount=${payment.amount || 0}&email=${encodeURIComponent(user)}&key=${encodeURIComponent(key)}&method=${method}&date=${payment.created_at}" target="_blank" class="btn-icon" title="View Order" style="background: var(--bg-tertiary); width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--text-secondary); transition: all 0.2s;">
                         <i class="fas fa-external-link-alt" style="font-size: 14px;"></i>
                     </a>
                 </td>

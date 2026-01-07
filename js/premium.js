@@ -170,22 +170,66 @@ function showProcessingModal() {
         <div class="modal-content" style="text-align: center; padding: 40px 30px;">
             <div class="modal-body">
                 <style>
-                    .css-spinner {
-                        width: 60px;
-                        height: 60px;
-                        border: 5px solid rgba(255, 255, 255, 0.1);
-                        border-radius: 50%;
-                        border-top-color: var(--primary, #10b981);
-                        animation: spin 1s ease-in-out infinite;
-                        margin: 0 auto 20px auto;
+                    .modern-loader {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        gap: 12px;
+                        margin: 0 auto 30px auto;
                     }
-                    @keyframes spin {
-                        to { transform: rotate(360deg); }
+                    
+                    .modern-loader .dot {
+                        width: 16px;
+                        height: 16px;
+                        border-radius: 50%;
+                        background: #10b981;
+                        animation: pulse 1.4s ease-in-out infinite;
+                    }
+                    
+                    .modern-loader .dot:nth-child(1) {
+                        animation-delay: 0s;
+                    }
+                    
+                    .modern-loader .dot:nth-child(2) {
+                        animation-delay: 0.2s;
+                    }
+                    
+                    .modern-loader .dot:nth-child(3) {
+                        animation-delay: 0.4s;
+                    }
+                    
+                    @keyframes pulse {
+                        0%, 100% {
+                            transform: scale(0.6);
+                            opacity: 0.4;
+                        }
+                        50% {
+                            transform: scale(1);
+                            opacity: 1;
+                        }
+                    }
+                    
+                    .processing-title {
+                        font-size: 1.5rem;
+                        font-weight: 600;
+                        color: var(--text-primary);
+                        margin-bottom: 10px;
+                        animation: fadeInOut 2s ease-in-out infinite;
+                    }
+                    
+                    @keyframes fadeInOut {
+                        0%, 100% { opacity: 0.6; }
+                        50% { opacity: 1; }
                     }
                 </style>
-                <div class="css-spinner"></div>
                 
-                <h2 style="margin-bottom: 10px;">Processing Payment...</h2>
+                <div class="modern-loader">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                
+                <h2 class="processing-title">Processing Payment...</h2>
                 <p style="color: var(--text-muted); margin-bottom: 20px;">Please wait while we confirm your payment and generate your key.</p>
                 <div style="height: 2px; background: var(--border); margin: 20px 0;"></div>
                 <p style="color: #ef4444; font-weight: 600; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.5px;">

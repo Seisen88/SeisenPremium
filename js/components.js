@@ -66,9 +66,6 @@ function loadHeader() {
             <a href="/support.html" class="sidebar-link" title="Support">
                 <i class="fas fa-headset"></i>
             </a>
-            <a href="/admin.html" class="sidebar-link" title="Admin">
-                <i class="fas fa-shield-alt"></i>
-            </a>
         </div>
         <script>
             // Only show Get Key link on getkey.html

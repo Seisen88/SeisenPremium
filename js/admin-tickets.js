@@ -23,12 +23,18 @@ function switchTab(tab) {
 
 // Load All Tickets
 async function loadTickets() {
+    console.log('Loading tickets...');
+    console.log('API_BASE:', API_BASE);
+    console.log('adminToken:', adminToken);
+    
     try {
         const response = await fetch(`${API_BASE}/api/admin/tickets`, {
             headers: {
                 'Authorization': `Bearer ${adminToken}`
             }
         });
+        
+        console.log('Response status:', response.status);
         
         if (!response.ok) {
             if (response.status === 401) {
@@ -39,7 +45,9 @@ async function loadTickets() {
         }
         
         const data = await response.json();
+        console.log('Tickets data:', data);
         allTickets = data.tickets || [];
+        console.log('All tickets:', allTickets);
         
         renderTicketsList(allTickets);
         
@@ -48,6 +56,7 @@ async function loadTickets() {
         document.getElementById('tickets-list').innerHTML = `
             <div style="text-align: center; padding: 60px; color: #ef4444;">
                 <i class="fas fa-exclamation-triangle"></i> Failed to load tickets
+                <p style="margin-top: 12px; font-size: 14px;">${error.message}</p>
             </div>
         `;
     }
@@ -55,7 +64,9 @@ async function loadTickets() {
 
 // Render Tickets List
 function renderTicketsList(tickets) {
+    console.log('Rendering tickets list:', tickets);
     const ticketsList = document.getElementById('tickets-list');
+    console.log('Tickets list element:', ticketsList);
     
     if (tickets.length === 0) {
         ticketsList.innerHTML = `
@@ -92,6 +103,8 @@ function renderTicketsList(tickets) {
             </div>
         `;
     }).join('');
+    
+    console.log('Tickets rendered successfully');
 }
 
 // View Ticket Detail

@@ -428,7 +428,7 @@ function showSavedKeysModal() {
     modal.innerHTML = `
         <style>
             .saved-keys-modal-content {
-                background: #1a1d29;
+                background: #141414;
                 border-radius: 16px;
                 max-width: 600px;
                 width: 90%;
@@ -440,7 +440,7 @@ function showSavedKeysModal() {
             
             .saved-keys-header {
                 padding: 24px;
-                border-bottom: 1px solid #2a2d3a;
+                border-bottom: 1px solid #1f1f1f;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
@@ -449,7 +449,7 @@ function showSavedKeysModal() {
             .saved-keys-header h2 {
                 font-size: 20px;
                 font-weight: 600;
-                color: #e5e7eb;
+                color: #e5e5e5;
                 display: flex;
                 align-items: center;
                 gap: 10px;
@@ -457,7 +457,7 @@ function showSavedKeysModal() {
             }
             
             .saved-keys-header h2 i {
-                color: #6366f1;
+                color: #10b981;
             }
             
             .saved-keys-close {
@@ -492,7 +492,7 @@ function showSavedKeysModal() {
             }
             
             .saved-key-card {
-                background: #252836;
+                background: #1a1a1a;
                 border-radius: 12px;
                 padding: 20px;
                 margin-bottom: 16px;
@@ -510,19 +510,19 @@ function showSavedKeysModal() {
             }
             
             .saved-key-header strong {
-                color: #e5e7eb;
+                color: #e5e5e5;
                 font-size: 16px;
                 font-weight: 600;
             }
             
             .saved-key-date {
-                color: #9ca3af;
+                color: #888;
                 font-size: 13px;
             }
             
             .saved-key-code {
-                background: #1a1d29;
-                border: 1px solid #2a2d3a;
+                background: #0a0a0a;
+                border: 1px solid #1f1f1f;
                 border-radius: 8px;
                 padding: 12px;
                 font-family: 'Courier New', monospace;

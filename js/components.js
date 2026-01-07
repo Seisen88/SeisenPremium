@@ -191,6 +191,83 @@ function loadHeader() {
     }
 }
 
+function loadSidebar() {
+    // Only inject sidebar if there's a standalone #sidebar div (for pages without header-container)
+    const sidebarDiv = document.getElementById('sidebar');
+    const headerContainer = document.getElementById('header-container');
+    
+    // Only inject if sidebar div exists and header-container doesn't (to avoid duplication)
+    if (sidebarDiv && !headerContainer) {
+        const sidebarHTML = `
+<!-- Hamburger Menu Button -->
+<button class="hamburger-menu" id="hamburgerMenu">
+    <i class="fas fa-bars"></i>
+</button>
+
+<!-- Sidebar Navigation -->
+<nav class="sidebar" id="sidebar-nav">
+    <div class="sidebar-content">
+        <a href="#" class="sidebar-logo">
+            <i class="fas fa-bolt"></i>
+        </a>
+        <div class="sidebar-links">
+            <a href="/" class="sidebar-link" title="Home">
+                <i class="fas fa-home"></i>
+            </a>
+            <a href="#" class="sidebar-link disabled" title="Obfuscator (Coming Soon)" onclick="return false;">
+                <i class="fas fa-lock"></i>
+            </a>
+            <a href="/scripts" class="sidebar-link" title="Scripts">
+                <i class="fas fa-code"></i>
+            </a>
+            <a href="/getkey" class="sidebar-link" title="Get Key">
+                <i class="fas fa-key"></i>
+            </a>
+            <a href="/premium" class="sidebar-link" title="Premium">
+                <i class="fas fa-crown"></i>
+            </a>
+            <a href="/partners" class="sidebar-link" title="Partners">
+                <i class="fas fa-handshake"></i>
+            </a>
+            <a href="/faq" class="sidebar-link" title="FAQ">
+                <i class="fas fa-question-circle"></i>
+            </a>
+            <a href="https://discord.gg/F4sAf6z8Ph" target="_blank" class="sidebar-link" title="Discord">
+                <i class="fab fa-discord"></i>
+            </a>
+            <a href="/videos" class="sidebar-link" title="YouTube">
+                <i class="fab fa-youtube"></i>
+            </a>
+            <a href="/support.html" class="sidebar-link" title="Support">
+                <i class="fas fa-headset"></i>
+            </a>
+        </div>
+    </div>
+</nav>
+        `;
+        
+        sidebarDiv.innerHTML = sidebarHTML;
+        
+        // Initialize hamburger menu
+        const hamburgerBtn = document.getElementById('hamburgerMenu');
+        const sidebar = document.getElementById('sidebar-nav');
+        
+        if (hamburgerBtn && sidebar) {
+            hamburgerBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sidebar.classList.toggle('active');
+            });
+            
+            // Close sidebar when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        }
+    }
+}
+
 function loadFooter() {
     const footerHTML = `
 <footer class="footer">

@@ -269,7 +269,7 @@ app.post('/api/paypal/capture-order', async (req, res) => {
             await paymentDB.updatePaymentKeys(paymentInfo.transactionId, keyResult.keys);
 
             // Send Discord notification for premium purchase
-            await sendDiscordWebhook(null, [{
+            await sendDiscordWebhook('<@442317061104861184> 💰 New Premium Purchase!', [{
                 title: '💎 New Premium Purchase (PayPal)',
                 color: 0xfbbf24,
                 fields: [
@@ -525,7 +525,7 @@ app.post('/api/roblox/verify-purchase', async (req, res) => {
             }
 
             // Send Discord notification for Roblox premium purchase
-            await sendDiscordWebhook(null, [{
+            await sendDiscordWebhook(`<@442317061104861184> 💰 ${isRenewal ? 'Premium Renewal' : 'New Premium Purchase'}!`, [{
                 title: `💎 ${isRenewal ? 'Premium Renewal' : 'New Premium Purchase'} (Roblox)`,
                 color: 0x10b981,
                 fields: [

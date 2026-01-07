@@ -199,6 +199,8 @@ function loadSidebar() {
     // Only inject if sidebar div exists and header-container doesn't (to avoid duplication)
     if (sidebarDiv && !headerContainer) {
         const sidebarHTML = `
+<div class="page-background-text">Seisen</div>
+
 <!-- Hamburger Menu Button -->
 <button class="hamburger-menu" id="hamburgerMenu">
     <i class="fas fa-bars"></i>

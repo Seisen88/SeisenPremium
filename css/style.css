@@ -516,7 +516,7 @@ body {
   color: transparent;
   -webkit-text-stroke: 1px rgba(136, 136, 136, 0.08);
   text-stroke: 1px rgba(136, 136, 136, 0.08);
-  filter: drop-shadow(0 0 40px rgba(16, 185, 129, 0.08));
+  filter: drop-shadow(0 0 50px rgba(16, 185, 129, 0.12));
   white-space: nowrap;
   pointer-events: none;
   z-index: 0;

@@ -782,7 +782,96 @@ app.use((err, req, res, next) => {
     res.status(500).json({ 
         error: 'Internal server error',
         details: DEBUG ? err.message : 'An unexpected error occurred'
-    });
+    });</r
+});
+
+// ============================================
+// ADMIN PANEL ENDPOINTS
+// ============================================
+
+// Admin Authentication
+app.post('/api/admin/login', (req, res) => {
+    try {
+        const { password } = req.body;
+        const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'; // Default for dev
+
+        if (password === adminPassword) {
+            // Generate simple session token
+            const token = crypto.randomBytes(32).toString('hex');
+            
+            res.json({
+                success: true,
+                token: token,
+                message: 'Login successful'
+            });
+        } else {
+            res.status(401).json({
+                success: false,
+                error: 'Invalid password'
+            });
+        }
+    } catch (error) {
+        console.error('Admin login error:', error);
+        res.status(500).json({ error: 'Login failed' });
+    }
+});
+
+// Get All Payments (Admin Only)
+app.get('/api/admin/payments', async (req, res) => {
+    try {
+        // Simple auth check - in production, validate token properly
+        const authHeader = req.headers.authorization;
+        const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+        
+        // Check if password is in Authorization header (Basic auth style)
+        if (!authHeader || authHeader !== `Bearer ${adminPassword}`) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        // Get all payments from database
+        const payments = await new Promise((resolve, reject) => {
+            paymentDB.db.all(
+                'SELECT * FROM payments ORDER BY created_at DESC',
+                [],
+                (err, rows) => {
+                    if (err) reject(err);
+                    else {
+                        // Parse generated_keys JSON
+                        rows.forEach(row => {
+                            if (row.generated_keys) {
+                                try {
+                                    row.generated_keys = JSON.parse(row.generated_keys);
+                                } catch (e) {
+                                    // Keep as string if parse fails
+                                }
+                            }
+                        });
+                        resolve(rows);
+                    }
+                }
+            );
+        });
+
+        // Calculate stats
+        const stats = {
+            totalPurchases: payments.length,
+            paypalPurchases: payments.filter(p => p.currency !== 'ROBUX').length,
+            robloxPurchases: payments.filter(p => p.currency === 'ROBUX').length,
+            totalRevenue: payments
+                .filter(p => p.currency !== 'ROBUX')
+                .reduce((sum, p) => sum + (p.amount || 0), 0)
+        };
+
+        res.json({
+            success: true,
+            payments: payments,
+            stats: stats
+        });
+
+    } catch (error) {
+        console.error('Error fetching payments:', error);
+        res.status(500).json({ error: 'Failed to fetch payments' });
+    }
 });
 
 // Start server

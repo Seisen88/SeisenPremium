@@ -293,6 +293,23 @@
             const content = document.getElementById(contentId);
             const icon = document.getElementById(contentId + '-icon');
             
+            // Close all other dropdowns first
+            const allDropdowns = document.querySelectorAll('.dropdown-content');
+            const allIcons = document.querySelectorAll('.dropdown-icon');
+            
+            allDropdowns.forEach(dropdown => {
+                if (dropdown.id !== contentId && dropdown.classList.contains('open')) {
+                    dropdown.classList.remove('open');
+                }
+            });
+            
+            allIcons.forEach(iconEl => {
+                if (iconEl.id !== contentId + '-icon' && iconEl.classList.contains('rotated')) {
+                    iconEl.classList.remove('rotated');
+                }
+            });
+            
+            // Toggle the clicked dropdown
             if (content.classList.contains('open')) {
                 content.classList.remove('open');
                 icon.classList.remove('rotated');

@@ -24,17 +24,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // PayPal button handlers
+    // PayPal button handlers with TOS check
     const paypalButtons = document.querySelectorAll('.paypal-btn');
     paypalButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             const plan = this.dataset.plan;
             const amount = this.dataset.amount;
-            handlePayPalPayment(plan, amount);
+            
+            // Store the action and show TOS modal
+            pendingPurchaseAction = () => handlePayPalPayment(plan, amount);
+            showTOSModal();
         });
     });
     
-    // Ticket button handlers (for Robux and GCash)
+    // Ticket button handlers with TOS check (for Robux and GCash)
     const ticketButtons = document.querySelectorAll('.ticket-btn');
     ticketButtons.forEach(btn => {
         btn.addEventListener('click', function() {
@@ -42,13 +45,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const amount = this.dataset.amount;
             const currency = this.dataset.currency;
             
-            // Check if this is Robux payment
+            // Store the action and show TOS modal
             if (currency === 'Robux') {
-                // Show Roblox verification modal with selected tier
-                showRobloxVerificationModal(plan);
+                pendingPurchaseAction = () => showRobloxVerificationModal(plan);
             } else {
-                openDiscordTicket(plan, amount, currency);
+                pendingPurchaseAction = () => openDiscordTicket(plan, amount, currency);
             }
+            showTOSModal();
         });
     });
 
@@ -850,6 +853,46 @@ async function verifyRobloxPurchase() {
             verifyBtn.innerHTML = '<i class="fas fa-check"></i> Verify & Get Key';
             verifyBtn.disabled = false;
         }
+    }
+}
+
+// TOS Modal Functions
+let pendingPurchaseAction = null;
+
+// Show TOS Modal
+function showTOSModal() {
+    const modal = document.getElementById('tos-modal');
+    const checkbox = document.getElementById('tos-checkbox');
+    const acceptBtn = document.getElementById('tos-accept-btn');
+    
+    // Reset checkbox and button state
+    checkbox.checked = false;
+    acceptBtn.disabled = true;
+    
+    // Show modal
+    modal.style.display = 'flex';
+    setTimeout(() => modal.classList.add('show'), 10);
+    
+    // Enable/disable accept button based on checkbox
+    checkbox.addEventListener('change', function() {
+        acceptBtn.disabled = !this.checked;
+    });
+}
+
+// Close TOS Modal
+function closeTOSModal() {
+    const modal = document.getElementById('tos-modal');
+    modal.classList.remove('show');
+    setTimeout(() => modal.style.display = 'none', 300);
+    pendingPurchaseAction = null;
+}
+
+// Accept TOS and proceed with purchase
+function acceptTOSAndProceed() {
+    closeTOSModal();
+    if (pendingPurchaseAction) {
+        pendingPurchaseAction();
+        pendingPurchaseAction = null;
     }
 }
 

@@ -114,18 +114,16 @@ function showMyTickets() {
 
     ticketsList.innerHTML = myTickets.map(ticket => `
         <div class="ticket-item" onclick="loadTicket('${ticket.ticketNumber}')">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="ticket-item-header">
                 <div>
-                    <span class="ticket-number">${ticket.ticketNumber}</span>
-                    <div style="font-size: 0.9em; color: var(--text-muted); margin-top: 5px;">
-                        ${ticket.subject}
-                    </div>
+                    <div class="ticket-item-title">${ticket.subject}</div>
+                    <div class="ticket-number">${ticket.ticketNumber}</div>
                 </div>
-                <div style="text-align: right;">
-                    <div style="font-size: 0.85em; color: var(--text-muted);">
-                        ${new Date(ticket.createdAt).toLocaleDateString()}
-                    </div>
-                </div>
+                <span class="status-badge status-open">OPEN</span>
+            </div>
+            <div class="ticket-meta">
+                <span><i class="fas fa-tag"></i> ${ticket.category}</span>
+                <span><i class="fas fa-clock"></i> ${new Date(ticket.createdAt).toLocaleDateString()}</span>
             </div>
         </div>
     `).join('');
@@ -169,21 +167,25 @@ function displayTicket(ticket, replies) {
     
     // Initial message
     const initialMessage = `
-        <div class="message message-user">
-            <div class="message-author">${ticket.user_name}</div>
-            <div>${ticket.description}</div>
-            <div class="message-time">${new Date(ticket.created_at).toLocaleString()}</div>
+        <div class="message">
+            <div class="message-header">
+                <div class="message-author">${ticket.user_name}</div>
+                <div class="message-time">${new Date(ticket.created_at).toLocaleString()}</div>
+            </div>
+            <div class="message-content">${ticket.description}</div>
         </div>
     `;
 
     // Replies
     const repliesHtml = replies.map(reply => `
-        <div class="message message-${reply.author_type}">
-            <div class="message-author">
-                ${reply.author_type === 'admin' ? '👨‍💼 ' : ''}${reply.author_name}
+        <div class="message ${reply.author_type === 'admin' ? 'message-admin' : ''}">
+            <div class="message-header">
+                <div class="message-author">
+                    ${reply.author_type === 'admin' ? '👨‍💼 ' : ''}${reply.author_name}
+                </div>
+                <div class="message-time">${new Date(reply.created_at).toLocaleString()}</div>
             </div>
-            <div>${reply.message}</div>
-            <div class="message-time">${new Date(reply.created_at).toLocaleString()}</div>
+            <div class="message-content">${reply.message}</div>
         </div>
     `).join('');
 

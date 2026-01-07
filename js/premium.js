@@ -135,8 +135,17 @@ async function capturePayPalPayment(orderId) {
             // Save key to localStorage for future reference
             saveKeyToLocalStorage(data.keys[0], data.tier);
             
-            // Show success modal with key
-            showKeyModal(data.keys, data.tier);
+            // Redirect to success page
+            const params = new URLSearchParams({
+                orderId: data.transactionId || 'PAYPAL-' + Date.now(),
+                tier: data.tier,
+                amount: data.amount || '0.00',
+                email: data.email || 'N/A',
+                key: data.keys[0],
+                method: 'paypal',
+                date: new Date().toISOString()
+            });
+            window.location.href = `success.html?${params.toString()}`;
         } else {
             throw new Error('Key generation failed');
         }
@@ -610,16 +619,23 @@ async function verifyRobloxPurchase() {
         verifyBtn.disabled = false;
         
         if (data.success && data.keys && data.keys.length > 0) {
-            // Close verify modal
-            document.getElementById('roblox-modal').remove();
-            
             // Save key
             saveKeyToLocalStorage(data.keys[0], data.tier);
             
-            // Show success modal with expiration
-            showKeyModal(data.keys, data.tier, data.expiryDate);
+            // Redirect to success page
+            const params = new URLSearchParams({
+                orderId: data.transactionId || data.userId || 'ROBLOX-' + Date.now(),
+                tier: data.tier,
+                amount: '0.00',
+                email: data.username || 'Roblox User',
+                key: data.keys[0],
+                method: 'roblox',
+                date: new Date().toISOString()
+            });
+            window.location.href = `success.html?${params.toString()}`;
             
             if (data.alreadyClaimed) {
+                // Will redirect before this shows, but kept for consistency
                 showNotification('Welcome back! Retrieved your existing key.', 'info');
             } else {
                 showNotification('Purchase verified! Key generated.', 'success');

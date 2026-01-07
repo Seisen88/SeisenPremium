@@ -43,6 +43,12 @@ const paymentDB = new PaymentDatabase(
     process.env.DB_PATH || path.join(__dirname, 'payments.db')
 );
 
+// Initialize Ticket database
+const TicketDatabase = require('./ticket-database');
+const ticketDB = new TicketDatabase(
+    process.env.TICKET_DB_PATH || path.join(__dirname, 'tickets.db')
+);
+
 // Initialize Roblox integration
 const robloxIntegration = new RobloxIntegration({
     apiKey: process.env.ROBLOX_API_KEY, // Secret key for security
@@ -871,6 +877,262 @@ app.get('/api/admin/payments', async (req, res) => {
     } catch (error) {
         console.error('Error fetching payments:', error);
         res.status(500).json({ error: 'Failed to fetch payments' });
+    }
+});
+
+// ============================================
+// SUPPORT TICKET ENDPOINTS
+// ============================================
+
+// Helper function to send Discord webhook
+async function sendDiscordWebhook(content, embeds = []) {
+    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+    if (!webhookUrl) {
+        console.warn('⚠️  Discord webhook URL not configured');
+        return;
+    }
+
+    try {
+        await axios.post(webhookUrl, {
+            content,
+            embeds
+        });
+        console.log('✅ Discord notification sent');
+    } catch (error) {
+        console.error('❌ Discord webhook error:', error.message);
+    }
+}
+
+// Submit new ticket
+app.post('/api/support/ticket', async (req, res) => {
+    try {
+        const { userName, userEmail, category, subject, description } = req.body;
+
+        // Validation
+        if (!userName || !userEmail || !category || !subject || !description) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+
+        // Create ticket
+        const ticket = await ticketDB.createTicket({
+            userName,
+            userEmail,
+            category,
+            subject,
+            description
+        });
+
+        console.log(`🎫 New ticket created: ${ticket.ticketNumber}`);
+
+        // Send Discord notification
+        await sendDiscordWebhook(null, [{
+            title: '🎫 New Support Ticket',
+            color: 0x3b82f6,
+            fields: [
+                { name: 'Ticket #', value: ticket.ticketNumber, inline: true },
+                { name: 'Category', value: category, inline: true },
+                { name: 'Status', value: 'Open', inline: true },
+                { name: 'From', value: `${userName} (${userEmail})`, inline: false },
+                { name: 'Subject', value: subject, inline: false },
+                { name: 'Description', value: description.substring(0, 1000), inline: false }
+            ],
+            timestamp: new Date().toISOString()
+        }]);
+
+        res.json({
+            success: true,
+            ticketNumber: ticket.ticketNumber,
+            message: 'Ticket submitted successfully'
+        });
+
+    } catch (error) {
+        console.error('Error creating ticket:', error);
+        res.status(500).json({ error: 'Failed to create ticket' });
+    }
+});
+
+// Get ticket by number (for users via localStorage)
+app.get('/api/support/ticket/:ticketNumber', async (req, res) => {
+    try {
+        const { ticketNumber } = req.params;
+        const ticket = await ticketDB.getTicket(ticketNumber);
+
+        if (!ticket) {
+            return res.status(404).json({ error: 'Ticket not found' });
+        }
+
+        // Get replies
+        const replies = await ticketDB.getReplies(ticket.id);
+
+        res.json({
+            success: true,
+            ticket,
+            replies
+        });
+
+    } catch (error) {
+        console.error('Error fetching ticket:', error);
+        res.status(500).json({ error: 'Failed to fetch ticket' });
+    }
+});
+
+// User reply to ticket
+app.post('/api/support/ticket/:ticketNumber/reply', async (req, res) => {
+    try {
+        const { ticketNumber } = req.params;
+        const { userName, message } = req.body;
+
+        if (!message) {
+            return res.status(400).json({ error: 'Message is required' });
+        }
+
+        const ticket = await ticketDB.getTicket(ticketNumber);
+        if (!ticket) {
+            return res.status(404).json({ error: 'Ticket not found' });
+        }
+
+        // Add reply
+        await ticketDB.addReply(ticket.id, {
+            authorType: 'user',
+            authorName: userName || ticket.user_name,
+            message
+        });
+
+        console.log(`💬 User replied to ticket ${ticketNumber}`);
+
+        // Send Discord notification
+        await sendDiscordWebhook(null, [{
+            title: `💬 New Reply on Ticket #${ticketNumber}`,
+            color: 0x10b981,
+            fields: [
+                { name: 'From', value: userName || ticket.user_name, inline: true },
+                { name: 'Ticket', value: ticket.subject, inline: true },
+                { name: 'Reply', value: message.substring(0, 1000), inline: false }
+            ],
+            timestamp: new Date().toISOString()
+        }]);
+
+        res.json({
+            success: true,
+            message: 'Reply added successfully'
+        });
+
+    } catch (error) {
+        console.error('Error adding reply:', error);
+        res.status(500).json({ error: 'Failed to add reply' });
+    }
+});
+
+// Get all tickets (Admin only)
+app.get('/api/admin/tickets', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+        
+        if (!authHeader || authHeader !== `Bearer ${adminPassword}`) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const tickets = await ticketDB.getAllTickets();
+
+        res.json({
+            success: true,
+            tickets
+        });
+
+    } catch (error) {
+        console.error('Error fetching tickets:', error);
+        res.status(500).json({ error: 'Failed to fetch tickets' });
+    }
+});
+
+// Admin reply to ticket
+app.post('/api/admin/ticket/:ticketNumber/reply', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+        
+        if (!authHeader || authHeader !== `Bearer ${adminPassword}`) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const { ticketNumber } = req.params;
+        const { message } = req.body;
+
+        if (!message) {
+            return res.status(400).json({ error: 'Message is required' });
+        }
+
+        const ticket = await ticketDB.getTicket(ticketNumber);
+        if (!ticket) {
+            return res.status(404).json({ error: 'Ticket not found' });
+        }
+
+        // Add reply
+        await ticketDB.addReply(ticket.id, {
+            authorType: 'admin',
+            authorName: 'Support Team',
+            message
+        });
+
+        console.log(`👨‍💼 Admin replied to ticket ${ticketNumber}`);
+
+        // Send Discord notification
+        await sendDiscordWebhook(null, [{
+            title: `✅ Admin Reply on Ticket #${ticketNumber}`,
+            color: 0xa855f7,
+            fields: [
+                { name: 'Ticket', value: ticket.subject, inline: false },
+                { name: 'Reply', value: message.substring(0, 1000), inline: false }
+            ],
+            timestamp: new Date().toISOString()
+        }]);
+
+        res.json({
+            success: true,
+            message: 'Reply added successfully'
+        });
+
+    } catch (error) {
+        console.error('Error adding admin reply:', error);
+        res.status(500).json({ error: 'Failed to add reply' });
+    }
+});
+
+// Update ticket status (Admin only)
+app.patch('/api/admin/ticket/:ticketNumber/status', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+        
+        if (!authHeader || authHeader !== `Bearer ${adminPassword}`) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const { ticketNumber } = req.params;
+        const { status } = req.body;
+
+        if (!['open', 'in_progress', 'closed'].includes(status)) {
+            return res.status(400).json({ error: 'Invalid status' });
+        }
+
+        const ticket = await ticketDB.getTicket(ticketNumber);
+        if (!ticket) {
+            return res.status(404).json({ error: 'Ticket not found' });
+        }
+
+        await ticketDB.updateStatus(ticket.id, status);
+
+        console.log(`📝 Ticket ${ticketNumber} status updated to: ${status}`);
+
+        res.json({
+            success: true,
+            message: 'Status updated successfully'
+        });
+
+    } catch (error) {
+        console.error('Error updating status:', error);
+        res.status(500).json({ error: 'Failed to update status' });
     }
 });
 

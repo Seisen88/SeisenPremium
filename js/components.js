@@ -3,9 +3,17 @@ document.addEventListener('DOMContentLoaded', function() {
     loadHeader();
     loadSidebar();
     loadFooter();
+    loadAds();
     updateActiveNavLink();
     initLoadingScreen();
 });
+
+function loadAds() {
+    const script = document.createElement('script');
+    script.src = 'js/ads.js';
+    script.async = true;
+    document.body.appendChild(script);
+}
 
 function loadHeader() {
     const headerHTML = `

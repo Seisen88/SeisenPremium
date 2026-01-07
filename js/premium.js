@@ -377,6 +377,14 @@ function viewOrder(key, tier, purchaseDate) {
     window.location.href = `success.html?${params.toString()}`;
 }
 
+// Contact Support with Order Info
+function contactSupportWithOrder(orderId, key) {
+    // Store order info in sessionStorage for support page
+    sessionStorage.setItem('supportOrderId', orderId);
+    sessionStorage.setItem('supportKey', key);
+    window.location.href = 'support.html';
+}
+
 // Show saved keys modal
 function showSavedKeysModal() {
     const savedKeys = getSavedKeys();
@@ -392,6 +400,7 @@ function showSavedKeysModal() {
             day: 'numeric', 
             year: 'numeric' 
         });
+        const orderId = 'ORDER-' + item.key.substring(0, 16);
         return `
             <div class="saved-key-card">
                 <div class="saved-key-header">
@@ -407,6 +416,9 @@ function showSavedKeysModal() {
                         <i class="fas fa-eye"></i> View
                     </button>
                 </div>
+                <button class="saved-key-btn saved-key-btn-support" onclick="contactSupportWithOrder('${orderId}', '${item.key}')" style="width: 100%; margin-top: 10px; background: #10b981; color: white;">
+                    <i class="fas fa-headset"></i> Contact Support
+                </button>
             </div>
         `;
     }).join('');

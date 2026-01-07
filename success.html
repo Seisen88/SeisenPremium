@@ -361,8 +361,8 @@
                         <div class="info-value" id="customer-email">user@example.com</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">Country</div>
-                        <div class="info-value" id="customer-country">Philippines (PH)</div>
+                        <div class="info-label">Order ID</div>
+                        <div class="info-value" style="font-family: monospace;" id="order-id-display">LOADING...</div>
                     </div>
                 </div>
                 <div>
@@ -418,9 +418,9 @@
             <i class="fas fa-question-circle"></i>
             <h3>Need Help?</h3>
             <p>Have questions about your order? Our support team is here to help you with any issues.</p>
-            <a href="support.html" class="help-btn">
+            <button class="help-btn" onclick="contactSupport()">
                 <i class="fas fa-headset"></i> Contact Support
-            </a>
+            </button>
         </div>
     </div>
 
@@ -461,12 +461,20 @@
         document.getElementById('payment-email').textContent = orderData.email;
         document.getElementById('transaction-id').textContent = orderData.orderId;
         document.getElementById('customer-email').textContent = orderData.email;
+        document.getElementById('order-id-display').textContent = orderData.orderId;
         document.getElementById('customer-id').textContent = orderData.orderId.substring(0, 24);
         document.getElementById('customer-since').textContent = formattedDate;
         document.getElementById('license-key').textContent = orderData.key;
         document.getElementById('delivery-date').textContent = formattedDate;
         document.getElementById('timeline-placed').textContent = formattedDate;
         document.getElementById('timeline-delivered').textContent = formattedDate;
+
+        // Contact Support with pre-filled order info
+        function contactSupport() {
+            sessionStorage.setItem('supportOrderId', orderData.orderId);
+            sessionStorage.setItem('supportKey', orderData.key);
+            window.location.href = 'support.html';
+        }
 
         // Copy key function
         function copyKey() {

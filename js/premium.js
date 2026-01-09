@@ -452,10 +452,22 @@ function showSavedKeysModal() {
         const orderId = 'ORDER-' + item.key.substring(0, 16);
         const method = item.method || 'saved';
         const amount = item.amount || '0.00';
+        
+        // Determine payment method display
+        let paymentBadge = '';
+        if (method === 'roblox') {
+            paymentBadge = '<span style="font-size: 0.75em; color: #fbbf24; margin-left: 8px;"><i class="fas fa-coins"></i> Robux</span>';
+        } else if (method === 'paypal') {
+            paymentBadge = '<span style="font-size: 0.75em; color: #0070ba; margin-left: 8px;"><i class="fab fa-paypal"></i> PayPal</span>';
+        }
+        
         return `
             <div class="saved-key-card">
                 <div class="saved-key-header">
-                    <strong>${item.tier.charAt(0).toUpperCase() + item.tier.slice(1)}</strong>
+                    <div>
+                        <strong>${item.tier.charAt(0).toUpperCase() + item.tier.slice(1)}</strong>
+                        ${paymentBadge}
+                    </div>
                     <span class="saved-key-date">${date}</span>
                 </div>
                 <div class="saved-key-code">${item.key}</div>

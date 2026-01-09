@@ -679,7 +679,8 @@ Please open a ticket in our Discord server to complete your purchase.
 // Show Ticket Modal
 function showTicketModal(plan, amount, currency, discordInvite) {
     const modal = document.createElement('div');
-    modal.className = 'payment-modal';
+    modal.className = 'payment-modal show';
+    modal.style.display = 'flex';
     modal.innerHTML = `
         <div class="modal-content">
             <div class="modal-header">
@@ -710,8 +711,6 @@ function showTicketModal(plan, amount, currency, discordInvite) {
         </div>
     `;
     document.body.appendChild(modal);
-    
-    setTimeout(() => modal.classList.add('show'), 10);
 }
 
 // Notification System
@@ -766,6 +765,7 @@ function copyText(text) {
 function showRobloxVerificationModal(tier = 'lifetime') {
     const modal = document.createElement('div');
     modal.className = 'payment-modal show';
+    modal.style.display = 'flex';
     modal.id = 'roblox-modal';
     
     const productLinks = {
@@ -928,7 +928,6 @@ function closeTOSModal() {
     const modal = document.getElementById('tos-modal');
     modal.classList.remove('show');
     setTimeout(() => modal.style.display = 'none', 300);
-    pendingPurchaseAction = null;
 }
 
 // Accept TOS and proceed with purchase

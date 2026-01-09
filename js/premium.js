@@ -859,11 +859,18 @@ async function verifyRobloxPurchase() {
             // Save key
             saveKeyToLocalStorage(data.keys[0], data.tier);
             
+            // Robux pricing map
+            const robuxPricing = {
+                weekly: '500',
+                monthly: '800',
+                lifetime: '1600'
+            };
+            
             // Redirect to success page
             const params = new URLSearchParams({
                 orderId: data.transactionId || data.userId || 'ROBLOX-' + Date.now(),
                 tier: data.tier,
-                amount: '0.00',
+                amount: robuxPricing[data.tier] || '0',
                 email: data.username || 'Roblox User',
                 key: data.keys[0],
                 method: 'roblox',

@@ -535,14 +535,16 @@
       } x 1`;
       document.getElementById("product-price").textContent =
         orderData.method === "roblox"
-          ? "Free (Roblox)"
+          ? `${orderData.amount} Robux`
           : `$${orderData.amount}`;
       document.getElementById("total-price").textContent =
         orderData.method === "roblox"
-          ? "Free (Roblox)"
+          ? `${orderData.amount} Robux`
           : `$${orderData.amount}`;
       document.getElementById("amount-paid").textContent =
-        orderData.method === "roblox" ? "$0.00" : `$${orderData.amount}`;
+        orderData.method === "roblox" 
+          ? `${orderData.amount} Robux` 
+          : `$${orderData.amount}`;
       document.getElementById("payment-method").textContent =
         orderData.method === "roblox" ? "Roblox" : "PayPal";
       document.getElementById("payment-email").textContent = orderData.email;

@@ -870,28 +870,8 @@ app.get('/api/admin/payments', async (req, res) => {
         }
 
         // Get all payments from database
-        const payments = await new Promise((resolve, reject) => {
-            paymentDB.db.all(
-                'SELECT * FROM payments ORDER BY created_at DESC',
-                [],
-                (err, rows) => {
-                    if (err) reject(err);
-                    else {
-                        // Parse generated_keys JSON
-                        rows.forEach(row => {
-                            if (row.generated_keys) {
-                                try {
-                                    row.generated_keys = JSON.parse(row.generated_keys);
-                                } catch (e) {
-                                    // Keep as string if parse fails
-                                }
-                            }
-                        });
-                        resolve(rows);
-                    }
-                }
-            );
-        });
+        // Get all payments from database
+        const payments = paymentDB.getAllPayments();
 
         // Calculate stats
         const stats = {

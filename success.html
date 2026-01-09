@@ -542,7 +542,7 @@
       // Display amounts based on payment type
       const amountDisplay = isRobuxPayment 
         ? `${orderData.amount} Robux`
-        : `$${orderData.amount}`;
+        : `€${orderData.amount}`;
       
       document.getElementById("product-price").textContent = amountDisplay;
       document.getElementById("total-price").textContent = amountDisplay;

@@ -14,6 +14,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (adminToken) {
         showDashboard();
         loadPayments();
+        loadVisitorStats();
     }
 });
 
@@ -38,6 +39,7 @@ document.getElementById('login-form')?.addEventListener('submit', async (e) => {
             localStorage.setItem('adminToken', adminToken);
             showDashboard();
             loadPayments();
+            loadVisitorStats();
         } else {
             errorDiv.textContent = 'Invalid password';
             errorDiv.style.display = 'block';
@@ -100,6 +102,20 @@ async function loadPayments() {
                 </td>
             </tr>
         `;
+    }
+}
+
+// Load Visitor Stats
+async function loadVisitorStats() {
+    try {
+        const response = await fetch(`${API_BASE}/api/visitors`);
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById('stat-visitors').textContent = (data.count || 0).toLocaleString();
+        }
+    } catch (error) {
+        console.error('Error loading visitor stats:', error);
+        document.getElementById('stat-visitors').textContent = '-';
     }
 }
 

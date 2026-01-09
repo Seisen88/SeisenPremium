@@ -18,7 +18,7 @@ const DEBUG = process.env.DEBUG === 'true';
 const bodyParser = require('body-parser');
 const PayPalSDK = require('./paypal-sdk');
 const JunkieKeySystem = require('./junkie-integration');
-const PaymentDatabase = require('./payment-database');
+// const PaymentDatabase = require('./payment-database'); // Deprecated in favor of JSON
 const RobloxIntegration = require('./roblox-integration');
 
 // Initialize PayPal SDK
@@ -40,15 +40,19 @@ const junkieSystem = new JunkieKeySystem({
 });
 
 // Initialize database
-const paymentDB = new PaymentDatabase(
-    process.env.DB_PATH || path.join(__dirname, 'payments.db')
-);
-
 // Initialize Ticket database
 const TicketDatabase = require('./ticket-database');
 const ticketDB = new TicketDatabase(
     process.env.TICKET_DB_PATH || path.join(__dirname, 'tickets.db')
 );
+
+// Initialize JSON Stats database
+const JsonDatabase = require('./json-database');
+const statsDB = new JsonDatabase(
+    process.env.STATS_DB_PATH || path.join(__dirname, 'data', 'stats.json')
+);
+// Payment DB is now handled by JsonDatabase (same instance)
+const paymentDB = statsDB;
 
 // Initialize Roblox integration
 const robloxIntegration = new RobloxIntegration({
@@ -1164,6 +1168,28 @@ app.patch('/api/admin/ticket/:ticketNumber/status', async (req, res) => {
     } catch (error) {
         console.error('Error updating status:', error);
         res.status(500).json({ error: 'Failed to update status' });
+    }
+});
+
+
+// Visitor Stats API
+app.get('/api/visitors', (req, res) => {
+    try {
+        const count = statsDB.getVisitorCount();
+        res.json({ count });
+    } catch (error) {
+        console.error('Error fetching visitor count:', error);
+        res.status(500).json({ error: 'Failed to fetch visitor count' });
+    }
+});
+
+app.post('/api/visitors', (req, res) => {
+    try {
+        const count = statsDB.incrementVisitorCount();
+        res.json({ count });
+    } catch (error) {
+        console.error('Error incrementing visitor count:', error);
+        res.status(500).json({ error: 'Failed to increment visitor count' });
     }
 });
 

@@ -332,28 +332,63 @@ function loadFooter() {
 }
 
 // Visitor Counter
-function initVisitorCounter() {
+async function initVisitorCounter() {
     const VISITOR_KEY = 'seisen_visitor_count';
     const SESSION_VISITOR_KEY = 'seisen_session_visitor';
     
+    // Determine API Base URL
+    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:3000' 
+        : 'https://seisen-backend.onrender.com';
+
     // Check if this session has already been counted
     let hasVisitedThisSession = sessionStorage.getItem(SESSION_VISITOR_KEY);
     
-    if (!hasVisitedThisSession) {
-        // New session - mark it and increment counter
-        sessionStorage.setItem(SESSION_VISITOR_KEY, 'true');
+    try {
+        let count;
         
-        // Get current count from localStorage and increment
-        let count = parseInt(localStorage.getItem(VISITOR_KEY) || '0', 10);
-        count++;
-        localStorage.setItem(VISITOR_KEY, count.toString());
-    }
-    
-    // Display count
-    const count = parseInt(localStorage.getItem(VISITOR_KEY) || '0', 10);
-    const counterElement = document.getElementById('visitor-count');
-    if (counterElement) {
-        counterElement.textContent = count.toLocaleString();
+        if (!hasVisitedThisSession) {
+            // New session - call increment endpoint
+            const response = await fetch(`${API_BASE}/api/visitors`, { method: 'POST' });
+            if (response.ok) {
+                const data = await response.json();
+                count = data.count;
+                sessionStorage.setItem(SESSION_VISITOR_KEY, 'true');
+            }
+        } else {
+            // Existing session - just get current count
+            const response = await fetch(`${API_BASE}/api/visitors`);
+            if (response.ok) {
+                const data = await response.json();
+                count = data.count;
+            }
+        }
+        
+        // Update display if we got a valid count
+        if (count !== undefined) {
+             const counterElement = document.getElementById('visitor-count');
+             if (counterElement) {
+                 counterElement.textContent = count.toLocaleString();
+             }
+             // Also update local storage as a fallback/cache
+             localStorage.setItem(VISITOR_KEY, count.toString());
+        } else {
+            // Fallback to local storage if API fails
+            const localCount = parseInt(localStorage.getItem(VISITOR_KEY) || '0', 10);
+            const counterElement = document.getElementById('visitor-count');
+            if (counterElement) {
+                counterElement.textContent = localCount.toLocaleString();
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error updating visitor count:', error);
+        // Fallback display
+        const localCount = parseInt(localStorage.getItem(VISITOR_KEY) || '0', 10);
+        const counterElement = document.getElementById('visitor-count');
+        if (counterElement) {
+            counterElement.textContent = localCount.toLocaleString();
+        }
     }
 }
 

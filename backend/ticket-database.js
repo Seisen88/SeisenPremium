@@ -33,21 +33,32 @@ class TicketDatabase {
             .select();
 
         if (error) {
-            console.error('Error creating ticket in Supabase:', error);
+            console.error('❌ Error creating ticket in Supabase:', error);
             throw error;
         }
+        
+        console.log(`✅ Ticket created in database: ${ticketNumber} (ID: ${data[0].id})`);
         return { id: data[0].id, ticketNumber };
     }
 
     async getTicket(ticketNumber) {
+        const cleanNumber = ticketNumber ? ticketNumber.trim() : '';
+        console.log(`🔍 Querying ticket: "${cleanNumber}"`);
+        
         const { data, error } = await this.supabase
             .from('tickets')
             .select('*')
-            .eq('ticket_number', ticketNumber)
+            .eq('ticket_number', cleanNumber)
             .single();
 
-        if (error && error.code !== 'PGRST116') {
-            console.error('Error fetching ticket:', error);
+        if (error) {
+            if (error.code === 'PGRST116') {
+                console.log(`ℹ️  Ticket not found in DB: "${cleanNumber}"`);
+            } else {
+                console.error('❌ Supabase error fetching ticket:', error);
+            }
+        } else {
+            console.log(`✅ Ticket found: "${cleanNumber}"`);
         }
         return data;
     }

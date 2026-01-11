@@ -992,7 +992,9 @@ app.post('/api/support/ticket', async (req, res) => {
 
 app.get('/api/support/ticket/:number', async (req, res) => {
     try {
-        const ticket = await ticketDB.getTicket(req.params.number);
+        const ticketNumber = req.params.number;
+        console.log(`📡 GET /api/support/ticket/${ticketNumber}`);
+        const ticket = await ticketDB.getTicket(ticketNumber);
         if (!ticket) {
             return res.status(404).json({ error: 'Ticket not found' });
         }
@@ -1167,6 +1169,21 @@ app.patch('/api/admin/ticket/:ticketNumber/status', async (req, res) => {
 
 
 
+
+// Diagnostic endpoint - list recent tickets (temp debug)
+app.get('/api/support/debug/recent-tickets', async (req, res) => {
+    try {
+        const { data, error } = await ticketDB.supabase
+            .from('tickets')
+            .select('ticket_number, subject, created_at')
+            .order('created_at', { ascending: false })
+            .limit(10);
+            
+        res.json({ success: true, tickets: data, error });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 // Start server
 app.listen(PORT, () => {

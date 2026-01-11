@@ -168,6 +168,9 @@ class PayPalSDK {
      * @returns {Object} Payment details
      */
     extractPaymentInfo(captureData) {
+        // debug logging
+        console.log('Payment Capture Data:', JSON.stringify(captureData, null, 2));
+
         const purchaseUnit = captureData.purchase_units[0];
         const capture = purchaseUnit.payments.captures[0];
         const payer = captureData.payer;
@@ -177,7 +180,7 @@ class PayPalSDK {
             transactionId: capture.id,
             amount: parseFloat(capture.amount.value),
             currency: capture.amount.currency_code,
-            tier: purchaseUnit.custom_id || 'weekly',
+            tier: purchaseUnit.payments?.captures?.[0]?.custom_id || purchaseUnit.custom_id || 'weekly', // Try to find custom_id in multiple places
             status: capture.status,
             payerEmail: payer.email_address,
             payerName: `${payer.name.given_name} ${payer.name.surname}`,

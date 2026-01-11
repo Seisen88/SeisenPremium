@@ -999,7 +999,7 @@ app.get('/api/support/ticket/:number', async (req, res) => {
         }
 
         const replies = await ticketDB.getReplies(req.params.number);
-        res.json({ ticket, replies });
+        res.json({ success: true, ticket, replies });
     } catch (error) {
         console.error('Error fetching ticket:', error);
         res.status(500).json({ error: 'Failed to fetch ticket' });

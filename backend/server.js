@@ -898,8 +898,7 @@ app.get('/api/admin/payments', async (req, res) => {
         }
 
         // Get all payments from database
-        // Get all payments from database
-        const payments = paymentDB.getAllPayments();
+        const payments = await paymentDB.getAllPayments();
 
         // Calculate stats
         const stats = {

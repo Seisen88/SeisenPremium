@@ -12,12 +12,6 @@ temp/
 *.log
 npm-debug.log*
 
-# Data files (should not be in git - use persistent storage)
-data/visitor-stats.json
-data/payments.json
-data/tickets.json
-data/stats.json
-
 # OS files
 .DS_Store
 Thumbs.db

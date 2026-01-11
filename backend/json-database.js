@@ -1,191 +1,179 @@
-const fs = require('fs');
-const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
 
 class JsonDatabase {
-    constructor(filePath = 'data/stats.json') {
-        this.filePath = path.isAbsolute(filePath) ? filePath : path.join(__dirname, filePath);
-        // Payments file path (sibling to stats file)
-        this.paymentsPath = path.join(path.dirname(this.filePath), 'payments.json');
+    constructor() {
+        this.supabase = createClient(
+            process.env.SUPABASE_URL,
+            process.env.SUPABASE_ANON_KEY
+        );
+        console.log('✅ Supabase Client initialized for JsonDatabase');
+    }
+
+    // Payment Methods
+    async transactionExists(transactionId) {
+        const { data, error } = await this.supabase
+            .from('payments')
+            .select('transaction_id')
+            .eq('transaction_id', transactionId)
+            .single();
         
-        this.ensureFileExists();
-        this.ensurePaymentsFileExists();
-    }
-
-    ensureFileExists() {
-        const dir = path.dirname(this.filePath);
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
+        if (error && error.code !== 'PGRST116') { // PGRST116 means not found
+            console.error('Error checking transaction:', error);
         }
+        return !!data;
     }
     
-    ensurePaymentsFileExists() {
-        if (!fs.existsSync(this.paymentsPath)) {
-            fs.writeFileSync(this.paymentsPath, JSON.stringify([], null, 2));
+    async savePayment(paymentData) {
+        const { data, error } = await this.supabase
+            .from('payments')
+            .insert([{
+                transaction_id: paymentData.transactionId,
+                payer_email: paymentData.payerEmail,
+                payer_id: paymentData.payerId || null,
+                roblox_username: paymentData.robloxUsername || null,
+                roblox_uaid: paymentData.robloxUaid || null,
+                tier: paymentData.tier,
+                amount: paymentData.amount,
+                currency: paymentData.currency,
+                payment_status: paymentData.status,
+                generated_keys: paymentData.keys ? JSON.stringify(paymentData.keys) : null,
+                updated_at: new Date().toISOString()
+            }])
+            .select();
+
+        if (error) {
+            console.error('Error saving payment to Supabase:', error);
+            throw error;
+        }
+        return data[0].id;
+    }
+    
+    async updatePaymentKeys(transactionId, keys) {
+        const { error } = await this.supabase
+            .from('payments')
+            .update({ 
+                generated_keys: JSON.stringify(keys),
+                updated_at: new Date().toISOString()
+            })
+            .eq('transaction_id', transactionId);
+
+        if (error) {
+            console.error('Error updating payment keys:', error);
         }
     }
 
+    async updateRobloxPurchase(transactionId, uaid) {
+        const { error } = await this.supabase
+            .from('payments')
+            .update({ 
+                roblox_uaid: uaid,
+                created_at: new Date().toISOString(), // Reset creation time for renewal
+                updated_at: new Date().toISOString()
+            })
+            .eq('transaction_id', transactionId);
 
-    
-    readPayments() {
-        try {
-            const data = fs.readFileSync(this.paymentsPath, 'utf8');
-            return JSON.parse(data);
-        } catch (error) {
-            console.error('Error reading payments database:', error);
-            return [];
-        }
-    }
-
-
-    
-    writePayments(data) {
-        try {
-            fs.writeFileSync(this.paymentsPath, JSON.stringify(data, null, 2));
-            return true;
-        } catch (error) {
-            console.error('Error writing payments database:', error);
+        if (error) {
+            console.error('Error updating roblox purchase:', error);
             return false;
         }
+        return true;
     }
+    
+    async getPayment(transactionId) {
+        const { data, error } = await this.supabase
+            .from('payments')
+            .select('*')
+            .eq('transaction_id', transactionId)
+            .single();
 
-
-    
-    // Payment Methods
-    
-    transactionExists(transactionId) {
-        const payments = this.readPayments();
-        return payments.some(p => p.transaction_id === transactionId);
-    }
-    
-    savePayment(paymentData) {
-        const payments = this.readPayments();
-        
-        const newPayment = {
-            id: payments.length + 1,
-            transaction_id: paymentData.transactionId,
-            payer_email: paymentData.payerEmail,
-            payer_id: paymentData.payerId || null,
-            roblox_username: paymentData.robloxUsername || null,
-            roblox_uaid: paymentData.robloxUaid || null,
-            tier: paymentData.tier,
-            amount: paymentData.amount,
-            currency: paymentData.currency,
-            payment_status: paymentData.status,
-            generated_keys: paymentData.keys || null,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-        };
-        
-        payments.push(newPayment);
-        this.writePayments(payments);
-        return newPayment.id;
-    }
-    
-    updatePaymentKeys(transactionId, keys) {
-        const payments = this.readPayments();
-        const index = payments.findIndex(p => p.transaction_id === transactionId);
-        
-        if (index !== -1) {
-            payments[index].generated_keys = keys;
-            payments[index].updated_at = new Date().toISOString();
-            this.writePayments(payments);
+        if (error && error.code !== 'PGRST116') {
+            console.error('Error fetching payment:', error);
         }
+        return data;
     }
+    
+    async getUserPayments(email) {
+        const { data, error } = await this.supabase
+            .from('payments')
+            .select('*')
+            .eq('payer_email', email)
+            .order('created_at', { ascending: false });
 
-    updateRobloxPurchase(transactionId, uaid) {
-        const payments = this.readPayments();
-        const index = payments.findIndex(p => p.transaction_id === transactionId);
-        
-        if (index !== -1) {
-            payments[index].roblox_uaid = uaid;
-            payments[index].created_at = new Date().toISOString(); // Reset creation time for renewal
-            payments[index].updated_at = new Date().toISOString();
-            this.writePayments(payments);
-            return true;
+        if (error) {
+            console.error('Error fetching user payments:', error);
+            return [];
         }
-        return false;
+        return data;
     }
     
-    getPayment(transactionId) {
-        const payments = this.readPayments();
-        return payments.find(p => p.transaction_id === transactionId);
-    }
-    
-    getUserPayments(email) {
-        const payments = this.readPayments();
-        return payments
-            .filter(p => p.payer_email === email)
-            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    }
-    
-    getAllPayments() {
-        const payments = this.readPayments();
-        return payments.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    async getAllPayments() {
+        const { data, error } = await this.supabase
+            .from('payments')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching all payments:', error);
+            return [];
+        }
+        return data;
     }
 
     // Visitor tracking methods
-    readVisitorStats() {
-        const statsPath = path.join(path.dirname(this.filePath), 'visitor-stats.json');
-        try {
-            if (!fs.existsSync(statsPath)) {
-                const initialData = {
-                    totalVisits: 0,
-                    uniqueVisitors: 0,
-                    lastUpdated: new Date().toISOString(),
-                    visitors: []
-                };
-                fs.writeFileSync(statsPath, JSON.stringify(initialData, null, 2));
-                return initialData;
-            }
-            const data = fs.readFileSync(statsPath, 'utf8');
-            return JSON.parse(data);
-        } catch (error) {
-            console.error('Error reading visitor stats:', error);
-            return { totalVisits: 0, uniqueVisitors: 0, lastUpdated: new Date().toISOString(), visitors: [] };
+    async getVisitorStats() {
+        const { data, error } = await this.supabase
+            .from('visitors')
+            .select('*');
+
+        if (error) {
+            console.error('Error fetching visitor stats:', error);
+            return { totalVisits: 0, uniqueVisitors: 0 };
         }
+
+        const totalVisits = data.reduce((sum, v) => sum + v.visit_count, 0);
+        return {
+            totalVisits,
+            uniqueVisitors: data.length,
+            lastUpdated: new Date().toISOString()
+        };
     }
 
-    writeVisitorStats(data) {
-        const statsPath = path.join(path.dirname(this.filePath), 'visitor-stats.json');
-        try {
-            fs.writeFileSync(statsPath, JSON.stringify(data, null, 2));
-            return true;
-        } catch (error) {
-            console.error('Error writing visitor stats:', error);
-            return false;
-        }
-    }
+    async recordVisit(ipAddress, userAgent) {
+        // Find existing visitor
+        const { data: existing, error: fetchError } = await this.supabase
+            .from('visitors')
+            .select('*')
+            .eq('ip', ipAddress)
+            .single();
 
-    recordVisit(ipAddress, userAgent) {
-        const stats = this.readVisitorStats();
-        stats.totalVisits++;
-        
-        // Check if this is a unique visitor (by IP)
-        const existingVisitor = stats.visitors.find(v => v.ip === ipAddress);
-        
-        if (!existingVisitor) {
-            stats.uniqueVisitors++;
-            stats.visitors.push({
-                ip: ipAddress,
-                userAgent: userAgent,
-                firstVisit: new Date().toISOString(),
-                lastVisit: new Date().toISOString(),
-                visitCount: 1
-            });
+        if (fetchError && fetchError.code !== 'PGRST116') {
+            console.error('Error fetching visitor:', fetchError);
+        }
+
+        if (existing) {
+            // Update existing
+            await this.supabase
+                .from('visitors')
+                .update({
+                    last_visit: new Date().toISOString(),
+                    visit_count: existing.visit_count + 1,
+                    user_agent: userAgent
+                })
+                .eq('ip', ipAddress);
         } else {
-            existingVisitor.lastVisit = new Date().toISOString();
-            existingVisitor.visitCount++;
+            // Insert new
+            await this.supabase
+                .from('visitors')
+                .insert([{
+                    ip: ipAddress,
+                    user_agent: userAgent,
+                    visit_count: 1
+                }]);
         }
         
-        stats.lastUpdated = new Date().toISOString();
-        this.writeVisitorStats(stats);
-        return stats;
-    }
-
-    getVisitorStats() {
-        return this.readVisitorStats();
+        return await this.getVisitorStats();
     }
 }
-
 
 module.exports = JsonDatabase;

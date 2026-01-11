@@ -88,9 +88,9 @@ app.use((req, res, next) => {
         const userAgent = req.headers['user-agent'] || 'Unknown';
         
         // Record visit asynchronously to not block the request
-        setImmediate(() => {
+        setImmediate(async () => {
             try {
-                statsDB.recordVisit(ipAddress, userAgent);
+                await statsDB.recordVisit(ipAddress, userAgent);
             } catch (error) {
                 console.error('Error recording visit:', error);
             }
@@ -182,9 +182,9 @@ app.get('/api/health', (req, res) => {
 });
 
 // Get visitor statistics
-app.get('/api/visitor-stats', (req, res) => {
+app.get('/api/visitor-stats', async (req, res) => {
     try {
-        const stats = statsDB.getVisitorStats();
+        const stats = await statsDB.getVisitorStats();
         res.json({
             totalVisits: stats.totalVisits,
             uniqueVisitors: stats.uniqueVisitors,
@@ -944,33 +944,31 @@ async function sendDiscordWebhook(content, embeds = []) {
 }
 
 // Submit new ticket
-app.post('/api/support/ticket', async (req, res) => {
+app.post('/api/tickets', async (req, res) => {
     try {
         const { userName, userEmail, category, subject, description } = req.body;
-
-        // Validation
-        if (!userName || !userEmail || !category || !subject || !description) {
-            return res.status(400).json({ error: 'All fields are required' });
+        
+        if (!userName || !userEmail || !subject || !description) {
+            return res.status(400).json({ error: 'Missing required fields' });
         }
 
-        // Create ticket
-        const ticket = await ticketDB.createTicket({
+        const result = await ticketDB.createTicket({
             userName,
             userEmail,
-            category,
+            category: category || 'General',
             subject,
             description
         });
 
-        console.log(`🎫 New ticket created: ${ticket.ticketNumber}`);
+        console.log(`🎫 New ticket created: ${result.ticketNumber}`);
 
         // Send Discord notification
         await sendDiscordWebhook(null, [{
             title: '🎫 New Support Ticket',
             color: 0x3b82f6,
             fields: [
-                { name: 'Ticket #', value: ticket.ticketNumber, inline: true },
-                { name: 'Category', value: category, inline: true },
+                { name: 'Ticket #', value: result.ticketNumber, inline: true },
+                { name: 'Category', value: category || 'General', inline: true },
                 { name: 'Status', value: 'Open', inline: true },
                 { name: 'From', value: `${userName} (${userEmail})`, inline: false },
                 { name: 'Subject', value: subject, inline: false },
@@ -979,37 +977,26 @@ app.post('/api/support/ticket', async (req, res) => {
             timestamp: new Date().toISOString()
         }]);
 
-        res.json({
-            success: true,
-            ticketNumber: ticket.ticketNumber,
-            message: 'Ticket submitted successfully'
+        res.json({ 
+            success: true, 
+            ticketNumber: result.ticketNumber,
+            message: 'Support ticket created successfully. Our team will review it soon.'
         });
-
     } catch (error) {
         console.error('Error creating ticket:', error);
-        res.status(500).json({ error: 'Failed to create ticket' });
+        res.status(500).json({ error: 'Failed to create support ticket' });
     }
 });
 
-// Get ticket by number (for users via localStorage)
-app.get('/api/support/ticket/:ticketNumber', async (req, res) => {
+app.get('/api/tickets/:number', async (req, res) => {
     try {
-        const { ticketNumber } = req.params;
-        const ticket = await ticketDB.getTicket(ticketNumber);
-
+        const ticket = await ticketDB.getTicket(req.params.number);
         if (!ticket) {
             return res.status(404).json({ error: 'Ticket not found' });
         }
 
-        // Get replies
-        const replies = await ticketDB.getReplies(ticket.id);
-
-        res.json({
-            success: true,
-            ticket,
-            replies
-        });
-
+        const replies = await ticketDB.getReplies(req.params.number);
+        res.json({ ticket, replies });
     } catch (error) {
         console.error('Error fetching ticket:', error);
         res.status(500).json({ error: 'Failed to fetch ticket' });
@@ -1017,24 +1004,24 @@ app.get('/api/support/ticket/:ticketNumber', async (req, res) => {
 });
 
 // User reply to ticket
-app.post('/api/support/ticket/:ticketNumber/reply', async (req, res) => {
+app.post('/api/tickets/:number/replies', async (req, res) => {
     try {
-        const { ticketNumber } = req.params;
-        const { userName, message } = req.body;
+        const { authorName, authorType, message } = req.body;
+        const ticketNumber = req.params.number;
 
-        if (!message) {
-            return res.status(400).json({ error: 'Message is required' });
+        if (!authorName || !message) {
+            return res.status(400).json({ error: 'Author name and message are required' });
         }
 
+        // Get ticket details
         const ticket = await ticketDB.getTicket(ticketNumber);
         if (!ticket) {
             return res.status(404).json({ error: 'Ticket not found' });
         }
 
-        // Add reply
-        await ticketDB.addReply(ticket.id, {
-            authorType: 'user',
-            authorName: userName || ticket.user_name,
+        await ticketDB.addReply(ticketNumber, {
+            authorName,
+            authorType: authorType || 'user',
             message
         });
 

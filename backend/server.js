@@ -475,40 +475,15 @@ app.post('/api/roblox/verify-purchase', async (req, res) => {
             console.log('💾 New Roblox purchase saved to database');
         } else if (isRenewal) {
             // Update UAID in database for the existing transaction
-             // We need to implement a way to update UAID or just overwrite during key update if we expanded that method.
-             // Or we just accept the record exists. Ideally we update it.
              try {
-                // Quick hack: Update via raw SQL via the DB object effectively if we could, 
-                // but we lack the method. 
-                // Let's assume updating the key timestamp is "enough" for now, 
-                // BUT we need to save the new UAID so next time it matches!
-                // Critical: We MUST update the stored UAID to the new `currentUaid`.
-                // I will add a method to helper `updatePaymentKeys` to also update UAID?
-                // Or just add a new method.
-                // For this step, I'll assume I'll leverage a new DB method `updateRobloxPurchase` 
-                // which I should add.
-                // Or I can just delete the old record and insert a new one?
-                // Deleting is cleaner for "Renewal".
-                console.log('♻️  Renewing: Deleting old record to save new one with fresh UAID...');
-                await new Promise((resolve, reject) => {
-                     paymentDB.db.run('DELETE FROM payments WHERE transaction_id = ?', [transactionId], (err) => {
-                         if (err) reject(err); else resolve();
-                     });
-                });
+                // Use the JSON DB method to update the record
+                console.log('♻️  Renewing: Updating record with fresh UAID...');
+                const updated = paymentDB.updateRobloxPurchase(transactionId, currentUaid);
                 
-                // Now insert as new
-                await paymentDB.savePayment({
-                    transactionId: transactionId,
-                    payerEmail: null,
-                    payerId: `ROBLOX_${verification.userId}`,
-                    robloxUsername: verification.username,
-                    robloxUaid: currentUaid,
-                    tier: tier,
-                    amount: 0,
-                    currency: 'ROBUX',
-                    status: 'completed',
-                    keys: null
-                });
+                if (!updated) {
+                    throw new Error('Failed to update Roblox purchase record');
+                }
+                console.log('✅ Record updated with new UAID and timestamp');
              } catch (err) {
                  console.error('Error renewing record:', err);
              }

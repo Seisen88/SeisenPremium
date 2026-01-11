@@ -148,6 +148,20 @@ class JsonDatabase {
             this.writePayments(payments);
         }
     }
+
+    updateRobloxPurchase(transactionId, uaid) {
+        const payments = this.readPayments();
+        const index = payments.findIndex(p => p.transaction_id === transactionId);
+        
+        if (index !== -1) {
+            payments[index].roblox_uaid = uaid;
+            payments[index].created_at = new Date().toISOString(); // Reset creation time for renewal
+            payments[index].updated_at = new Date().toISOString();
+            this.writePayments(payments);
+            return true;
+        }
+        return false;
+    }
     
     getPayment(transactionId) {
         const payments = this.readPayments();

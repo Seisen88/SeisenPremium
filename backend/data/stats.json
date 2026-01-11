@@ -1,9 +1,10 @@
 {
-  "visitors": 2,
+  "visitors": 3,
   "visitorIPs": [
     "::1",
     "192.168.1.1",
-    "192.168.1.2"
+    "192.168.1.2",
+    "127.0.0.1"
   ],
-  "totalViews": 3
+  "totalViews": 4
 }

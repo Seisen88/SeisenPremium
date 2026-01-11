@@ -323,10 +323,6 @@ function loadFooter() {
         </div>
         <div class="footer-bottom">
             <p>&copy; 2026 Seisen. All rights reserved.</p>
-            <div class="visitor-stats" style="margin-top: 10px; font-size: 0.85em; opacity: 0.7; display: flex; align-items: center; justify-content: center; gap: 15px;">
-                <span title="Unique Visitors"><i class="fas fa-users"></i> <span id="visitor-count">...</span></span>
-                <span title="Total Views"><i class="fas fa-eye"></i> <span id="view-count">...</span></span>
-            </div>
         </div>
     </div>
 </footer>
@@ -337,60 +333,9 @@ function loadFooter() {
         footerContainer.innerHTML = footerHTML;
 
         initFooterCarousel();
-        initVisitorCounter();
     }
 }
 
-function initVisitorCounter() {
-    // Prevent multiple calls if accidentally called twice
-    if (window.visitorCounterInitialized) return;
-    window.visitorCounterInitialized = true;
-
-    fetch('/api/stats/visit', { 
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ timestamp: Date.now() })
-    })
-        .then(async response => {
-            const text = await response.text();
-            console.log('[VisitorStats] Raw response:', text);
-            
-            if (!response.ok) {
-                throw new Error(`Server returned ${response.status}: ${text}`);
-            }
-            
-            try {
-                // Try to parse the text as JSON
-                const json = text ? JSON.parse(text) : {};
-                console.log('[VisitorStats] Parsed JSON:', json);
-                return json;
-            } catch (e) {
-                console.error('Failed to parse response JSON:', text);
-                throw new Error(`Invalid JSON response: ${e.message}`);
-            }
-        })
-        .then(data => {
-            if (data.success) {
-                const visitorCount = document.getElementById('visitor-count');
-                const viewCount = document.getElementById('view-count');
-                
-                if (visitorCount) visitorCount.textContent = data.visitors.toLocaleString();
-                if (viewCount) viewCount.textContent = data.totalViews.toLocaleString();
-            } else {
-                console.warn('[VisitorStats] API returned success: false', data);
-            }
-        })
-        .catch(error => {
-            console.error('[VisitorStats] Error:', error);
-            // ... fallback ...
-            const visitorCount = document.getElementById('visitor-count');
-            const viewCount = document.getElementById('view-count');
-            if (visitorCount && visitorCount.textContent === '...') visitorCount.textContent = '-';
-            if (viewCount && viewCount.textContent === '...') viewCount.textContent = '-';
-        });
-}
 
 
 

@@ -123,60 +123,11 @@ class JsonDatabase {
         return payments.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     }
 
-    // Stats Methods
-    readStats() {
-        try {
-            if (!fs.existsSync(this.filePath)) {
-                return { visitors: 0, visitorIPs: [], totalViews: 0 };
-            }
-            const data = fs.readFileSync(this.filePath, 'utf8');
-            return JSON.parse(data);
-        } catch (error) {
-            console.error('Error reading stats database:', error);
-            return { visitors: 0, visitorIPs: [], totalViews: 0 };
-        }
-    }
-
-    writeStats(data) {
-        try {
-            fs.writeFileSync(this.filePath, JSON.stringify(data, null, 2));
-            return true;
-        } catch (error) {
-            console.error('Error writing stats database:', error);
-            return false;
-        }
-    }
-
-    getStats() {
-        return this.readStats();
-    }
-
-    incrementVisitorCount(ip) {
-        const stats = this.readStats();
-        
-        // Initialize if missing
-        if (!stats.visitors) stats.visitors = 0;
-        if (!stats.visitorIPs) stats.visitorIPs = [];
-        if (!stats.totalViews) stats.totalViews = 0;
-
-        // Always increment total views
-        stats.totalViews++;
-
-        // Increment unique visitors if IP not seen
-        let isUnique = false;
-        if (ip && !stats.visitorIPs.includes(ip)) {
-            stats.visitors++;
-            stats.visitorIPs.push(ip);
-            isUnique = true;
-        }
-
-        this.writeStats(stats);
-        return { 
-            visitors: stats.visitors, 
-            totalViews: stats.totalViews,
-            isUnique 
-        };
+    getAllPayments() {
+        const payments = this.readPayments();
+        return payments.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     }
 }
+
 
 module.exports = JsonDatabase;

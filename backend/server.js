@@ -53,15 +53,11 @@ const junkieSystem = new JunkieKeySystem({
 // Initialize database
 // Initialize Ticket database
 const TicketDatabase = require('./ticket-database');
-const ticketDB = new TicketDatabase(
-    process.env.TICKET_DB_PATH || path.join(__dirname, 'data', 'tickets.json')
-);
+const ticketDB = new TicketDatabase();
 
 // Initialize JSON Stats database
 const JsonDatabase = require('./json-database');
-const statsDB = new JsonDatabase(
-    process.env.STATS_DB_PATH || path.join(__dirname, 'data', 'stats.json')
-);
+const statsDB = new JsonDatabase();
 // Payment DB is now handled by JsonDatabase (same instance)
 const paymentDB = statsDB;
 

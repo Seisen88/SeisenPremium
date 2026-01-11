@@ -323,6 +323,10 @@ function loadFooter() {
         </div>
         <div class="footer-bottom">
             <p>&copy; 2026 Seisen. All rights reserved.</p>
+            <div class="visitor-stats" style="margin-top: 10px; font-size: 0.85em; opacity: 0.7; display: flex; align-items: center; justify-content: center; gap: 15px;">
+                <span title="Unique Visitors"><i class="fas fa-users"></i> <span id="visitor-count">...</span></span>
+                <span title="Total Views"><i class="fas fa-eye"></i> <span id="view-count">...</span></span>
+            </div>
         </div>
     </div>
 </footer>
@@ -333,7 +337,27 @@ function loadFooter() {
         footerContainer.innerHTML = footerHTML;
 
         initFooterCarousel();
+        initVisitorCounter();
     }
+}
+
+function initVisitorCounter() {
+    // Prevent multiple calls if accidentally called twice
+    if (window.visitorCounterInitialized) return;
+    window.visitorCounterInitialized = true;
+
+    fetch('/api/stats/visit', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const visitorCount = document.getElementById('visitor-count');
+                const viewCount = document.getElementById('view-count');
+                
+                if (visitorCount) visitorCount.textContent = data.visitors.toLocaleString();
+                if (viewCount) viewCount.textContent = data.totalViews.toLocaleString();
+            }
+        })
+        .catch(error => console.error('Error updating visitor stats:', error));
 }
 
 

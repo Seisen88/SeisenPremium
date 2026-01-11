@@ -162,6 +162,43 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// Visitor Stats Endpoints
+app.get('/api/stats/visitors', (req, res) => {
+    try {
+        const stats = statsDB.getStats();
+        res.json({
+            visitors: stats.visitors,
+            totalViews: stats.totalViews || 0
+        });
+    } catch (error) {
+        console.error('Error fetching visitor stats:', error);
+        res.status(500).json({ error: 'Failed to fetch stats' });
+    }
+});
+
+app.post('/api/stats/visit', (req, res) => {
+    try {
+        // Get IP address (handle proxies if needed)
+        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+        
+        const result = statsDB.incrementVisitorCount(ip);
+        
+        if (DEBUG) {
+            console.log(`👤 New visit from ${ip} - Unique: ${result.isUnique}`);
+        }
+
+        res.json({
+            success: true,
+            visitors: result.visitors,
+            totalViews: result.totalViews,
+            isUnique: result.isUnique
+        });
+    } catch (error) {
+        console.error('Error recording visit:', error);
+        res.status(500).json({ error: 'Failed to record visit' });
+    }
+});
+
 // Create PayPal Order
 app.post('/api/paypal/create-order', async (req, res) => {
     try {

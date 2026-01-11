@@ -23,8 +23,8 @@ const RobloxIntegration = require('./roblox-integration');
 
 // Initialize PayPal SDK
 const paypalSDK = new PayPalSDK({
-    clientId: process.env.PAYPAL_CLIENT_ID,
-    clientSecret: process.env.PAYPAL_CLIENT_SECRET,
+    clientId: process.env.PAYPAL_CLIENT_ID ? process.env.PAYPAL_CLIENT_ID.trim() : '',
+    clientSecret: process.env.PAYPAL_CLIENT_SECRET ? process.env.PAYPAL_CLIENT_SECRET.trim() : '',
     sandboxMode: process.env.PAYPAL_SANDBOX === 'true'
 });
 

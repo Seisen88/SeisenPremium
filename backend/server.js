@@ -947,7 +947,7 @@ async function sendDiscordWebhook(content, embeds = []) {
 }
 
 // Submit new ticket
-app.post('/api/tickets', async (req, res) => {
+app.post('/api/support/ticket', async (req, res) => {
     try {
         const { userName, userEmail, category, subject, description } = req.body;
         
@@ -991,7 +991,7 @@ app.post('/api/tickets', async (req, res) => {
     }
 });
 
-app.get('/api/tickets/:number', async (req, res) => {
+app.get('/api/support/ticket/:number', async (req, res) => {
     try {
         const ticket = await ticketDB.getTicket(req.params.number);
         if (!ticket) {
@@ -1007,7 +1007,7 @@ app.get('/api/tickets/:number', async (req, res) => {
 });
 
 // User reply to ticket
-app.post('/api/tickets/:number/replies', async (req, res) => {
+app.post('/api/support/ticket/:number/reply', async (req, res) => {
     try {
         const { authorName, authorType, message } = req.body;
         const ticketNumber = req.params.number;
@@ -1035,7 +1035,7 @@ app.post('/api/tickets/:number/replies', async (req, res) => {
             title: `💬 New Reply on Ticket #${ticketNumber}`,
             color: 0x10b981,
             fields: [
-                { name: 'From', value: userName || ticket.user_name, inline: true },
+                { name: 'From', value: authorName || ticket.user_name, inline: true },
                 { name: 'Ticket', value: ticket.subject, inline: true },
                 { name: 'Reply', value: message.substring(0, 1000), inline: false }
             ],

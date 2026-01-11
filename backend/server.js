@@ -20,6 +20,13 @@ const PayPalSDK = require('./paypal-sdk');
 const JunkieKeySystem = require('./junkie-integration');
 // const PaymentDatabase = require('./payment-database'); // Deprecated in favor of JSON
 const RobloxIntegration = require('./roblox-integration');
+const ResendEmailService = require('./resend-email.js');
+
+// Initialize Email Service
+const emailService = new ResendEmailService(
+    process.env.RESEND_API_KEY,
+    process.env.EMAIL_FROM
+);
 
 // Initialize PayPal SDK
 const clientId = process.env.PAYPAL_CLIENT_ID ? process.env.PAYPAL_CLIENT_ID.trim() : '';
@@ -173,7 +180,7 @@ app.get('/api/health', (req, res) => {
         prometheus: fs.existsSync(PROMETHEUS_PATH),
         paypal: !!(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET),
         junkie: !!process.env.JUNKIE_WEBHOOK_URL,
-        email: !!emailService
+        email: !!(emailService && emailService.resend)
     });
 });
 

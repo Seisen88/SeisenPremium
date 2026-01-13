@@ -251,13 +251,15 @@ app.post('/api/paypal/create-order', async (req, res) => {
         const geo = geoip.lookup(cleanIp);
         const country = geo ? geo.country : 'US'; // Default to US if unknown
         
-        // Use specific rate if known, otherwise fallback to 15% global tax
-        const vatRate = VAT_RATES[country] !== undefined ? VAT_RATES[country] : 15;
+        // Use specific rate if known, otherwise fallback to 20% global tax
+        // Added +2% markup for safety/buffer
+        let vatRate = VAT_RATES[country] !== undefined ? VAT_RATES[country] : 20;
+        vatRate += 2; // Small increase as requested
         
         const taxAmount = Number(((baseAmount * vatRate) / 100).toFixed(2));
         const totalAmount = Number((baseAmount + taxAmount).toFixed(2));
         
-        console.log(`🌍 User IP: ${cleanIp} | Country: ${country} | VAT: ${vatRate}% ${VAT_RATES[country] ? '(Specific)' : '(Global Default)'} | Tax: ${taxAmount} EUR`);
+        console.log(`🌍 User IP: ${cleanIp} | Country: ${country} | VAT: ${vatRate}% (${VAT_RATES[country] ? 'Specific' : 'Global Default'} + 2%) | Tax: ${taxAmount} EUR`);
 
         // Return URL - uses FRONTEND_URL env var or defaults to request host (for dev)
         const baseUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;

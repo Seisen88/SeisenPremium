@@ -262,7 +262,7 @@ app.post('/api/paypal/create-order', async (req, res) => {
         // Return URL - uses FRONTEND_URL env var or defaults to request host (for dev)
         const baseUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
         const returnUrl = `${baseUrl}/premium.html`;
-        const cancelUrl = `${baseUrl}/premium.html`;
+        const cancelUrl = `${baseUrl}/premium.html?status=cancelled`;
 
         const order = await paypalSDK.createOrder({
             amount: totalAmount,

@@ -58,8 +58,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check if returning from PayPal
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
+    const status = urlParams.get('status');
     
-    if (token) {
+    if (status === 'cancelled') {
+        showNotification('Payment cancelled by user.', 'info');
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (token) {
         // User returned from PayPal, capture the payment
         capturePayPalPayment(token);
     }

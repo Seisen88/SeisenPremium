@@ -79,7 +79,8 @@ class PayPalSDK {
                         value: amount.toFixed(2)
                     },
                     description: `${description} - ${tier.charAt(0).toUpperCase() + tier.slice(1)}`,
-                    custom_id: tier // Store tier in custom_id
+                    custom_id: tier, // Store tier in custom_id
+                    breakdown: orderData.breakdown // Pass breakdown (tax) if provided
                 }],
                 application_context: {
                     return_url: returnUrl,

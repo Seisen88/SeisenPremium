@@ -63,8 +63,8 @@ const TicketDatabase = require('./ticket-database');
 const ticketDB = new TicketDatabase();
 
 // Initialize JSON Stats database
-const JsonDatabase = require('./json-database');
-const statsDB = new JsonDatabase();
+const SupabaseDB = require('./database');
+const statsDB = new SupabaseDB();
 // Payment DB is now handled by JsonDatabase (same instance)
 const paymentDB = statsDB;
 
@@ -199,6 +199,32 @@ app.get('/api/visitor-stats', async (req, res) => {
     }
 });
 
+// VAT/GST Rates (Approximate Standard Rates)
+// Covers EU, UK, and major global economies. 0 means no VAT/GST or not collected.
+const VAT_RATES = {
+    // European Union + UK
+    'AT': 20, 'BE': 21, 'BG': 20, 'CY': 19, 'CZ': 21, 'DE': 19, 'DK': 25, 
+    'EE': 20, 'ES': 21, 'FI': 24, 'FR': 20, 'GR': 24, 'HR': 25, 'HU': 27, 
+    'IE': 23, 'IT': 22, 'LT': 21, 'LU': 17, 'LV': 21, 'MT': 18, 'NL': 21, 
+    'PL': 23, 'PT': 23, 'RO': 19, 'SE': 25, 'SI': 22, 'SK': 20, 'GB': 20,
+
+    // Other Europe
+    'CH': 8.1, 'NO': 25, 'IS': 24, 'TR': 20, 'UA': 20, 'RS': 20,
+
+    // Asia Pacific
+    'AU': 10,  'NZ': 15,  'JP': 10,  'CN': 13,  'IN': 18, // GST
+    'KR': 10,  'SG': 9,   'ID': 11,  'MY': 6,   'TH': 7,   'VN': 10,
+    'PH': 12,
+
+    // Americas
+    'CA': 5,   // GST (Provinces add value, simplified to federal for now)
+    'MX': 16,  'BR': 17,  'AR': 21,  'CL': 19,  'CO': 19,  'PE': 18,
+
+    // Middle East / Africa
+    'ZA': 15,  'EG': 14,  'SA': 15,  'AE': 5,   'IL': 17,  'NG': 7.5
+};
+const geoip = require('geoip-lite');
+
 // Create PayPal Order
 app.post('/api/paypal/create-order', async (req, res) => {
     try {
@@ -215,20 +241,41 @@ app.post('/api/paypal/create-order', async (req, res) => {
             lifetime: 10
         };
 
-        const amount = pricing[tier];
+        const baseAmount = pricing[tier];
         
+        // --- VAT CALCULATION ---
+        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+        // Clean up IP (handle ::ffff: prefix)
+        const cleanIp = ip.replace(/^.*:/, '');
+        
+        const geo = geoip.lookup(cleanIp);
+        const country = geo ? geo.country : 'US'; // Default to US if unknown
+        
+        // Use specific rate if known, otherwise fallback to 15% global tax
+        const vatRate = VAT_RATES[country] !== undefined ? VAT_RATES[country] : 15;
+        
+        const taxAmount = Number(((baseAmount * vatRate) / 100).toFixed(2));
+        const totalAmount = Number((baseAmount + taxAmount).toFixed(2));
+        
+        console.log(`🌍 User IP: ${cleanIp} | Country: ${country} | VAT: ${vatRate}% ${VAT_RATES[country] ? '(Specific)' : '(Global Default)'} | Tax: ${taxAmount} EUR`);
+
         // Return URL - uses FRONTEND_URL env var or defaults to request host (for dev)
         const baseUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
         const returnUrl = `${baseUrl}/premium.html`;
         const cancelUrl = `${baseUrl}/premium.html`;
 
         const order = await paypalSDK.createOrder({
-            amount,
+            amount: totalAmount,
             currency: 'EUR',
             description: 'Seisen Hub Premium Key',
             tier,
             returnUrl,
-            cancelUrl
+            cancelUrl,
+            // Pass breakdown to SDK
+            breakdown: {
+                item_total: { currency_code: 'EUR', value: baseAmount.toFixed(2) },
+                tax_total: { currency_code: 'EUR', value: taxAmount.toFixed(2) }
+            }
         });
 
         console.log('✅ PayPal order created:', order.id);
@@ -240,7 +287,6 @@ app.post('/api/paypal/create-order', async (req, res) => {
 
     } catch (error) {
         console.error('❌ Error creating PayPal order:', error);
-        // Enhanced error reporting
         res.status(500).json({ 
             error: 'Failed to create order',
             details: error.message,

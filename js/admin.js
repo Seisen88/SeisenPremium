@@ -151,8 +151,29 @@ function renderPaymentsTable(payments) {
             amount = `$${parseFloat(payment.amount || 0).toFixed(2)}`;
         }
         
-        const keys = Array.isArray(payment.generated_keys) ? payment.generated_keys : [];
-        const key = keys.length > 0 ? keys[0] : 'N/A';
+        // Parse keys if they are stored as JSON string
+        let keys = [];
+        try {
+            if (Array.isArray(payment.generated_keys)) {
+                keys = payment.generated_keys;
+            } else if (typeof payment.generated_keys === 'string') {
+                // Check if it looks like a JSON array
+                if (payment.generated_keys.trim().startsWith('[')) {
+                    keys = JSON.parse(payment.generated_keys);
+                } else {
+                    // Start of plain text key handling (legacy/fallback)
+                    keys = [payment.generated_keys];
+                }
+            }
+        } catch (e) {
+            console.warn('Failed to parse keys for payment:', payment.transaction_id, e);
+            // Fallback for non-JSON strings
+            if (typeof payment.generated_keys === 'string') {
+                keys = [payment.generated_keys];
+            }
+        }
+
+        const key = (keys && keys.length > 0) ? keys[0] : 'N/A';
         const orderId = payment.transaction_id.substring(0, 24);
         
         return `
@@ -240,7 +261,22 @@ function exportToCSV() {
         const method = payment.currency === 'ROBUX' ? 'Roblox' : 'PayPal';
         const amount = payment.amount || 0;
         const currency = payment.currency;
-        const keys = Array.isArray(payment.generated_keys) ? payment.generated_keys : [];
+        let keys = [];
+        try {
+            if (Array.isArray(payment.generated_keys)) {
+                keys = payment.generated_keys;
+            } else if (typeof payment.generated_keys === 'string') {
+                 if (payment.generated_keys.trim().startsWith('[')) {
+                    keys = JSON.parse(payment.generated_keys);
+                } else {
+                    keys = [payment.generated_keys];
+                }
+            }
+        } catch (e) {
+            if (typeof payment.generated_keys === 'string') {
+                keys = [payment.generated_keys];
+            }
+        }
         const key = keys.length > 0 ? keys[0] : 'N/A';
         const txId = payment.transaction_id;
         

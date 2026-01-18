@@ -6,6 +6,20 @@ import { Zap } from 'lucide-react';
 const loadingMessages = ['Loading...', 'Initializing...', 'Almost ready...', 'Welcome!'];
 
 export default function LoadingScreen() {
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Prevent hydration mismatch by only rendering after mount
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Don't render anything during SSR to prevent hydration mismatch
+  if (!isMounted) return null;
+
+  return <LoadingScreenContent />;
+}
+
+function LoadingScreenContent() {
   const [progress, setProgress] = useState(0);
   const [messageIndex, setMessageIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);

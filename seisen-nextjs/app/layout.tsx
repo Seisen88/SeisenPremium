@@ -31,8 +31,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${firaCode.variable}`}>
-      <body className="min-h-screen flex flex-col">
+    <html lang="en" className={`${inter.variable} ${firaCode.variable}`} suppressHydrationWarning>
+      <body className="min-h-screen flex flex-col" suppressHydrationWarning>
         <LoadingScreen />
         
         {/* Background Text */}

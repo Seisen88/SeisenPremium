@@ -9,6 +9,7 @@ import { getApiUrl } from '@/lib/utils';
 
 interface Ticket {
   id: string;
+  ticket_number?: string;
   subject: string;
   status: 'open' | 'pending' | 'closed';
   createdAt: string;
@@ -237,11 +238,16 @@ function SupportContent() {
           ) : (
             <div className="space-y-3">
               {tickets.map((ticket) => (
-                <Card key={ticket.id} variant="hover" className="p-4">
+                <Card 
+                  key={ticket.id} 
+                  variant="hover" 
+                  className="p-4 cursor-pointer transition-all hover:border-emerald-500/50"
+                  onClick={() => window.location.href = `/support/${ticket.ticket_number || ticket.id}`}
+                >
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-medium text-white">{ticket.subject}</h3>
-                      <p className="text-gray-500 text-sm">#{ticket.id}</p>
+                      <p className="text-gray-500 text-sm">#{ticket.ticket_number || ticket.id}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       {ticket.status === 'open' && (

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TicketDatabase } from '@/lib/server/db';
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const ticketId = params.id;
+        const { id: ticketId } = await params;
         const db = new TicketDatabase();
         
         const ticket = await db.getTicket(ticketId);

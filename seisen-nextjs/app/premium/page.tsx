@@ -476,9 +476,9 @@ function PremiumContent() {
                   ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-500'
                   : 'bg-[#1a1a1a] border-[#2a2a2a] text-gray-400 hover:border-[#3a3a3a]'
               }`}
+              title="PayPal"
             >
               <CreditCard className="w-5 h-5" />
-              PayPal
             </button>
             <button
               onClick={() => setPaymentMethod('robux')}
@@ -487,9 +487,13 @@ function PremiumContent() {
                   ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-500'
                   : 'bg-[#1a1a1a] border-[#2a2a2a] text-gray-400 hover:border-[#3a3a3a]'
               }`}
+              title="Robux"
             >
-              <span className="text-lg">🎮</span>
-              Robux
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg" 
+                alt="Robux" 
+                className="w-5 h-5"
+              />
             </button>
             <button
               onClick={() => setPaymentMethod('gcash')}
@@ -498,9 +502,9 @@ function PremiumContent() {
                   ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-500'
                   : 'bg-[#1a1a1a] border-[#2a2a2a] text-gray-400 hover:border-[#3a3a3a]'
               }`}
+              title="GCash"
             >
               <span className="text-lg">💳</span>
-              GCash
             </button>
           </div>
         </section>

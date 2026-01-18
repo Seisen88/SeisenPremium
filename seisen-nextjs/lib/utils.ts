@@ -6,8 +6,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // API configuration
+// {SAME}
 export function getApiUrl() {
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  // Use environment variable if set, otherwise default to empty string for relative paths
+  return process.env.NEXT_PUBLIC_API_URL || '';
 }
 
 // Format number with commas

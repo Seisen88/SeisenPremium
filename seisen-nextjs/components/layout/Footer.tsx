@@ -51,8 +51,7 @@ export default function Footer() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://seisen-backend.onrender.com';
-        const response = await fetch(`${apiUrl}/api/visitor-stats`);
+        const response = await fetch('/api/visitor-stats');
         if (response.ok) {
           const data = await response.json();
           setStats(data);

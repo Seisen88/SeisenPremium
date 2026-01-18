@@ -26,8 +26,8 @@ export async function POST(req: NextRequest) {
         sandboxMode: process.env.PAYPAL_SANDBOX === 'true'
     });
 
-    // Default URLs
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    // Dynamic Frontend URL for Redirects
+    const frontendUrl = process.env.FRONTEND_URL || req.nextUrl.origin;
     const returnUrl = `${frontendUrl}/premium`;
     const cancelUrl = `${frontendUrl}/premium?canceled=true`;
     

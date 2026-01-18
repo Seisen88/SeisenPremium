@@ -50,13 +50,22 @@ export async function POST(req: NextRequest) {
         // SELF-HEALING: If payment exists but keys are missing, allow fall-through to generate keys!
         if (existingPayment && existingPayment.generated_keys && existingPayment.generated_keys.length > 0) {
             console.log('Returning existing keys for transaction');
+            
+            // Calculate base tier price for frontend display
+            const tierPricing: Record<string, number> = {
+                weekly: 3,
+                monthly: 5,
+                lifetime: 10
+            };
+            const baseAmount = tierPricing[existingPayment.tier] || existingPayment.amount;
+            
             return NextResponse.json({ 
                 success: true, 
                 message: 'Transaction already processed',
                 details: paymentInfo,
                 keys: existingPayment.generated_keys,
                 tier: existingPayment.tier,
-                amount: existingPayment.amount,
+                amount: baseAmount, // Return base price for frontend display
                 currency: existingPayment.currency
             });
         }
@@ -126,12 +135,20 @@ export async function POST(req: NextRequest) {
         }]);
     }
 
+    // Calculate base tier price (3/5/10 EUR) for frontend display
+    const tierPricing: Record<string, number> = {
+        weekly: 3,
+        monthly: 5,
+        lifetime: 10
+    };
+    const baseAmount = tierPricing[paymentInfo.tier] || paymentInfo.amount;
+
     return NextResponse.json({
         success: true,
         orderId: paymentInfo.orderId,
         transactionId: paymentInfo.transactionId,
         tier: paymentInfo.tier,
-        amount: paymentInfo.amount,
+        amount: baseAmount, // Return base price for frontend display
         currency: paymentInfo.currency,
         keys: keys,
         emailSent: true,

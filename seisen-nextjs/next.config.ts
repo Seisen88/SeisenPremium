@@ -26,10 +26,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Environment variables with defaults
-  env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://seisen-backend.onrender.com',
-  },
 };
 
 export default nextConfig;

@@ -45,6 +45,42 @@ function SupportContent() {
     }
   }, [searchParams]);
 
+  // Fetch tickets on page load
+  useEffect(() => {
+    const fetchTickets = async () => {
+      try {
+        // Try to get email from localStorage (from previous purchases/tickets)
+        const savedKeys = localStorage.getItem('seisen_premium_keys');
+        let userEmail = formData.email;
+        
+        if (!userEmail && savedKeys) {
+          try {
+            const keys = JSON.parse(savedKeys);
+            if (keys.length > 0 && keys[0].email) {
+              userEmail = keys[0].email;
+              setFormData(prev => ({ ...prev, email: userEmail }));
+            }
+          } catch (e) {
+            console.error('Error parsing saved keys:', e);
+          }
+        }
+
+        if (userEmail) {
+          const apiUrl = getApiUrl();
+          const response = await fetch(`${apiUrl}/api/tickets?email=${encodeURIComponent(userEmail)}`);
+          if (response.ok) {
+            const data = await response.json();
+            setTickets(data.tickets || []);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch tickets:', error);
+      }
+    };
+
+    fetchTickets();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -58,10 +94,19 @@ function SupportContent() {
       });
 
       if (response.ok) {
+        const result = await response.json();
         setShowNewTicket(false);
-        setFormData({ subject: '', email: '', category: 'general', message: '' });
+        
+        // Refresh tickets list
+        const ticketsResponse = await fetch(`${apiUrl}/api/tickets?email=${encodeURIComponent(formData.email)}`);
+        if (ticketsResponse.ok) {
+          const data = await ticketsResponse.json();
+          setTickets(data.tickets || []);
+        }
+        
+        setFormData({ subject: '', email: formData.email, category: 'general', message: '' });
         // Show success message
-        alert('Ticket created successfully!');
+        alert(`Ticket created successfully! Ticket #${result.ticket?.ticket_number || 'N/A'}`);
       }
     } catch (error) {
       console.error('Failed to create ticket:', error);

@@ -2,7 +2,7 @@ export class RobloxIntegration {
     private products: Record<string, number>;
     private robloxApiUrl: string;
 
-    constructor() {
+    constructor(config?: { apiKey?: string }) {
         this.products = {
             lifetime: 16906166414, // Perm
             monthly: 16902308978,  // Monthly
@@ -10,6 +10,13 @@ export class RobloxIntegration {
         };
         this.robloxApiUrl = 'https://inventory.roblox.com/v1/users';
         console.log('✅ Roblox Integration initialized with products:', this.products);
+    }
+
+    /**
+     * Generate a unique transaction ID for Roblox purchases
+     */
+    generateTransactionId(userId: number, productId: number): string {
+        return `ROBLOX-${userId}-${productId}`;
     }
 
     /**

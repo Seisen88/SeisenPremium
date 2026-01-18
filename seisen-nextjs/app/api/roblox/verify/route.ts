@@ -42,7 +42,7 @@ export async function POST(req: Request) {
         console.log('✅ User owns product:', verification);
 
         // Generate transaction ID: ROBLOX-USERID-PRODUCTID
-        const transactionId = `ROBLOX-${verification.userId}-${verification.productId}`;
+        const transactionId = robloxIntegration.generateTransactionId(verification.userId, verification.productId!);
         
         // --- RENEWAL / EXISTENCE LOGIC ---
         const currentUaid = verification.uaid;

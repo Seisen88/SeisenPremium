@@ -1,8 +1,15 @@
-node_modules
-.env
-*.db
-*.log
-.DS_Store
-dist
-build
-.vscode
+# Ignore everything by default
+/*
+
+# Exception for allowed directories
+!/seisen-nextjs/
+!/.vscode/
+!/.gitignore
+!/README.md
+
+# Next.js specific inside the subfolder
+seisen-nextjs/node_modules/
+seisen-nextjs/.next/
+seisen-nextjs/out/
+seisen-nextjs/build/
+seisen-nextjs/.env*

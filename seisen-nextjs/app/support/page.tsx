@@ -242,7 +242,7 @@ function SupportContent() {
                   key={ticket.id} 
                   variant="hover" 
                   className="p-4 cursor-pointer transition-all hover:border-emerald-500/50"
-                  onClick={() => window.location.href = `/support/${ticket.ticket_number || ticket.id}`}
+                  onClick={() => window.location.href = `/support/ticket/${ticket.ticket_number || ticket.id}`}
                 >
                   <div className="flex items-center justify-between">
                     <div>

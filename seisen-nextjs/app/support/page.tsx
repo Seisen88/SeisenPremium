@@ -50,23 +50,30 @@ function SupportContent() {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        // Try to get email from localStorage (from previous purchases/tickets)
-        const savedKeys = localStorage.getItem('seisen_premium_keys');
-        let userEmail = formData.email;
+        // Try to get email from localStorage in this order:
+        // 1. Saved support email (from previous tickets)
+        // 2. Email from previous purchases
+        let userEmail = localStorage.getItem('seisen_support_email') || '';
         
-        if (!userEmail && savedKeys) {
-          try {
-            const keys = JSON.parse(savedKeys);
-            if (keys.length > 0 && keys[0].email) {
-              userEmail = keys[0].email;
-              setFormData(prev => ({ ...prev, email: userEmail }));
+        if (!userEmail) {
+          const savedKeys = localStorage.getItem('seisen_premium_keys');
+          if (savedKeys) {
+            try {
+              const keys = JSON.parse(savedKeys);
+              if (keys.length > 0 && keys[0].email) {
+                userEmail = keys[0].email;
+              }
+            } catch (e) {
+              console.error('Error parsing saved keys:', e);
             }
-          } catch (e) {
-            console.error('Error parsing saved keys:', e);
           }
         }
 
+        // Update form with saved email
         if (userEmail) {
+          setFormData(prev => ({ ...prev, email: userEmail }));
+
+          // Fetch tickets for this email
           const apiUrl = getApiUrl();
           const response = await fetch(`${apiUrl}/api/tickets?email=${encodeURIComponent(userEmail)}`);
           if (response.ok) {
@@ -96,6 +103,10 @@ function SupportContent() {
 
       if (response.ok) {
         const result = await response.json();
+        
+        // Save email to localStorage for future visits
+        localStorage.setItem('seisen_support_email', formData.email);
+        
         setShowNewTicket(false);
         
         // Refresh tickets list

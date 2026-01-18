@@ -49,11 +49,9 @@ export class VatCalculator {
     }
 
     /**
-     * Calculate tax amount
+     * Calculate tax amount (exclusive - adds tax on top)
      */
     static calculateTax(baseAmount: number, country: string) {
-        // Legacy: Use specific rate if known, otherwise fallback to 20% global tax
-        // Added +2% markup for safety/buffer
         let vatRate = VAT_RATES[country] !== undefined ? VAT_RATES[country] : 20;
         vatRate += 2; // Small increase as requested in legacy
 
@@ -65,6 +63,25 @@ export class VatCalculator {
             taxAmount,
             totalAmount,
             subtotal: baseAmount
+        };
+    }
+
+    /**
+     * Calculate tax for an inclusive total (Total remains fixed, tax is derived from it)
+     */
+    static calculateInclusiveTax(totalAmount: number, country: string) {
+        let vatRate = VAT_RATES[country] !== undefined ? VAT_RATES[country] : 20;
+        vatRate += 2; // Small increase as requested in legacy
+
+        // subtotal = total / (1 + rate/100)
+        const subtotal = Number((totalAmount / (1 + (vatRate / 100))).toFixed(2));
+        const taxAmount = Number((totalAmount - subtotal).toFixed(2));
+
+        return {
+            vatRate,
+            taxAmount,
+            totalAmount,
+            subtotal
         };
     }
 }

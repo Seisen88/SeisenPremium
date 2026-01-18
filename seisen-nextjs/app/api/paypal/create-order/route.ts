@@ -20,6 +20,10 @@ export async function POST(req: NextRequest) {
 
     const baseAmount = pricing[tier];
 
+    // VAT Calculation
+    const country = VatCalculator.getCountryFromRequest(req);
+    const taxDetails = VatCalculator.calculateTax(baseAmount, country);
+
     const paypal = new PayPalSDK({
         clientId: process.env.PAYPAL_CLIENT_ID || '',
         clientSecret: process.env.PAYPAL_CLIENT_SECRET || '',
@@ -32,16 +36,29 @@ export async function POST(req: NextRequest) {
     const cancelUrl = `${frontendUrl}/premium?canceled=true`;
     
     const orderData = {
-        amount: baseAmount,
+        amount: taxDetails.totalAmount,
         currency: 'EUR',
         description: 'Seisen Hub Premium Key',
         tier,
         returnUrl,
-        cancelUrl
+        cancelUrl,
+        breakdown: {
+            item_total: { currency_code: 'EUR', value: baseAmount.toFixed(2) },
+            tax_total: { currency_code: 'EUR', value: taxDetails.taxAmount.toFixed(2) }
+        }
     };
 
     const order = await paypal.createOrder(orderData);
-    return NextResponse.json(order);
+    return NextResponse.json({
+        ...order,
+        taxDetails: {
+            country,
+            vatRate: taxDetails.vatRate,
+            taxAmount: taxDetails.taxAmount,
+            subtotal: taxDetails.subtotal,
+            totalAmount: taxDetails.totalAmount
+        }
+    });
 
   } catch (error: any) {
     console.error('Create Order Error:', error);

@@ -28,14 +28,13 @@ async function getFilesRec(dir: string, baseDir: string = ''): Promise<{ path: s
 
 export async function POST(req: NextRequest) {
   try {
-    const { code, preset } = await req.json();
+    const { code, version, preset } = await req.json();
 
     if (!code) {
       return NextResponse.json({ error: 'No code provided' }, { status: 400 });
     }
 
     // Initialize Lua Runtime (WASM)
-    // We create a fresh engine per request to avoid state pollution
     const wasmPath = path.join(process.cwd(), 'node_modules', 'wasmoon', 'dist', 'glue.wasm');
     const wasmBuffer = await fs.readFile(wasmPath);
     const factory = new LuaFactory(wasmBuffer as any);
@@ -44,15 +43,7 @@ export async function POST(req: NextRequest) {
     // 1. Mount Prometheus Files
     try {
         const prometheusFiles = await getFilesRec(PROMETHEUS_DIR);
-        
         for (const file of prometheusFiles) {
-            // Mount file to virtual filesystem
-            // Note: we prefix with nothing, so 'src/cli.lua' is at root 'src/cli.lua' relative to execution?
-            // Actually cli.lua is in root of lib/prometheus.
-            // So `getFilesRec` returning `cli.lua` -> mounted as `cli.lua`.
-            // `src/cli.lua` -> mounted as `src/cli.lua`.
-            
-            // factory.mountFile puts it in the filesystem available to the engine
             await factory.mountFile(file.path, file.content);
         }
     } catch (err) {
@@ -66,18 +57,19 @@ export async function POST(req: NextRequest) {
     await factory.mountFile(inputFile, code);
 
     // 3. Setup Environment
-    // - Override package.path to ensure it finds files in virtual root and src
-    // - Set global 'arg' table for CLI args
-    
-    // Safety check for preset
     const allowedPresets = ['Minify', 'Weak', 'Medium', 'Strong'];
     const safePreset = allowedPresets.includes(preset) ? preset : 'Medium';
+    
+    // Map version to flags
+    let versionFlag = "";
+    if (version === 'lua51') versionFlag = "--Lua51";
+    if (version === 'luau') versionFlag = "--LuaU";
 
-    // Construct args: script, --preset, P, --out, O, input
     const argScript = `
         arg = {
             [0] = "cli.lua", 
             "--preset", "${safePreset}", 
+            "${versionFlag}",
             "--out", "${outputFile}", 
             "${inputFile}"
         }
@@ -87,6 +79,7 @@ export async function POST(req: NextRequest) {
     `;
     
     await lua.doString(argScript);
+    console.log(`[Obfuscate] Configured with preset=${safePreset}, version=${version || 'default'}`);
 
     // 4. Run Prometheus CLI
     // We execute the main cli.lua file

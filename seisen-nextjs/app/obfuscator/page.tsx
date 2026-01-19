@@ -37,8 +37,7 @@ export default function ObfuscatorPage() {
     setObfuscatedCode('');
 
     try {
-      const apiUrl = getApiUrl();
-      const response = await fetch(`${apiUrl}/api/obfuscate`, {
+      const response = await fetch(`/api/obfuscate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

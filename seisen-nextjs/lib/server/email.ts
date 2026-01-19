@@ -18,6 +18,10 @@ export class EmailService {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
+            // Add timeouts to prevent hanging indefinitely
+            connectionTimeout: 10000, // 10 seconds
+            greetingTimeout: 5000,    // 5 seconds
+            socketTimeout: 10000,     // 10 seconds
         });
     } else {
         console.warn('⚠️ SMTP not configured - emails will not be sent');
@@ -216,6 +220,10 @@ export class EmailService {
             text-decoration: none;
             margin: 0 10px;
             font-size: 12px;
+        }
+        .footer-text[style*="margin-top"] {
+            margin-top: 20px;
+            opacity: 0.5;
         }
     </style>
 </head>

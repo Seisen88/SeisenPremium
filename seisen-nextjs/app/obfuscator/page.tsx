@@ -7,14 +7,14 @@ import Button from '@/components/ui/Button';
 import { getApiUrl, copyToClipboard } from '@/lib/utils';
 import { version } from 'os';
 
-type Preset = 'minify' | 'weak' | 'medium' | 'strong';
+type Preset = 'Minify' | 'Weak' | 'Medium' | 'Strong';
 type LuaVersion = 'lua51' | 'luau';
 
 const PRESETS = [
-  { id: 'minify', name: 'Minify', description: 'Removes whitespace/comments' },
-  { id: 'weak', name: 'Weak', description: 'Basic renaming & encoding' },
-  { id: 'medium', name: 'Medium', description: 'Balanced protection' },
-  { id: 'strong', name: 'Strong', description: 'Maximum security with VM' },
+  { id: 'Minify', name: 'Minify', description: 'Removes whitespace/comments' },
+  { id: 'Weak', name: 'Weak', description: 'Basic renaming & encoding' },
+  { id: 'Medium', name: 'Medium', description: 'Balanced protection' },
+  { id: 'Strong', name: 'Strong', description: 'Maximum security with VM' },
 ];
 
 export default function ObfuscatorPage() {
@@ -22,7 +22,7 @@ export default function ObfuscatorPage() {
   const [obfuscatedCode, setObfuscatedCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [preset, setPreset] = useState<Preset>('strong');
+  const [preset, setPreset] = useState<Preset>('Strong');
   const [luaVersion, setLuaVersion] = useState<LuaVersion>('lua51');
   const [copied, setCopied] = useState(false);
 

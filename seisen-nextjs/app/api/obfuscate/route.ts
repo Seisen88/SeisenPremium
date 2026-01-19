@@ -61,7 +61,9 @@ export async function POST(req: NextRequest) {
 
     // 3. Setup Environment
     const allowedPresets = ['Minify', 'Weak', 'Medium', 'Strong'];
-    const safePreset = allowedPresets.includes(preset) ? preset : 'Medium';
+    // Normalize input preset case (Frontend might send 'strong', backend wants 'Strong')
+    const normalizedPreset = preset ? preset.charAt(0).toUpperCase() + preset.slice(1).toLowerCase() : 'Medium';
+    const safePreset = allowedPresets.includes(normalizedPreset) ? normalizedPreset : 'Medium';
     
     // Build arguments array (1-indexed for Lua #arg)
     const args = ["--preset", safePreset];

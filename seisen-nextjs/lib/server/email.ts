@@ -13,29 +13,50 @@ export class EmailService {
         this.transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
             port: Number(process.env.SMTP_PORT) || 587,
-            secure: process.env.SMTP_SECURE === 'true', 
+            secure: process.env.SMTP_SECURE === 'true',
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
-            // Optimizations for cloud environments
             tls: {
-                rejectUnauthorized: false // Helps with some strict firewalls/proxies
+                rejectUnauthorized: false
             },
-            connectionTimeout: 20000, // Increased to 20s
-            greetingTimeout: 20000,   // Increased to 20s
-            socketTimeout: 20000,     // Increased to 20s
+            connectionTimeout: 20000,
+            greetingTimeout: 20000,
+            socketTimeout: 20000,
         });
+        
+        // Log configuration (safely)
+        console.log(`📧 Email Service Initialized: ${process.env.SMTP_HOST}:${process.env.SMTP_PORT} (Secure: ${process.env.SMTP_SECURE})`);
     } else {
         console.warn('⚠️ SMTP not configured - emails will not be sent');
         this.transporter = null;
     }
   }
 
+  // Verify connection logic
+  async verifyConnection() {
+      if (!this.transporter) return false;
+      try {
+          await this.transporter.verify();
+          console.log('✅ SMTP Connection Verified');
+          return true;
+      } catch (error) {
+          console.error('❌ SMTP Connection Failed:', error);
+          return false;
+      }
+  }
+
   async sendKeyEmail(to: string, key: string, tier: string, transactionId: string) {
     if (!this.transporter) {
         console.error('❌ Email service not configured (SMTP missing).');
         return { success: false, error: 'Email service not configured' };
+    }
+
+    // Verify connection before attempting to send (Fail fast)
+    const isConnected = await this.verifyConnection();
+    if (!isConnected) {
+        return { success: false, error: 'SMTP Connection Failed (Port blocked?)' };
     }
 
     const tierNames: Record<string, string> = {

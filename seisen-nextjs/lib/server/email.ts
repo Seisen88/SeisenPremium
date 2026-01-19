@@ -18,10 +18,13 @@ export class EmailService {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
-            // Add timeouts to prevent hanging indefinitely
-            connectionTimeout: 10000, // 10 seconds
-            greetingTimeout: 5000,    // 5 seconds
-            socketTimeout: 10000,     // 10 seconds
+            // Optimizations for cloud environments
+            tls: {
+                rejectUnauthorized: false // Helps with some strict firewalls/proxies
+            },
+            connectionTimeout: 20000, // Increased to 20s
+            greetingTimeout: 20000,   // Increased to 20s
+            socketTimeout: 20000,     // Increased to 20s
         });
     } else {
         console.warn('⚠️ SMTP not configured - emails will not be sent');

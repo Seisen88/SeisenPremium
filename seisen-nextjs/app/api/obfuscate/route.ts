@@ -36,7 +36,9 @@ export async function POST(req: NextRequest) {
 
     // Initialize Lua Runtime (WASM)
     // We create a fresh engine per request to avoid state pollution
-    const factory = new LuaFactory();
+    const wasmPath = path.join(process.cwd(), 'node_modules', 'wasmoon', 'dist', 'glue.wasm');
+    const wasmBuffer = await fs.readFile(wasmPath);
+    const factory = new LuaFactory(wasmBuffer as any);
     const lua = await factory.createEngine();
 
     // 1. Mount Prometheus Files

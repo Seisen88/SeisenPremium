@@ -124,105 +124,117 @@ export default function ObfuscatorPage() {
           </p>
         </section>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        {/* Main Content */}
+        <div className="space-y-8">
           
-          {/* Controls Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
-            <Card className="p-6 space-y-6 sticky top-24">
-              <div className="flex items-center gap-2 text-lg font-bold text-white pb-4 border-b border-[#2a2a2a]">
-                <Settings className="w-5 h-5 text-emerald-500" />
-                Configuration
-              </div>
-
-              {/* Lua Version */}
-              <div className="space-y-3">
-                <label className="text-sm font-medium text-gray-400">Lua Version</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {(['lua51', 'luau'] as const).map((v) => (
-                    <button
-                      key={v}
-                      onClick={() => setLuaVersion(v)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                        luaVersion === v
-                          ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-900/20'
-                          : 'bg-[#1a1a1a] text-gray-400 hover:text-white hover:bg-[#222]'
-                      }`}
-                    >
-                      {v === 'lua51' ? 'Lua 5.1' : 'LuaU'}
-                    </button>
-                  ))}
+          {/* Configuration - Now at the Top */}
+          <Card className="p-6 border-[#2a2a2a] bg-[#0d0d0d]/80 backdrop-blur-sm">
+            <div className="flex flex-col md:flex-row gap-8 items-start md:items-center justify-between">
+              <div className="flex flex-wrap gap-8 items-center">
+                {/* Lua Version */}
+                <div className="space-y-3">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">Lua Version</label>
+                  <div className="flex gap-2">
+                    {(['lua51', 'luau'] as const).map((v) => (
+                      <button
+                        key={v}
+                        onClick={() => setLuaVersion(v)}
+                        className={`px-6 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
+                          luaVersion === v
+                            ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
+                            : 'bg-[#1a1a1a] text-gray-500 hover:text-white hover:bg-[#222] border border-transparent hover:border-[#333]'
+                        }`}
+                      >
+                        {v === 'lua51' ? 'Lua 5.1' : 'LuaU'}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Presets */}
-              <div className="space-y-3">
-                <label className="text-sm font-medium text-gray-400">Security Level</label>
-                <div className="space-y-2">
-                  {PRESETS.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => setPreset(p.id as Preset)}
-                      className={`w-full p-3 rounded-lg text-left transition-all border ${
-                        preset === p.id
-                          ? 'bg-emerald-500/10 border-emerald-500/50'
-                          : 'bg-[#1a1a1a] border-transparent hover:border-[#333]'
-                      }`}
-                    >
-                      <div className="flex justify-between items-center mb-1">
-                        <span className={`font-semibold ${preset === p.id ? 'text-emerald-500' : 'text-gray-300'}`}>
-                          {p.name}
-                        </span>
-                        {preset === p.id && <CheckCircle className="w-4 h-4 text-emerald-500" />}
-                      </div>
-                      <p className="text-xs text-gray-500">{p.description}</p>
-                    </button>
-                  ))}
+                <div className="hidden md:block w-px h-12 bg-[#2a2a2a]" />
+
+                {/* Security Level */}
+                <div className="space-y-3">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">Security Level</label>
+                  <div className="flex flex-wrap gap-2">
+                    {PRESETS.map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => setPreset(p.id as Preset)}
+                        className={`px-6 py-2 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${
+                          preset === p.id
+                            ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]'
+                            : 'bg-[#1a1a1a] text-gray-500 hover:text-white hover:bg-[#222] border border-transparent hover:border-[#333]'
+                        }`}
+                        title={p.description}
+                      >
+                        {p.name}
+                        {preset === p.id && <CheckCircle className="w-3 h-3" />}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
               {/* Action */}
-              <div className="pt-4">
+              <div className="w-full md:w-auto">
                 <Button 
-                  className="w-full h-12 text-lg font-bold shadow-lg shadow-emerald-900/20"
+                  className="w-full md:px-10 h-14 text-lg font-black tracking-wide shadow-xl shadow-emerald-500/20 rounded-2xl group relative overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98]"
                   onClick={handleObfuscate}
                   disabled={loading}
                 >
+                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-cyan-400 opacity-0 group-hover:opacity-10 transition-opacity" />
                   {loading ? (
                     <>
-                      <RefreshCw className="w-5 h-5 mr-2 animate-spin" />
-                      Protecting...
+                      <RefreshCw className="w-6 h-6 mr-3 animate-spin text-emerald-200" />
+                      <span className="bg-gradient-to-r from-emerald-100 to-white bg-clip-text text-transparent">Protecting...</span>
                     </>
                   ) : (
                     <>
-                      <Lock className="w-5 h-5 mr-2" />
-                      Obfuscate Code
+                      <Lock className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
+                      <span>Obfuscate Code</span>
                     </>
                   )}
                 </Button>
               </div>
-            </Card>
-          </div>
+            </div>
+          </Card>
 
-          {/* Editors */}
-          <div className="lg:col-span-2 space-y-6">
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-4 flex items-start gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="p-2 rounded-lg bg-red-500/10">
+                <AlertCircle className="w-5 h-5 text-red-500" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-bold text-red-500">Obfuscation Failed</h4>
+                <p className="text-red-400/80 text-sm leading-relaxed">{error}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Editors Grid */}
+          <div className="grid lg:grid-cols-2 gap-8 items-stretch">
             
             {/* Input Editor */}
-            <Card className="flex flex-col h-[500px] overflow-hidden border-[#2a2a2a] bg-[#0a0a0a]">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-[#2a2a2a] bg-[#111]">
-                <div className="flex items-center gap-2 text-gray-400">
-                  <FileCode className="w-4 h-4" />
-                  <span className="text-sm font-medium">Input Code</span>
+            <Card className="flex flex-col h-[600px] overflow-hidden border-[#2a2a2a] bg-[#0a0a0a] group focus-within:border-emerald-500/30 transition-colors rounded-2xl">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[#2a2a2a] bg-[#111]/50 backdrop-blur-md">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
+                    <FileCode className="w-4 h-4" />
+                  </div>
+                  <span className="text-sm font-bold tracking-tight text-white">Input Code</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <label className="cursor-pointer px-3 py-1.5 rounded-md bg-[#1a1a1a] hover:bg-[#222] text-xs text-gray-300 transition-colors flex items-center gap-2">
-                    <Upload className="w-3 h-3" />
+                <div className="flex items-center gap-3">
+                  <label className="cursor-pointer px-4 py-2 rounded-xl bg-[#1a1a1a] hover:bg-[#222] text-xs font-bold text-gray-300 transition-all border border-transparent hover:border-[#333] flex items-center gap-2 group/upload">
+                    <Upload className="w-3 h-3 group-hover/upload:-translate-y-0.5 transition-transform" />
                     Upload File
                     <input type="file" className="hidden" accept=".lua,.txt" onChange={handleFileUpload} />
                   </label>
                   {code && (
                     <button 
                       onClick={() => setCode('')}
-                      className="p-1.5 text-gray-500 hover:text-red-400 transition-colors"
+                      className="p-2 text-gray-500 hover:text-red-400 transition-all rounded-xl hover:bg-red-500/10"
                       title="Clear"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -234,49 +246,43 @@ export default function ObfuscatorPage() {
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="-- Paste your Lua code here..."
-                className="flex-1 w-full p-4 bg-[#0a0a0a] text-gray-300 font-mono text-sm resize-none focus:outline-none"
+                className="flex-1 w-full p-6 bg-[#0a0a0a] text-gray-300 font-mono text-sm resize-none focus:outline-none scrollbar-thin scrollbar-thumb-[#222] scrollbar-track-transparent selection:bg-emerald-500/20"
                 spellCheck="false"
               />
             </Card>
 
-            {/* Error Message */}
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
-                <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="font-bold text-red-500 text-sm">Obfuscation Failed</h4>
-                  <p className="text-red-400 text-sm mt-1">{error}</p>
-                </div>
-              </div>
-            )}
-
             {/* Output Editor */}
-            {obfuscatedCode && (
-              <Card className="flex flex-col h-[500px] overflow-hidden border-emerald-500/30 bg-[#0a0a0a] shadow-lg shadow-emerald-900/10 animate-in fade-in slide-in-from-bottom-4">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-[#2a2a2a] bg-[#111]">
-                  <div className="flex items-center gap-2 text-emerald-500">
+            <Card className={`flex flex-col h-[600px] overflow-hidden transition-all duration-700 rounded-2xl border-[#2a2a2a] ${obfuscatedCode ? 'border-emerald-500/30 bg-[#0a0a0a] shadow-[0_0_50px_rgba(16,185,129,0.05)]' : 'bg-[#0d0d0d] opacity-50'}`}>
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[#2a2a2a] bg-[#111]/50 backdrop-blur-md">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${obfuscatedCode ? 'bg-emerald-500/10 text-emerald-500' : 'bg-gray-800 text-gray-500'}`}>
                     <CheckCircle className="w-4 h-4" />
-                    <span className="text-sm font-bold">Obfuscated Output</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" variant="secondary" onClick={handleCopy}>
-                      {copied ? <CheckCircle className="w-3 h-3 mr-2" /> : <Copy className="w-3 h-3 mr-2" />}
-                      {copied ? 'Copied' : 'Copy'}
-                    </Button>
-                    <Button size="sm" onClick={handleDownload}>
-                      <Download className="w-3 h-3 mr-2" />
-                      Download
-                    </Button>
-                  </div>
+                  <span className={`text-sm font-bold tracking-tight ${obfuscatedCode ? 'text-white' : 'text-gray-500'}`}>
+                    {obfuscatedCode ? 'Obfuscated Result' : 'Output Awaiting...'}
+                  </span>
                 </div>
-                <textarea
-                  value={obfuscatedCode}
-                  readOnly
-                  className="flex-1 w-full p-4 bg-[#0a0a0a] text-emerald-400 font-mono text-sm resize-none focus:outline-none"
-                  spellCheck="false"
-                />
-              </Card>
-            )}
+                {obfuscatedCode && (
+                  <div className="flex items-center gap-2 animate-in fade-in zoom-in duration-500">
+                    <Button size="sm" variant="secondary" onClick={handleCopy} className="h-9 px-4 rounded-xl font-bold bg-[#1a1a1a] border-[#333] border hover:bg-[#222] text-gray-300">
+                      {copied ? <CheckCircle className="w-3 h-3 mr-2" /> : <Copy className="w-3 h-3 mr-2 text-emerald-500" />}
+                      {copied ? 'Copied!' : 'Copy'}
+                    </Button>
+                    <Button size="sm" onClick={handleDownload} className="h-9 px-4 rounded-xl font-bold">
+                      <Download className="w-3 h-3 mr-2" />
+                      Save File
+                    </Button>
+                  </div>
+                )}
+              </div>
+              <textarea
+                value={obfuscatedCode}
+                readOnly
+                placeholder={loading ? "-- Obfuscating in progress..." : "-- Obfuscated code will appear here."}
+                className={`flex-1 w-full p-6 font-mono text-sm resize-none focus:outline-none scrollbar-thin scrollbar-thumb-[#222] scrollbar-track-transparent ${obfuscatedCode ? 'text-emerald-400 bg-[#0a0a0a]' : 'text-gray-600 bg-transparent opacity-30 cursor-not-allowed'}`}
+                spellCheck="false"
+              />
+            </Card>
 
           </div>
         </div>

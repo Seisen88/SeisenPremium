@@ -36,8 +36,7 @@ export async function POST(req: NextRequest) {
 
     // Initialize Lua Runtime (WASM)
     const wasmPath = path.join(process.cwd(), 'node_modules', 'wasmoon', 'dist', 'glue.wasm');
-    const wasmBuffer = await fs.readFile(wasmPath);
-    const factory = new LuaFactory(wasmBuffer as any);
+    const factory = new LuaFactory(wasmPath);
     const lua = await factory.createEngine();
 
     // 1. Mount Prometheus Files
@@ -54,7 +53,10 @@ export async function POST(req: NextRequest) {
     // 2. Mount Input Code
     const inputFile = "input.lua";
     const outputFile = "output.lua";
-    await factory.mountFile(inputFile, code);
+    // Ensure the code has a trailing newline to avoid EOF issues in some Lua parsers
+    const stabilizedCode = code.endsWith('\n') ? code : code + '\n';
+    await factory.mountFile(inputFile, stabilizedCode);
+    console.log(`[Obfuscate] Mounted ${inputFile} (${stabilizedCode.length} bytes)`);
 
     // 3. Setup Environment
     const allowedPresets = ['Minify', 'Weak', 'Medium', 'Strong'];
@@ -87,18 +89,15 @@ export async function POST(req: NextRequest) {
         await lua.doFile("cli.lua");
     } catch (luaError: any) {
         console.error("Lua execution error:", luaError);
-         // Try to read error file if generated?
          return NextResponse.json({ error: 'Obfuscation failed', details: luaError.message }, { status: 500 });
     }
 
     // 5. Read Output
-    // Since we can't easily access the FS directly from JS on 1.x without obscure APIs,
-    // we simply ask Lua to read it back to us.
     try {
         const result = await lua.doString(`
             local f = io.open("${outputFile}", "r")
             if f then
-                local content = f:read("*a")
+                local content = f:read("*all") or f:read("*a")
                 f:close()
                 return content
             else
@@ -107,12 +106,18 @@ export async function POST(req: NextRequest) {
         `);
 
         if (result) {
-            return NextResponse.json({ obfuscated: result });
+            const response = NextResponse.json({ obfuscated: result });
+            response.headers.set('Access-Control-Allow-Origin', '*');
+            response.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+            response.headers.set('Access-Control-Allow-Headers', 'Content-Type');
+            return response;
         } else {
             throw new Error("Output file was not created by Lua script");
         }
     } catch (readError: any) {
-        return NextResponse.json({ error: 'Failed to read output', details: readError.message }, { status: 500 });
+        const response = NextResponse.json({ error: 'Failed to read output', details: readError.message }, { status: 500 });
+        response.headers.set('Access-Control-Allow-Origin', '*');
+        return response;
     } finally {
         // Cleanup engine
         lua.global.close();
@@ -120,6 +125,8 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     console.error('Obfuscation API error:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    const response = NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    response.headers.set('Access-Control-Allow-Origin', '*');
+    return response;
   }
 }

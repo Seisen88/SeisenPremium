@@ -202,12 +202,22 @@ export default function ObfuscatorPage() {
           {/* Error Message */}
           {error && (
             <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-4 flex items-start gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
-              <div className="p-2 rounded-lg bg-red-500/10">
-                <AlertCircle className="w-5 h-5 text-red-500" />
+              <div className="p-2 rounded-lg bg-red-500/10 text-red-500">
+                <AlertCircle className="w-5 h-5" />
               </div>
               <div className="space-y-1">
-                <h4 className="font-bold text-red-500">Obfuscation Failed</h4>
-                <p className="text-red-400/80 text-sm leading-relaxed">{error}</p>
+                <h4 className="font-bold text-red-500">
+                  {error.includes('Parsing Error') ? 'Syntax Error (Invalid Lua)' : 'Obfuscation Failed'}
+                </h4>
+                <p className="text-red-400/80 text-sm font-mono leading-relaxed whitespace-pre-wrap">
+                  {error.split('stack traceback:')[0].trim()}
+                </p>
+                {error.includes('expected') && (
+                  <p className="text-gray-500 text-xs mt-2 italic border-t border-red-500/10 pt-2">
+                    Tip: Prometheus expects valid Lua statements (e.g. function calls, assignments). 
+                    Try clicking "Try Example" above to see valid input.
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -225,6 +235,12 @@ export default function ObfuscatorPage() {
                   <span className="text-sm font-bold tracking-tight text-white">Input Code</span>
                 </div>
                 <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setCode('local message = "Hello, Seisen!"\nprint(message)\n\nfor i = 1, 5 do\n    print("Count: " .. i)\nend')}
+                    className="px-3 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-xs font-bold text-emerald-500 transition-all border border-emerald-500/20 flex items-center gap-2"
+                  >
+                    Try Example
+                  </button>
                   <label className="cursor-pointer px-4 py-2 rounded-xl bg-[#1a1a1a] hover:bg-[#222] text-xs font-bold text-gray-300 transition-all border border-transparent hover:border-[#333] flex items-center gap-2 group/upload">
                     <Upload className="w-3 h-3 group-hover/upload:-translate-y-0.5 transition-transform" />
                     Upload File
@@ -244,7 +260,7 @@ export default function ObfuscatorPage() {
               <textarea
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                placeholder="-- Paste your Lua code here..."
+                placeholder="-- Paste your Lua code here... (e.g. print('Hello World'))"
                 className="flex-1 w-full p-6 bg-[#0a0a0a] text-gray-300 font-mono text-sm resize-none focus:outline-none scrollbar-thin scrollbar-thumb-[#222] scrollbar-track-transparent selection:bg-emerald-500/20"
                 spellCheck="false"
               />

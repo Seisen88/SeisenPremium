@@ -24,6 +24,7 @@ export class EmailService {
             connectionTimeout: 20000,
             greetingTimeout: 20000,
             socketTimeout: 20000,
+            family: 4, // Force IPv4 to avoid IPv6 timeouts on some cloud providers
         });
         
         // Log configuration (safely)

@@ -342,6 +342,12 @@ export class EmailService {
     
     const subject = `Your Verification Code - ${code}`;
     
+    // Verify connection before attempting to send (Fail fast)
+    const isConnected = await this.verifyConnection();
+    if (!isConnected) {
+        return { success: false, error: 'SMTP Connection Failed (Port blocked?)' };
+    }
+    
     const emailHtml = `
 <!DOCTYPE html>
 <html>

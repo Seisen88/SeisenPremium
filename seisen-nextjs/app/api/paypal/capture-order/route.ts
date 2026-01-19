@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PayPalSDK } from '@/lib/server/paypal';
 import { JunkieKeySystem } from '@/lib/server/junkie';
 import { TicketDatabase } from '@/lib/server/db';
-import { ResendEmailService } from '@/lib/server/email';
+import { EmailService } from '@/lib/server/email';
 import { sendDiscordWebhook } from '@/lib/server/discord';
 import { VatCalculator } from '@/lib/server/vat';
 
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     });
 
     const db = new TicketDatabase(); // Handles Payments too
-    const emailService = new ResendEmailService(process.env.RESEND_API_KEY, process.env.EMAIL_FROM);
+    const emailService = new EmailService();
 
     // 1. Capture PayPal Order
     const captureData = await paypal.captureOrder(orderID);
@@ -41,6 +41,24 @@ export async function POST(req: NextRequest) {
     if (paymentInfo.status !== 'COMPLETED') {
         throw new Error('Payment not completed');
     }
+
+    // FIX: Override amount with Base Price (Pre-Tax) for DB and Display
+    // We only want to charge VAT on PayPal, but record the base price internally.
+    const tierPricing: Record<string, number> = {
+        weekly: 3,
+        monthly: 5,
+        lifetime: 10
+    };
+    
+    // Normalize tier and get base amount
+    const normalizedTier = (paymentInfo.tier || 'weekly').toLowerCase();
+    const baseAmount = tierPricing[normalizedTier] !== undefined 
+        ? tierPricing[normalizedTier] 
+        : paymentInfo.amount;
+
+    // Update paymentInfo to use the base amount for DB saving
+    paymentInfo.amount = baseAmount;
+    paymentInfo.tier = normalizedTier;
 
     // 2. Check if transaction already processed
     if (await db.transactionExists(paymentInfo.transactionId)) {
@@ -51,13 +69,8 @@ export async function POST(req: NextRequest) {
         if (existingPayment && existingPayment.generated_keys && existingPayment.generated_keys.length > 0) {
             console.log('Returning existing keys for transaction');
             
-            // Calculate base tier price for frontend display
-            const tierPricing: Record<string, number> = {
-                weekly: 3,
-                monthly: 5,
-                lifetime: 10
-            };
-            const baseAmount = tierPricing[existingPayment.tier] || existingPayment.amount;
+            // Calculate base tier price based on stored tier (for legacy records)
+            const storedBaseAmount = tierPricing[existingPayment.tier] || existingPayment.amount;
             
             return NextResponse.json({ 
                 success: true, 
@@ -65,7 +78,7 @@ export async function POST(req: NextRequest) {
                 details: paymentInfo,
                 keys: existingPayment.generated_keys,
                 tier: existingPayment.tier,
-                amount: baseAmount, // Return base price for frontend display
+                amount: storedBaseAmount, // Return base price
                 currency: existingPayment.currency
             });
         }
@@ -105,7 +118,7 @@ export async function POST(req: NextRequest) {
 
     const keys = (keyResult.success && keyResult.keys) ? keyResult.keys : [];
 
-    // 4. Save to Database
+    // 4. Save to Database (NOW SAVES BASE AMOUNT)
     await db.savePayment({
         ...paymentInfo,
         keys: keys
@@ -135,20 +148,12 @@ export async function POST(req: NextRequest) {
         }]);
     }
 
-    // Calculate base tier price (3/5/10 EUR) for frontend display
-    const tierPricing: Record<string, number> = {
-        weekly: 3,
-        monthly: 5,
-        lifetime: 10
-    };
-    const baseAmount = tierPricing[paymentInfo.tier] || paymentInfo.amount;
-
     return NextResponse.json({
         success: true,
         orderId: paymentInfo.orderId,
         transactionId: paymentInfo.transactionId,
         tier: paymentInfo.tier,
-        amount: baseAmount, // Return base price for frontend display
+        amount: baseAmount, // Return base price
         currency: paymentInfo.currency,
         keys: keys,
         emailSent: true,

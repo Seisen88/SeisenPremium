@@ -32,7 +32,7 @@ const navItems = [
     </svg>
   ), label: 'Discord', external: true },
   { href: '/videos', icon: Youtube, label: 'Videos' },
-  { href: '/support', icon: Headset, label: 'Support' },
+
 ];
 
 export default function Sidebar() {
@@ -94,7 +94,7 @@ export default function Sidebar() {
                 <>
                   <Icon className="w-[18px] h-[18px]" />
                   {/* Tooltip */}
-                  <span className="absolute left-[65px] px-3 py-1.5 bg-[#1a1a1a] text-white text-sm rounded-md border border-[#1f1f1f] opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">
+                  <span className="absolute left-[65px] px-3 py-1.5 bg-[#1a1a1a] text-white text-sm rounded-md border border-[#1f1f1f] opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg z-50">
                     {item.label}
                   </span>
                 </>
@@ -134,6 +134,30 @@ export default function Sidebar() {
                 </Link>
               );
             })}
+          </div>
+
+          {/* Client Area Profile Icon (Bottom) */}
+          <div className="mt-auto mb-4">
+             <Link
+                href="/client/dashboard"
+                className={`group relative flex items-center justify-center w-10 h-10 rounded-full transition-all ${
+                   pathname.startsWith('/client') 
+                   ? 'bg-emerald-500/20 text-emerald-500 border border-emerald-500/30' 
+                   : 'bg-[#1a1a1a] text-gray-400 hover:text-emerald-500 hover:border-emerald-500/50 border border-[#1f1f1f]'
+                }`}
+                onClick={() => setIsOpen(false)}
+             >
+                <div className="w-5 h-5 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+                {/* Tooltip */}
+                <span className="absolute left-[65px] px-3 py-1.5 bg-[#1a1a1a] text-white text-sm rounded-md border border-[#1f1f1f] opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg z-50">
+                    Client Area
+                </span>
+             </Link>
           </div>
         </div>
       </nav>

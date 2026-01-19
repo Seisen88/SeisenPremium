@@ -417,10 +417,12 @@ export default function AdminPage() {
                                     {new Date(t.created_at).toLocaleDateString()}
                                 </td>
                                  <td className="p-4">
-                                     <Button size="sm" variant="secondary" className="h-8 px-2 flex items-center justify-center gap-1" onClick={() => window.open(`/support/ticket/${t.ticket_number}`, '_blank')}>
-                                         <Eye className="w-3.5 h-3.5" />
-                                         View
-                                     </Button>
+                                     <Link href={`/admin/tickets/${t.ticket_number}`}>
+                                         <Button size="sm" variant="secondary" className="h-8 px-2 flex items-center justify-center gap-1">
+                                             <Eye className="w-3.5 h-3.5" />
+                                             View
+                                         </Button>
+                                     </Link>
                                  </td>
                             </tr>
                         ))

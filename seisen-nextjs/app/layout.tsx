@@ -4,6 +4,7 @@ import './globals.css';
 import Sidebar from '@/components/layout/Sidebar';
 import Footer from '@/components/layout/Footer';
 import LoadingScreen from '@/components/layout/LoadingScreen';
+import VisitorTracker from '@/components/layout/VisitorTracker';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -34,6 +35,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${firaCode.variable}`} suppressHydrationWarning>
       <body className="min-h-screen flex flex-col" suppressHydrationWarning>
         <LoadingScreen />
+        <VisitorTracker />
         
         {/* Background Text */}
         <div className="page-bg-text">Seisen</div>

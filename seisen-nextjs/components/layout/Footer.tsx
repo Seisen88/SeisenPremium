@@ -149,8 +149,6 @@ export default function Footer() {
           <p className="flex items-center gap-1">
             <span>👁</span>
             <span>{stats.totalVisits.toLocaleString()} Total Visits</span>
-            <span className="mx-2">|</span>
-            <span>{stats.uniqueVisitors.toLocaleString()} Unique Visitors</span>
           </p>
         </div>
       </div>

@@ -133,10 +133,6 @@ function PremiumContent() {
   const [tosAccepted, setTosAccepted] = useState(false);
   const [pendingPlan, setPendingPlan] = useState<{ plan: string; amount: number; price: number } | null>(null);
   
-  const [showSavedKeys, setShowSavedKeys] = useState(false);
-  const [savedKeys, setSavedKeys] = useState<any[]>([]);
-  
-  // Robux Verification State
   const [showRobuxModal, setShowRobuxModal] = useState(false);
   const [robloxUsername, setRobloxUsername] = useState('');
   const [robuxDetails, setRobuxDetails] = useState<{ plan: string; price: number; productId: number } | null>(null);
@@ -204,18 +200,14 @@ function PremiumContent() {
              payerName: data.payerName || '',
          };
 
-         // Save to local storage
-         saveKeyToLocalStorage(successParams);
-         
-         // Redirect to success - careful with encoding
-         const params = new URLSearchParams({
-             ...successParams,
-             date: data.createTime || new Date().toISOString()
-         });
-         
-         // Wait a moment so user sees the success modal
+         // Auto-Login the user for Client Area
+         localStorage.setItem('client_email', data.payerEmail || '');
+         // Verification is implicit since they just paid
+         localStorage.setItem('client_auth', 'true'); 
+
+         // Redirect to Dashboard
          setTimeout(() => {
-             router.push(`/success?${params.toString()}`);
+             router.push('/client/dashboard');
          }, 2000);
 
       } else {
@@ -245,39 +237,7 @@ function PremiumContent() {
     }
   };
 
-  const saveKeyToLocalStorage = (data: any) => {
-      try {
-        const keys = JSON.parse(localStorage.getItem('seisen_premium_keys') || '[]');
-        keys.push({
-            key: data.key,
-            tier: data.tier,
-            method: data.method,
-             amount: data.amount,
-             currency: data.currency,
-             orderId: data.orderId,
-             dbOrderId: data.dbOrderId,
-             email: data.email,
-             payerId: data.payerId,
-             payerName: data.payerName,
-             purchaseDate: data.date || new Date().toISOString(),
-             timestamp: Date.now()
-        });
-        if (keys.length > 10) keys.shift();
-        localStorage.setItem('seisen_premium_keys', JSON.stringify(keys));
-      } catch (e) {
-          console.error(e);
-      }
-  };
 
-  const loadSavedKeys = () => {
-      try {
-          const keys = JSON.parse(localStorage.getItem('seisen_premium_keys') || '[]');
-          setSavedKeys(keys.reverse());
-          setShowSavedKeys(true);
-      } catch (e) {
-          setSavedKeys([]);
-      }
-  };
 
   const handleRobuxPayment = (plan: string, price: number) => {
       let productId = 16906166414; // Default Lifetime
@@ -331,15 +291,13 @@ function PremiumContent() {
                  payerName: data.username, 
              };
 
-             saveKeyToLocalStorage(successParams);
-             
-             const params = new URLSearchParams({
-                 ...successParams,
-                 date: new Date().toISOString()
-             });
-             
+             // Auto-Login
+             const email = `${data.username}@roblox.com`; // Fallback email
+             localStorage.setItem('client_email', email);
+             localStorage.setItem('client_auth', 'true');
+
              setTimeout(() => {
-                 router.push(`/success?${params.toString()}`);
+                 router.push('/client/dashboard');
              }, 2000);
 
         } else {
@@ -459,10 +417,6 @@ function PremiumContent() {
           <p className="text-gray-500">
             Unlock all features with instant access, no key system required
           </p>
-          <Button variant="secondary" size="sm" className="mt-4" onClick={loadSavedKeys}>
-            <History className="w-4 h-4" />
-            View My Saved Keys
-          </Button>
         </section>
 
         {/* Payment Method Selection */}
@@ -665,62 +619,7 @@ function PremiumContent() {
         </div>
       )}
 
-      {/* Saved Keys Modal */}
-      {showSavedKeys && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 animate-in fade-in duration-200" onClick={() => setShowSavedKeys(false)}>
-              <Card className="w-full max-w-lg p-0 overflow-hidden relative" onClick={e => e.stopPropagation()}>
-                  <div className="p-6 border-b border-[#2a2a2a] flex justify-between items-center">
-                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <History className="w-5 h-5 text-emerald-500" />
-                        My Saved Keys
-                    </h2>
-                    <button onClick={() => setShowSavedKeys(false)} className="text-gray-500 hover:text-white"><X className="w-5 h-5"/></button>
-                  </div>
-                  <div className="p-6 max-h-[60vh] overflow-y-auto space-y-4">
-                      {savedKeys.length === 0 ? (
-                          <div className="text-center py-8 text-gray-500">
-                              No saved keys found on this device.
-                          </div>
-                      ) : (
-                          savedKeys.map((item, idx) => (
-                              <div key={idx} className="bg-[#1a1a1a] rounded-lg p-4 border border-[#2a2a2a]">
-                                  <div className="flex justify-between items-start mb-2">
-                                      <div>
-                                          <div className="font-bold text-white capitalize">{item.tier} Plan</div>
-                                          <div className="text-xs text-gray-500">{new Date(item.purchaseDate).toLocaleDateString()}</div>
-                                      </div>
-                                      <div className="text-xs px-2 py-1 bg-emerald-500/10 text-emerald-500 rounded capitalize">{item.method}</div>
-                                  </div>
-                                  <div className="flex items-center gap-2 bg-[#0a0a0a] p-2 rounded border border-[#2a2a2a] mb-2">
-                                      <code className="text-xs text-emerald-400 flex-1 truncate font-mono">{item.key}</code>
-                                      <button onClick={() => copyToClipboard(item.key)} className="text-gray-400 hover:text-white p-1">
-                                          <Copy className="w-3 h-3" />
-                                      </button>
-                                  </div>
-                                  
-                                  <div className="flex gap-2 justify-end">
-                                      <Link 
-                                        href={`/success?orderId=${item.orderId || 'Unknown'}&tier=${item.tier}&amount=${item.amount}&currency=${item.currency || 'EUR'}&key=${item.key}&email=${item.email || ''}&payerId=${item.payerId || ''}&date=${item.purchaseDate}&method=${item.method}`}
-                                        className="text-xs text-gray-500 hover:text-white flex items-center gap-1"
-                                      >
-                                          <CreditCard className="w-3 h-3" />
-                                          View Receipt
-                                      </Link>
-                                      <Link 
-                                        href={`/support?reason=premium&plan=${item.tier}&amount=${item.amount}&currency=${item.currency || 'EUR'}&subject=Issue with Order ${item.orderId || 'Unknown'}`}
-                                        className="text-xs text-red-500/70 hover:text-red-400 flex items-center gap-1"
-                                      >
-                                          <AlertCircle className="w-3 h-3" />
-                                          Support
-                                      </Link>
-                                  </div>
-                              </div>
-                          ))
-                      )}
-                  </div>
-              </Card>
-          </div>
-      )}
+
 
       {/* Robux Verification Modal */}
       {showRobuxModal && robuxDetails && (

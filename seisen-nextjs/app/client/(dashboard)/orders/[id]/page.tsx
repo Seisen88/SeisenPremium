@@ -1,0 +1,220 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/lib/client/auth';
+import { Card } from '@/components/ui/Card';
+import { Loader2, Copy, Check, ShoppingBag, Calendar, CreditCard, Key } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+
+export default function OrderDetailsPage() {
+    const { email, isAuthenticated, isLoading: authLoading } = useAuth();
+    const params = useParams();
+    const router = useRouter();
+    const [order, setOrder] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!authLoading && !isAuthenticated) {
+            router.push('/client/login');
+        }
+    }, [authLoading, isAuthenticated, router]);
+
+    useEffect(() => {
+        if (isAuthenticated && email && params.id) {
+            fetchOrderDetails();
+        }
+    }, [isAuthenticated, email, params.id]);
+
+    const fetchOrderDetails = async () => {
+        try {
+            const res = await fetch(`/api/orders/${params.id}?email=${encodeURIComponent(email!)}`);
+            const json = await res.json();
+            
+            if (json.success) {
+                setOrder(json.data);
+            } else {
+                setError(json.error || 'Failed to fetch order');
+            }
+        } catch (e) {
+            console.error(e);
+            setError('An error occurred');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+        setCopiedKey(text);
+        setTimeout(() => setCopiedKey(null), 2000);
+    };
+
+    if (authLoading || loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+            </div>
+        );
+    }
+
+    if (error || !order) {
+        return (
+            <div className="p-8 max-w-7xl mx-auto text-center">
+                <h1 className="text-2xl font-bold text-white mb-4">Error</h1>
+                <p className="text-red-500 mb-6">{error || 'Order not found'}</p>
+                <Link href="/client/orders" className="text-emerald-500 hover:underline">
+                    &larr; Back to Orders
+                </Link>
+            </div>
+        );
+    }
+
+    return (
+        <div className="p-8 max-w-5xl mx-auto space-y-8 animate-fade-in">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                     <Link href="/client/orders" className="text-sm text-gray-400 hover:text-emerald-500 mb-2 inline-block">
+                        &larr; Back to Orders
+                    </Link>
+                    <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                        Order #{order.transaction_id.substring(0, 18)}...
+                    </h1>
+                    <p className="text-gray-500 text-sm">Placed on {new Date(order.created_at).toLocaleString()}</p>
+                </div>
+                <div className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-4 py-2 rounded-lg flex items-center gap-2 font-medium">
+                    <Check className="w-4 h-4" />
+                    Status: {order.payment_status}
+                </div>
+            </div>
+
+            {/* Delivered Items (Key) - Prominent at Top */}
+            <Card className="p-6 border-l-4 border-l-emerald-500">
+                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <Key className="w-5 h-5 text-emerald-500" />
+                    Delivered Items
+                </h3>
+                
+                {order.generated_keys && order.generated_keys.length > 0 ? (
+                    <div className="space-y-3">
+                         {order.generated_keys.map((key: string, i: number) => (
+                            <div key={i} className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg p-4 flex items-center justify-between gap-4 group hover:border-emerald-500/30 transition-colors">
+                                <code className="text-emerald-500 font-mono text-lg truncate">{key}</code>
+                                <button 
+                                    onClick={() => copyToClipboard(key)}
+                                    className={`p-2 rounded text-sm font-medium transition-colors flex items-center gap-2 ${copiedKey === key ? "bg-emerald-500/20 text-emerald-500" : "bg-[#1f1f1f] text-gray-400 hover:text-white"}`}
+                                >
+                                    {copiedKey === key ? <Check className="w-4 h-4"/> : <Copy className="w-4 h-4"/>}
+                                    {copiedKey === key ? "Copied" : "Copy"}
+                                </button>
+                            </div>
+                         ))}
+                    </div>
+                ) : (
+                     <div className="text-gray-500 italic">No keys found for this order.</div>
+                )}
+                <p className="text-xs text-gray-500 mt-4">
+                    Delivered instantly on {new Date(order.created_at).toLocaleDateString()}
+                </p>
+            </Card>
+
+            <div className="grid md:grid-cols-2 gap-6">
+                
+                {/* Order Items */}
+                <Card className="p-6 h-full flex flex-col">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <ShoppingBag className="w-5 h-5 text-emerald-500" />
+                        Order Items
+                    </h3>
+                    
+                    <div className="flex justify-between items-center py-4 border-b border-[#2a2a2a]">
+                        <div>
+                            <div className="font-medium text-white capitalize">{order.tier} Plan</div>
+                            <div className="text-sm text-gray-500">Seisen Hub Premium x 1</div>
+                        </div>
+                        <div className="font-mono text-white">
+                            {order.currency === 'EUR' ? '€' : (order.currency === 'USD' ? '$' : order.currency)}
+                            {order.amount}
+                        </div>
+                    </div>
+                    
+                    <div className="mt-auto pt-4 flex justify-between items-center border-t border-[#2a2a2a]">
+                        <span className="text-gray-400">Total</span>
+                        <span className="text-xl font-bold text-white">
+                             {order.currency === 'EUR' ? '€' : (order.currency === 'USD' ? '$' : order.currency)}
+                             {order.amount}
+                        </span>
+                    </div>
+                </Card>
+
+                {/* Payment Information */}
+                <Card className="p-6">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <CreditCard className="w-5 h-5 text-emerald-500" />
+                        Payment Information
+                    </h3>
+                    
+                    <div className="space-y-4">
+                        <div className="flex justify-between">
+                            <span className="text-gray-500">Payment Status</span>
+                            <span className="text-white capitalize">{order.payment_status}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-gray-500">Email</span>
+                            <span className="text-white truncate max-w-[200px]">{order.payer_email}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-gray-500">Transaction ID</span>
+                            <span className="text-white font-mono text-sm truncate max-w-[150px]">{order.transaction_id}</span>
+                        </div>
+                        {order.payer_id && (
+                             <div className="flex justify-between">
+                                <span className="text-gray-500">Payer ID</span>
+                                <span className="text-white font-mono text-sm">{order.payer_id}</span>
+                            </div>
+                        )}
+                    </div>
+                </Card>
+            </div>
+
+            {/* Order Timeline */}
+            <Card className="p-6">
+                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-emerald-500" />
+                    Order Timeline
+                </h3>
+                
+                <div className="space-y-6 ml-2 border-l-2 border-[#2a2a2a] pl-6 relative">
+                     <div className="relative">
+                        <div className="absolute -left-[31px] w-6 h-6 rounded-full bg-[#1a1a1a] border-2 border-emerald-500 flex items-center justify-center">
+                            <CreditCard className="w-3 h-3 text-emerald-500" />
+                        </div>
+                        <div>
+                            <h4 className="text-white font-medium">Order Placed</h4>
+                            <p className="text-sm text-gray-500">{new Date(order.created_at).toLocaleString()}</p>
+                        </div>
+                    </div>
+                    
+                    <div className="relative">
+                        <div className="absolute -left-[31px] w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                            <Check className="w-3 h-3 text-white" />
+                        </div>
+                        <div>
+                            <h4 className="text-white font-medium">Order Delivered</h4>
+                            <p className="text-sm text-gray-500">Instant Delivery</p>
+                        </div>
+                    </div>
+                </div>
+            </Card>
+            
+            <div className="text-center pt-8">
+                <Link href="/client/support" className="text-gray-500 hover:text-white text-sm underline">
+                    Need help with this order? Contact Support
+                </Link>
+            </div>
+        </div>
+    );
+}

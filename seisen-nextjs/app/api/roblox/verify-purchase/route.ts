@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { RobloxIntegration } from '@/lib/server/roblox';
 import { JunkieKeySystem } from '@/lib/server/junkie';
 import { TicketDatabase } from '@/lib/server/db';
-import { ResendEmailService } from '@/lib/server/email';
+import { EmailService } from '@/lib/server/email';
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     });
 
     const db = new TicketDatabase();
-    const emailService = new ResendEmailService(process.env.RESEND_API_KEY, process.env.EMAIL_FROM);
+    const emailService = new EmailService();
 
     // 1. Verify Purchase
     const verification = await roblox.verifyPurchase(username);

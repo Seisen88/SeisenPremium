@@ -291,12 +291,19 @@ export class TicketDatabase {
 
   // --- Visitor Stats ---
   async getVisitorStats() {
-    const { data, error } = await this.client.from('visitors').select('*');
+    // We now use a single 'global_counter' row for all stats
+    // But we might want to respect legacy data if we want.
+    // For simplicity and per request "remove unique", we will just read the global counter 
+    // OR sum everything if we want to include legacy counts + new global count.
+    
+    // Simplest: Sum everything, as 'global_counter' will just be a large entry.
+    const { data, error } = await this.client.from('visitors').select('visit_count');
     if (error) return { totalVisits: 0, uniqueVisitors: 0 };
+    
     const totalVisits = data.reduce((sum: number, v: any) => sum + v.visit_count, 0);
     return {
         totalVisits,
-        uniqueVisitors: data.length,
+        uniqueVisitors: 0, // Removed per request
         lastUpdated: new Date().toISOString()
     };
   }
@@ -337,30 +344,35 @@ export class TicketDatabase {
   }
 
   async recordVisit(ipAddress: string, userAgent: string) {
+    // IGNORE IP -> Use 'global_counter' equivalent
+    // usage of '0.0.0.0' fits IP constraints if any
+    const GLOBAL_ID = '0.0.0.0'; 
+
     const { data: existing } = await this.client
         .from('visitors')
         .select('*')
-        .eq('ip', ipAddress)
+        .eq('ip', GLOBAL_ID)
         .single();
-
+    
     if (existing) {
         await this.client
             .from('visitors')
             .update({
                 last_visit: new Date().toISOString(),
                 visit_count: existing.visit_count + 1,
-                user_agent: userAgent
+                user_agent: 'Global Counter'
             })
-            .eq('ip', ipAddress);
+            .eq('ip', GLOBAL_ID);
     } else {
         await this.client
             .from('visitors')
             .insert([{
-                ip: ipAddress,
-                user_agent: userAgent,
+                ip: GLOBAL_ID,
+                user_agent: 'Global Counter',
                 visit_count: 1
             }]);
     }
+
     return await this.getVisitorStats();
   }
 
@@ -376,4 +388,66 @@ export class TicketDatabase {
       throw error;
     }
   }
+  // --- Auth & Verification ---
+  async checkUserExists(email: string) {
+    // Check if this email has ever made a successful payment
+    const { data, error } = await this.client
+        .from('payments')
+        .select('id')
+        .eq('payer_email', email)
+        .eq('payment_status', 'COMPLETED')
+        .limit(1);
+    
+    if (error) {
+        console.error('Error checking user existence:', error);
+        return false;
+    }
+    return data && data.length > 0;
+  }
+
+  async createVerificationCode(email: string, code: string) {
+    // Expires in 15 minutes
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+
+    const { error } = await this.client
+        .from('verification_codes')
+        .upsert({ 
+            email, 
+            code, 
+            expires_at: expiresAt 
+        }, { onConflict: 'email' });
+
+    if (error) {
+        console.error('Error creating verification code:', error);
+        throw error;
+    }
+    return true;
+  }
+
+  async verifyCode(email: string, code: string) {
+    const { data, error } = await this.client
+        .from('verification_codes')
+        .select('*')
+        .eq('email', email)
+        .single();
+
+    if (error || !data) {
+        return { success: false, error: 'Code not found' };
+    }
+
+    if (new Date(data.expires_at) < new Date()) {
+        return { success: false, error: 'Code expired' };
+    }
+
+    if (data.code !== code) {
+        return { success: false, error: 'Invalid code' };
+    }
+
+    // Success! Delete the code so it can't be reused
+    await this.client.from('verification_codes').delete().eq('email', email);
+    
+    return { success: true };
+  }
 }
+
+export const db = new TicketDatabase();

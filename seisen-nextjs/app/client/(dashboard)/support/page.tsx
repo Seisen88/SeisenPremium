@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { MessageSquare, Plus, Search, Loader2, AlertCircle, Mail, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+
 import { getApiUrl } from '@/lib/utils';
 
 interface Ticket {
@@ -27,8 +27,16 @@ export default function ClientSupportPage() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const [router, setRouter] = useState<any>(null);
+  const [searchParams, setSearchParams] = useState<any>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const { useRouter, useSearchParams } = require('next/navigation');
+      setRouter(useRouter());
+      setSearchParams(useSearchParams());
+    }
+  }, []);
 
   // Create Ticket Form State
   const [subject, setSubject] = useState('');
@@ -38,8 +46,8 @@ export default function ClientSupportPage() {
   
   // Pre-fill from URL if provided (e.g. from order history)
   useEffect(() => {
-      const urlSubject = searchParams.get('subject');
-      const urlReason = searchParams.get('reason');
+      const urlSubject = searchParams?.get('subject');
+      const urlReason = searchParams?.get('reason');
       
       if (urlSubject) {
           setSubject(urlSubject);
@@ -94,7 +102,7 @@ export default function ClientSupportPage() {
               setSubject('');
               setMessage('');
               fetchTickets(); // Refresh list
-              router.push(`/client/support/${data.ticket.ticketNumber}`); // Go to new ticket
+              router?.push(`/client/support/${data.ticket.ticketNumber}`); // Go to new ticket
           } else {
               alert(data.error || 'Failed to create ticket');
           }

@@ -109,196 +109,231 @@ export default function ObfuscatorPage() {
   };
 
   return (
-    <div className="min-h-screen py-8 px-4 md:px-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        
-        {/* Header */}
-        <section className="text-center animate-fade-in space-y-4">
-          <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 shadow-lg shadow-emerald-500/30">
-            <Lock className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-[#0d0d0d] text-gray-300 font-sans selection:bg-emerald-500/20">
+      {/* Top IDE Header / Breadcrumbs */}
+      <div className="h-14 border-b border-[#252525] bg-[#181818] flex items-center justify-between px-6 sticky top-0 z-50">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 group cursor-pointer">
+            <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500 group-hover:scale-110 transition-transform">
+              <Lock className="w-4 h-4" />
+            </div>
+            <span className="text-sm font-bold tracking-tight text-white/90">Seisen Obfuscator</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white">Lua Obfuscator</h1>
-          <p className="text-gray-400 max-w-2xl mx-auto">
-            Protect your Lua scripts with our advanced obfuscation engine. Supports Lua 5.1 and LuaU.
-          </p>
-        </section>
 
-        {/* Main Content */}
-        <div className="space-y-8">
-          
-          {/* Configuration - Now at the Top */}
-          <Card className="p-6 border-[#2a2a2a] bg-[#0d0d0d]/80 backdrop-blur-sm">
-            <div className="flex flex-col md:flex-row gap-8 items-start md:items-center justify-between">
-              <div className="flex flex-wrap gap-8 items-center">
-                {/* Lua Version */}
-                <div className="space-y-3">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">Lua Version</label>
-                  <div className="flex gap-2">
-                    {(['lua51', 'luau'] as const).map((v) => (
-                      <button
-                        key={v}
-                        onClick={() => setLuaVersion(v)}
-                        className={`px-6 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
-                          luaVersion === v
-                            ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
-                            : 'bg-[#1a1a1a] text-gray-500 hover:text-white hover:bg-[#222] border border-transparent hover:border-[#333]'
-                        }`}
-                      >
-                        {v === 'lua51' ? 'Lua 5.1' : 'LuaU'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+          <div className="h-4 w-[1px] bg-[#333] hidden md:block" />
 
-                <div className="hidden md:block w-px h-12 bg-[#2a2a2a]" />
-
-                {/* Security Level */}
-                <div className="space-y-3">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">Security Level</label>
-                  <div className="flex flex-wrap gap-2">
-                    {PRESETS.map((p) => (
-                      <button
-                        key={p.id}
-                        onClick={() => setPreset(p.id as Preset)}
-                        className={`px-6 py-2 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${
-                          preset === p.id
-                            ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]'
-                            : 'bg-[#1a1a1a] text-gray-500 hover:text-white hover:bg-[#222] border border-transparent hover:border-[#333]'
-                        }`}
-                        title={p.description}
-                      >
-                        {p.name}
-                        {preset === p.id && <CheckCircle className="w-3 h-3" />}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Action */}
-              <div className="w-full md:w-auto">
-                <Button 
-                  className="w-full md:px-10 h-14 text-lg font-black tracking-wide shadow-xl shadow-emerald-500/20 rounded-2xl group relative overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  onClick={handleObfuscate}
-                  disabled={loading}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-cyan-400 opacity-0 group-hover:opacity-10 transition-opacity" />
-                  {loading ? (
-                    <>
-                      <RefreshCw className="w-6 h-6 mr-3 animate-spin text-emerald-200" />
-                      <span className="bg-gradient-to-r from-emerald-100 to-white bg-clip-text text-transparent">Protecting...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Lock className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
-                      <span>Obfuscate Code</span>
-                    </>
-                  )}
-                </Button>
+          {/* Config Bar - Minimalist */}
+          <div className="hidden lg:flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Lua Version</span>
+              <div className="flex bg-[#0a0a0a] p-0.5 rounded-lg border border-[#333]">
+                {(['lua51', 'luau'] as const).map((v) => (
+                  <button
+                    key={v}
+                    onClick={() => setLuaVersion(v)}
+                    className={`px-3 py-1 rounded-md text-[11px] font-bold transition-all ${
+                      luaVersion === v
+                        ? 'bg-[#2d2d2d] text-emerald-400 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-300'
+                    }`}
+                  >
+                    {v === 'lua51' ? '5.1' : 'U'}
+                  </button>
+                ))}
               </div>
             </div>
-          </Card>
 
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-4 flex items-start gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
-              <div className="p-2 rounded-lg bg-red-500/10 text-red-500">
-                <AlertCircle className="w-5 h-5" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Security</span>
+              <div className="flex bg-[#0a0a0a] p-0.5 rounded-lg border border-[#333]">
+                {PRESETS.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => setPreset(p.id as Preset)}
+                    className={`px-3 py-1 rounded-md text-[11px] font-bold transition-all ${
+                      preset === p.id
+                        ? 'bg-[#2d2d2d] text-emerald-400 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-300'
+                    }`}
+                    title={p.description}
+                  >
+                    {p.name}
+                  </button>
+                ))}
               </div>
-              <div className="space-y-1">
-                <h4 className="font-bold text-red-500">
-                  {error.includes('Parsing Error') ? 'Syntax Error (Invalid Lua)' : 'Obfuscation Failed'}
-                </h4>
-                <p className="text-red-400/80 text-sm font-mono leading-relaxed whitespace-pre-wrap">
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <Button 
+            className="h-9 px-6 text-xs font-black tracking-widest uppercase rounded-lg shadow-lg shadow-emerald-500/10 group overflow-hidden transition-all hover:scale-105"
+            onClick={handleObfuscate}
+            disabled={loading}
+          >
+            {loading ? (
+              <RefreshCw className="w-3 h-3 animate-spin" />
+            ) : (
+              <>
+                <Lock className="w-3 h-3 mr-2 group-hover:rotate-12 transition-transform" />
+                <span>Protect</span>
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-2 h-[calc(100vh-3.5rem)] overflow-hidden">
+        
+        {/* Input Editor Shell */}
+        <div className="flex flex-col border-r border-[#252525] bg-[#1e1e1e]">
+          {/* Tabs Bar */}
+          <div className="h-9 bg-[#252526] flex items-center px-0">
+            <div className="h-full px-4 border-r border-[#1e1e1e] bg-[#1e1e1e] text-white flex items-center gap-2 text-xs font-medium cursor-default">
+              <FileCode className="w-3.5 h-3.5 text-orange-400" />
+              <span>input.lua</span>
+            </div>
+            
+            <div className="ml-auto flex items-center px-4 gap-4">
+              <button
+                onClick={() => setCode('local message = "Hello, Seisen!"\nprint(message)\n\nfor i = 1, 5 do\n    print("Count: " .. i)\nend')}
+                className="text-[10px] font-bold text-emerald-500/80 hover:text-emerald-400 uppercase tracking-wider transition-colors"
+                title="Populate with example code"
+              >
+                Try Example
+              </button>
+              <label className="cursor-pointer text-gray-500 hover:text-gray-300 transition-colors">
+                <Upload className="w-3.5 h-3.5" />
+                <input type="file" className="hidden" accept=".lua,.txt" onChange={handleFileUpload} />
+              </label>
+              {code && (
+                <button onClick={() => setCode('')} className="text-gray-500 hover:text-red-400 transition-colors">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Code Area */}
+          <div className="flex-1 flex overflow-hidden">
+            {/* LInes gutter simulation */}
+            <div className="w-12 bg-[#1e1e1e] pt-4 flex flex-col items-center text-[#858585] font-mono text-[11px] select-none border-r border-[#2d2d2d]/10">
+              {Array.from({ length: 30 }).map((_, i) => (
+                <div key={i} className="h-5 flex items-center">{i + 1}</div>
+              ))}
+            </div>
+
+            <textarea
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="-- Paste your Lua code here..."
+              className="flex-1 p-4 bg-transparent text-[#d4d4d4] font-mono text-sm resize-none focus:outline-none scrollbar-thin scrollbar-thumb-white/10"
+              spellCheck="false"
+            />
+          </div>
+
+          {/* Error overlay - VS Code style popup */}
+          {error && (
+            <div className="absolute bottom-6 left-6 right-6 lg:right-auto lg:w-[480px] bg-[#252526] border border-[#333] shadow-2xl rounded-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-300 z-50">
+              <div className="flex items-center justify-between px-4 py-2 border-b border-[#333] bg-[#2d2d2d]">
+                <div className="flex items-center gap-2 text-red-400 text-[10px] font-black uppercase tracking-widest">
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  <span>Problem Detected</span>
+                </div>
+                <button onClick={() => setError(null)} className="text-gray-500 hover:text-white transition-colors">
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </div>
+              <div className="p-4 space-y-3">
+                <p className="text-red-400/90 font-mono text-[11px] leading-relaxed break-words whitespace-pre-wrap">
                   {error.split('stack traceback:')[0].trim()}
                 </p>
-                {error.includes('expected') && (
-                  <p className="text-gray-500 text-xs mt-2 italic border-t border-red-500/10 pt-2">
-                    Tip: Prometheus expects valid Lua statements (e.g. function calls, assignments). 
-                    Try clicking "Try Example" above to see valid input.
-                  </p>
+                {error.includes('Parsing Error') && (
+                  <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-md p-2">
+                    <p className="text-gray-400 text-[10px] leading-tight">
+                      <span className="text-emerald-400 font-bold mr-1">Hint:</span>
+                      Prometheus requires valid statements. Ensure your code isn't just a random string or incomplete fragment.
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
           )}
+        </div>
 
-          {/* Editors Grid */}
-          <div className="grid lg:grid-cols-2 gap-8 items-stretch">
-            
-            {/* Input Editor */}
-            <Card className="flex flex-col h-[600px] overflow-hidden border-[#2a2a2a] bg-[#0a0a0a] group focus-within:border-emerald-500/30 transition-colors rounded-2xl">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-[#2a2a2a] bg-[#111]/50 backdrop-blur-md">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
-                    <FileCode className="w-4 h-4" />
-                  </div>
-                  <span className="text-sm font-bold tracking-tight text-white">Input Code</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setCode('local message = "Hello, Seisen!"\nprint(message)\n\nfor i = 1, 5 do\n    print("Count: " .. i)\nend')}
-                    className="px-3 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-xs font-bold text-emerald-500 transition-all border border-emerald-500/20 flex items-center gap-2"
-                  >
-                    Try Example
-                  </button>
-                  <label className="cursor-pointer px-4 py-2 rounded-xl bg-[#1a1a1a] hover:bg-[#222] text-xs font-bold text-gray-300 transition-all border border-transparent hover:border-[#333] flex items-center gap-2 group/upload">
-                    <Upload className="w-3 h-3 group-hover/upload:-translate-y-0.5 transition-transform" />
-                    Upload File
-                    <input type="file" className="hidden" accept=".lua,.txt" onChange={handleFileUpload} />
-                  </label>
-                  {code && (
-                    <button 
-                      onClick={() => setCode('')}
-                      className="p-2 text-gray-500 hover:text-red-400 transition-all rounded-xl hover:bg-red-500/10"
-                      title="Clear"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
+        {/* Output Editor Shell */}
+        <div className="flex flex-col bg-[#1e1e1e]">
+          {/* Tabs Bar */}
+          <div className="h-9 bg-[#252526] flex items-center px-0">
+            <div className={`h-full px-4 border-r border-[#1e1e1e] flex items-center gap-2 text-xs font-medium cursor-default transition-all ${obfuscatedCode ? 'bg-[#1e1e1e] text-white' : 'bg-[#2d2d2d]/30 text-gray-500'}`}>
+              <CheckCircle className={`w-3.5 h-3.5 ${obfuscatedCode ? 'text-emerald-400' : 'text-gray-600'}`} />
+              <span>obfuscated.lua</span>
+            </div>
+
+            {obfuscatedCode && (
+              <div className="ml-auto flex items-center px-4 gap-3 animate-fade-in">
+                <button
+                  onClick={handleCopy}
+                  className="px-3 py-1 rounded text-[10px] font-bold bg-[#333] hover:bg-[#444] text-gray-300 transition-colors flex items-center gap-1.5"
+                >
+                  {copied ? <CheckCircle className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                  {copied ? 'COPIED' : 'COPY'}
+                </button>
+                <button
+                  onClick={handleDownload}
+                  className="px-3 py-1 rounded text-[10px] font-bold bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 transition-colors flex items-center gap-1.5"
+                >
+                  <Download className="w-3 h-3" />
+                  SAVE
+                </button>
               </div>
-              <textarea
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                placeholder="-- Paste your Lua code here... (e.g. print('Hello World'))"
-                className="flex-1 w-full p-6 bg-[#0a0a0a] text-gray-300 font-mono text-sm resize-none focus:outline-none scrollbar-thin scrollbar-thumb-[#222] scrollbar-track-transparent selection:bg-emerald-500/20"
-                spellCheck="false"
-              />
-            </Card>
+            )}
+          </div>
 
-            {/* Output Editor */}
-            <Card className={`flex flex-col h-[600px] overflow-hidden transition-all duration-700 rounded-2xl border-[#2a2a2a] ${obfuscatedCode ? 'border-emerald-500/30 bg-[#0a0a0a] shadow-[0_0_50px_rgba(16,185,129,0.05)]' : 'bg-[#0d0d0d] opacity-50'}`}>
-              <div className="flex items-center justify-between px-6 py-4 border-b border-[#2a2a2a] bg-[#111]/50 backdrop-blur-md">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${obfuscatedCode ? 'bg-emerald-500/10 text-emerald-500' : 'bg-gray-800 text-gray-500'}`}>
-                    <CheckCircle className="w-4 h-4" />
-                  </div>
-                  <span className={`text-sm font-bold tracking-tight ${obfuscatedCode ? 'text-white' : 'text-gray-500'}`}>
-                    {obfuscatedCode ? 'Obfuscated Result' : 'Output Awaiting...'}
-                  </span>
-                </div>
-                {obfuscatedCode && (
-                  <div className="flex items-center gap-2 animate-in fade-in zoom-in duration-500">
-                    <Button size="sm" variant="secondary" onClick={handleCopy} className="h-9 px-4 rounded-xl font-bold bg-[#1a1a1a] border-[#333] border hover:bg-[#222] text-gray-300">
-                      {copied ? <CheckCircle className="w-3 h-3 mr-2" /> : <Copy className="w-3 h-3 mr-2 text-emerald-500" />}
-                      {copied ? 'Copied!' : 'Copy'}
-                    </Button>
-                    <Button size="sm" onClick={handleDownload} className="h-9 px-4 rounded-xl font-bold">
-                      <Download className="w-3 h-3 mr-2" />
-                      Save File
-                    </Button>
-                  </div>
-                )}
+          <div className="flex-1 flex overflow-hidden relative">
+            {/* LInes gutter simulation */}
+            <div className="w-12 bg-[#1e1e1e] pt-4 flex flex-col items-center text-[#858585] font-mono text-[11px] select-none border-r border-[#2d2d2d]/10">
+              {Array.from({ length: 30 }).map((_, i) => (
+                <div key={i} className="h-5 flex items-center">{i + 1}</div>
+              ))}
+            </div>
+
+            <textarea
+              value={obfuscatedCode}
+              readOnly
+              placeholder={loading ? "-- Obfuscating script..." : "-- Result will appear here."}
+              className={`flex-1 p-4 bg-transparent font-mono text-sm resize-none focus:outline-none scrollbar-thin scrollbar-thumb-white/10 ${obfuscatedCode ? 'text-emerald-400' : 'text-gray-600 italic'}`}
+              spellCheck="false"
+            />
+
+            {!obfuscatedCode && !loading && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-20">
+                <Lock className="w-16 h-16 mb-4 text-gray-500" />
+                <p className="text-sm font-bold tracking-widest uppercase text-gray-400">Ready to secure</p>
               </div>
-              <textarea
-                value={obfuscatedCode}
-                readOnly
-                placeholder={loading ? "-- Obfuscating in progress..." : "-- Obfuscated code will appear here."}
-                className={`flex-1 w-full p-6 font-mono text-sm resize-none focus:outline-none scrollbar-thin scrollbar-thumb-[#222] scrollbar-track-transparent ${obfuscatedCode ? 'text-emerald-400 bg-[#0a0a0a]' : 'text-gray-600 bg-transparent opacity-30 cursor-not-allowed'}`}
-                spellCheck="false"
-              />
-            </Card>
+            )}
+          </div>
+        </div>
 
+      </div>
+
+      {/* VS Code Style Status Bar */}
+      <div className="h-6 bg-emerald-600 flex items-center justify-between px-3 text-white text-[10px] font-medium uppercase tracking-wider">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1 hover:bg-white/10 px-2 h-full transition-colors cursor-pointer">
+            <RefreshCw className={`w-2.5 h-2.5 ${loading ? 'animate-spin' : ''}`} />
+            <span>{loading ? 'Obfuscating...' : 'Ready'}</span>
+          </div>
+          <div className="flex items-center gap-1 hover:bg-white/10 px-2 h-full transition-colors cursor-pointer">
+            <span>Encoding: UTF-8</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center px-2 h-full bg-black/10">
+            <span>{preset} Mode</span>
+          </div>
+          <div className="flex items-center px-2 h-full bg-black/10">
+            <span>{luaVersion === 'lua51' ? 'Lua 5.1' : 'LuaU'}</span>
           </div>
         </div>
       </div>

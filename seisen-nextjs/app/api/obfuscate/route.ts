@@ -35,7 +35,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Initialize Lua Runtime (WASM)
-    const wasmPath = path.join(process.cwd(), 'node_modules', 'wasmoon', 'dist', 'glue.wasm');
+    // We use a local copy of glue.wasm for better serverless compatibility
+    const wasmPath = path.join(process.cwd(), 'lib', 'prometheus', 'glue.wasm');
     const factory = new LuaFactory(wasmPath);
     const lua = await factory.createEngine();
 
@@ -62,26 +63,22 @@ export async function POST(req: NextRequest) {
     const allowedPresets = ['Minify', 'Weak', 'Medium', 'Strong'];
     const safePreset = allowedPresets.includes(preset) ? preset : 'Medium';
     
-    // Map version to flags
-    let versionFlag = "";
-    if (version === 'lua51') versionFlag = "--Lua51";
-    if (version === 'luau') versionFlag = "--LuaU";
+    // Build arguments array (1-indexed for Lua #arg)
+    const args = ["--preset", safePreset];
+    if (version === 'lua51') args.push("--Lua51");
+    if (version === 'luau') args.push("--LuaU");
+    args.push("--out", outputFile);
+    args.push(inputFile);
 
+    const luaArgs = args.map((val, i) => `[${i + 1}] = "${val}"`).join(', ');
     const argScript = `
-        arg = {
-            [0] = "cli.lua", 
-            "--preset", "${safePreset}", 
-            "${versionFlag}",
-            "--out", "${outputFile}", 
-            "${inputFile}"
-        }
-        
-        -- Override package path to include root and src
+        _G.arg = { [0] = "cli.lua", ${luaArgs} }
+        -- Ensure arg is globally accessible as a standard Lua table
         package.path = "./?.lua;./src/?.lua;" .. package.path
     `;
     
     await lua.doString(argScript);
-    console.log(`[Obfuscate] Configured with preset=${safePreset}, version=${version || 'default'}`);
+    console.log(`[Obfuscate] Args: cli.lua ${args.join(' ')}`);
 
     // 4. Run Prometheus CLI
     // We execute the main cli.lua file
@@ -129,4 +126,12 @@ export async function POST(req: NextRequest) {
     response.headers.set('Access-Control-Allow-Origin', '*');
     return response;
   }
+}
+
+export async function OPTIONS() {
+  const response = new NextResponse(null, { status: 200 });
+  response.headers.set('Access-Control-Allow-Origin', '*');
+  response.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  return response;
 }

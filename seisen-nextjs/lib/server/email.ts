@@ -13,7 +13,7 @@ export class EmailService {
         this.transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
             port: Number(process.env.SMTP_PORT) || 587,
-            secure: process.env.SMTP_SECURE === 'true',
+            secure: process.env.SMTP_SECURE === 'true' || Number(process.env.SMTP_PORT) === 465,
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
@@ -25,7 +25,7 @@ export class EmailService {
             greetingTimeout: 20000,
             socketTimeout: 20000,
             family: 4, // Force IPv4 to avoid IPv6 timeouts on some cloud providers
-        });
+        } as any);
         
         // Log configuration (safely)
         console.log(`📧 Email Service Initialized: ${process.env.SMTP_HOST}:${process.env.SMTP_PORT} (Secure: ${process.env.SMTP_SECURE})`);

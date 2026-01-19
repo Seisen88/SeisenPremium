@@ -228,26 +228,26 @@ export default function ObfuscatorPage() {
             </div>
           </div>
 
-          <div className="flex-1 overflow-auto flex custom-editor scrollbar-thin scrollbar-thumb-white/10">
+          <div className="flex-1 overflow-hidden flex">
             {/* Gutter */}
-            <div className="w-10 bg-[#1e1e1e] pt-4 flex flex-col items-center text-[#858585] font-mono text-[11px] select-none border-r border-[#2d2d2d]/10 shrink-0">
-              {Array.from({ length: Math.max(code.split('\n').length, 40) }).map((_, i) => (
-                <div key={i} className="h-[21px] flex items-center leading-[21px]">{i + 1}</div>
-              ))}
+            <div className="w-10 bg-[#1e1e1e] pt-4 flex flex-col items-center text-[#858585] font-mono text-[10px] select-none border-r border-[#2d2d2d]/10 shrink-0 overflow-hidden">
+              <div className="animate-in fade-in duration-500">
+                {Array.from({ length: 100 }).map((_, i) => (
+                  <div key={i} className="h-5 flex items-center">{i + 1}</div>
+                ))}
+              </div>
             </div>
 
-            <div className="flex-1">
+            <div className="flex-1 overflow-auto custom-editor scrollbar-thin scrollbar-thumb-white/10">
               <Editor
                 value={code}
                 onValueChange={setCode}
                 highlight={code => Prism.highlight(code, Prism.languages.lua, 'lua')}
                 padding={16}
-                placeholder="-- Paste your Lua code here..."
                 style={{ 
                   fontFamily: '"Fira Code", monospace', 
                   fontSize: 13,
                   minHeight: '100%',
-                  lineHeight: '21px',
                 }}
                 className="focus:outline-none"
               />
@@ -296,34 +296,33 @@ export default function ObfuscatorPage() {
             )}
           </div>
 
-          <div className="flex-1 overflow-auto flex relative custom-editor scrollbar-thin scrollbar-thumb-white/10">
-            {/* Gutter */}
-            <div className="w-10 bg-[#1e1e1e] pt-4 flex flex-col items-center text-[#858585] font-mono text-[11px] select-none border-r border-[#2d2d2d]/10 shrink-0">
-              {Array.from({ length: Math.max(obfuscatedCode.split('\n').length, 40) }).map((_, i) => (
-                <div key={i} className="h-[21px] flex items-center leading-[21px]">{i + 1}</div>
-              ))}
+          <div className="flex-1 overflow-hidden flex relative">
+            <div className="w-10 bg-[#1e1e1e] pt-4 flex flex-col items-center text-[#858585] font-mono text-[10px] select-none border-r border-[#2d2d2d]/10 shrink-0 overflow-hidden">
+              <div className="animate-in fade-in duration-500">
+                {Array.from({ length: 100 }).map((_, i) => (
+                  <div key={i} className="h-5 flex items-center">{i + 1}</div>
+                ))}
+              </div>
             </div>
 
-            <div className="flex-1 relative">
+            <div className="flex-1 overflow-auto custom-editor scrollbar-thin scrollbar-thumb-white/10">
               <Editor
                 value={obfuscatedCode}
                 onValueChange={() => {}}
                 highlight={code => Prism.highlight(code, Prism.languages.lua, 'lua')}
                 padding={16}
                 readOnly
-                placeholder={loading ? "-- Obfuscating script..." : "-- Result will appear here."}
                 style={{ 
                   fontFamily: '"Fira Code", monospace', 
                   fontSize: 13,
                   minHeight: '100%',
-                  lineHeight: '21px',
                 }}
                 className="focus:outline-none"
               />
               {!obfuscatedCode && !loading && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-20">
                   <Lock className="w-10 h-10 mb-2 text-gray-500" />
-                  <p className="text-[9px] font-black tracking-widest uppercase text-gray-400">Ready</p>
+                  <p className="text-[9px] font-black tracking-widest uppercase text-gray-500">Ready</p>
                 </div>
               )}
             </div>

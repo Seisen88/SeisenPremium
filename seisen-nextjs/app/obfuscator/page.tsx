@@ -137,7 +137,7 @@ export default function ObfuscatorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d0d0d] text-gray-300 font-sans selection:bg-emerald-500/20 flex flex-col">
+    <div className="h-screen bg-[#0d0d0d] text-gray-300 font-sans selection:bg-emerald-500/20 flex flex-col overflow-hidden">
       {/* Top IDE Header */}
       <div className="h-12 border-b border-[#252525] bg-[#181818] flex items-center justify-between px-4 sticky top-0 z-50 shrink-0">
         <div className="flex items-center gap-4">
@@ -228,19 +228,28 @@ export default function ObfuscatorPage() {
             </div>
           </div>
 
-          <div className="flex-1 flex overflow-hidden">
-            <div className="w-10 bg-[#1e1e1e] pt-4 flex flex-col items-center text-[#858585] font-mono text-[10px] select-none border-r border-[#2d2d2d]/10 shrink-0">
-              {Array.from({ length: 40 }).map((_, i) => (
-                <div key={i} className="h-5 flex items-center">{i + 1}</div>
+          <div className="flex-1 overflow-auto flex custom-editor scrollbar-thin scrollbar-thumb-white/10">
+            {/* Gutter */}
+            <div className="w-10 bg-[#1e1e1e] pt-4 flex flex-col items-center text-[#858585] font-mono text-[11px] select-none border-r border-[#2d2d2d]/10 shrink-0">
+              {Array.from({ length: Math.max(code.split('\n').length, 40) }).map((_, i) => (
+                <div key={i} className="h-[21px] flex items-center leading-[21px]">{i + 1}</div>
               ))}
             </div>
-            <div className="flex-1 overflow-auto custom-editor">
+
+            <div className="flex-1">
               <Editor
                 value={code}
                 onValueChange={setCode}
                 highlight={code => Prism.highlight(code, Prism.languages.lua, 'lua')}
                 padding={16}
-                style={{ fontFamily: '"Fira Code", monospace', fontSize: 13 }}
+                placeholder="-- Paste your Lua code here..."
+                style={{ 
+                  fontFamily: '"Fira Code", monospace', 
+                  fontSize: 13,
+                  minHeight: '100%',
+                  lineHeight: '21px',
+                }}
+                className="focus:outline-none"
               />
             </div>
           </div>
@@ -287,25 +296,34 @@ export default function ObfuscatorPage() {
             )}
           </div>
 
-          <div className="flex-1 flex overflow-hidden relative">
-            <div className="w-10 bg-[#1e1e1e] pt-4 flex flex-col items-center text-[#858585] font-mono text-[10px] select-none border-r border-[#2d2d2d]/10 shrink-0">
-              {Array.from({ length: 40 }).map((_, i) => (
-                <div key={i} className="h-5 flex items-center">{i + 1}</div>
+          <div className="flex-1 overflow-auto flex relative custom-editor scrollbar-thin scrollbar-thumb-white/10">
+            {/* Gutter */}
+            <div className="w-10 bg-[#1e1e1e] pt-4 flex flex-col items-center text-[#858585] font-mono text-[11px] select-none border-r border-[#2d2d2d]/10 shrink-0">
+              {Array.from({ length: Math.max(obfuscatedCode.split('\n').length, 40) }).map((_, i) => (
+                <div key={i} className="h-[21px] flex items-center leading-[21px]">{i + 1}</div>
               ))}
             </div>
-            <div className="flex-1 overflow-auto custom-editor">
+
+            <div className="flex-1 relative">
               <Editor
                 value={obfuscatedCode}
                 onValueChange={() => {}}
                 highlight={code => Prism.highlight(code, Prism.languages.lua, 'lua')}
                 padding={16}
                 readOnly
-                style={{ fontFamily: '"Fira Code", monospace', fontSize: 13 }}
+                placeholder={loading ? "-- Obfuscating script..." : "-- Result will appear here."}
+                style={{ 
+                  fontFamily: '"Fira Code", monospace', 
+                  fontSize: 13,
+                  minHeight: '100%',
+                  lineHeight: '21px',
+                }}
+                className="focus:outline-none"
               />
               {!obfuscatedCode && !loading && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-20">
                   <Lock className="w-10 h-10 mb-2 text-gray-500" />
-                  <p className="text-[9px] font-black tracking-widest uppercase text-gray-500">Ready</p>
+                  <p className="text-[9px] font-black tracking-widest uppercase text-gray-400">Ready</p>
                 </div>
               )}
             </div>

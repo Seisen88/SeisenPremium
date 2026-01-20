@@ -20,7 +20,7 @@ import {
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
-  { href: '#', icon: Lock, label: 'Obfuscator (Coming Soon)', disabled: true },
+  { href: '/obfuscator', icon: Lock, label: 'Obfuscator' },
   { href: '/scripts', icon: Code, label: 'Scripts' },
   { href: '/getkey', icon: Key, label: 'Get Key' },
   { href: '/premium', icon: Crown, label: 'Premium' },
@@ -80,12 +80,9 @@ export default function Sidebar() {
               const Icon = item.icon;
               const isActive = pathname === item.href;
               const isExternal = item.external;
-              const isDisabled = item.disabled;
 
               const linkClass = `group relative flex items-center justify-center w-8 h-8 rounded-md transition-all ${
-                isDisabled
-                  ? 'opacity-30 cursor-not-allowed'
-                  : isActive
+                isActive
                   ? 'text-emerald-500 bg-emerald-500/10 border border-emerald-500/20'
                   : 'text-gray-500 hover:text-emerald-500'
               }`;
@@ -99,14 +96,6 @@ export default function Sidebar() {
                   </span>
                 </>
               );
-
-              if (isDisabled) {
-                return (
-                  <span key={item.label} className={linkClass}>
-                    {content}
-                  </span>
-                );
-              }
 
               if (isExternal) {
                 return (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Lock, FileCode, CheckCircle, AlertCircle, Copy, Download, RefreshCw, Upload, Trash2, RotateCcw } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { copyToClipboard } from '@/lib/utils';
@@ -25,7 +25,7 @@ export default function ObfuscatorPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preset, setPreset] = useState<Preset>('Strong');
-  const [luaVersion, setLuaVersion] = useState<LuaVersion>('lua51');
+  const [luaVersion, setLuaVersion] = useState<LuaVersion>('luau');
   const [fileName, setFileName] = useState('obfuscated_script');
   const [copied, setCopied] = useState(false);
 
@@ -80,6 +80,9 @@ export default function ObfuscatorPage() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (data.line) {
+             throw new Error(`Syntax Error at Line ${data.line}: ${data.details}`);
+        }
         throw new Error(data.error || data.details || 'Obfuscation failed');
       }
 
@@ -135,6 +138,149 @@ export default function ObfuscatorPage() {
     };
     reader.readAsText(file);
   };
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchMatches, setSearchMatches] = useState<number[]>([]); // indices of matches
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
+  
+  const [showGoToLine, setShowGoToLine] = useState(false);
+  const [goToLineNumber, setGoToLineNumber] = useState('');
+
+  /* Refs */
+  const inputEditorRef = useRef<HTMLDivElement>(null);
+  const inputGutterRef = useRef<HTMLDivElement>(null);
+  const outputEditorRef = useRef<HTMLDivElement>(null);
+  const outputGutterRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const goToLineInputRef = useRef<HTMLInputElement>(null);
+
+  const handleScroll = (editorRef: any, gutterRef: any) => {
+    if (editorRef.current && gutterRef.current) {
+      gutterRef.current.scrollTop = editorRef.current.scrollTop;
+    }
+  };
+
+  const inputLineCount = code.split('\n').length;
+  const outputLineCount = obfuscatedCode ? obfuscatedCode.split('\n').length : 0;
+
+  /* Helper: Find specific textarea */
+  const getTextArea = () => {
+    return inputEditorRef.current?.querySelector('textarea');
+  };
+
+  /* Search Logic */
+  useEffect(() => {
+    if (!searchQuery) {
+      setSearchMatches([]);
+      setCurrentMatchIndex(-1);
+      return;
+    }
+    const matches: number[] = [];
+    let pos = code.indexOf(searchQuery);
+    while (pos !== -1) {
+      matches.push(pos);
+      pos = code.indexOf(searchQuery, pos + 1);
+    }
+    setSearchMatches(matches);
+    if (matches.length > 0) {
+      setCurrentMatchIndex(0);
+      highlightMatch(matches[0]);
+    } else {
+      setCurrentMatchIndex(-1);
+    }
+  }, [searchQuery, code]);
+
+  const highlightMatch = (index: number) => {
+    const textarea = getTextArea();
+    if (textarea) {
+      textarea.focus();
+      textarea.setSelectionRange(index, index + searchQuery.length);
+      // Calculating scroll position is tricky with simple-editor, but focusing often scrolls.
+      // If we need explicit scrolling, we'd need line height calc.
+      // Usually setSelectionRange scrolls nicely.
+    }
+  };
+
+  const nextMatch = () => {
+    if (searchMatches.length === 0) return;
+    const nextIndex = (currentMatchIndex + 1) % searchMatches.length;
+    setCurrentMatchIndex(nextIndex);
+    highlightMatch(searchMatches[nextIndex]);
+  };
+
+  const prevMatch = () => {
+    if (searchMatches.length === 0) return;
+    const prevIndex = (currentMatchIndex - 1 + searchMatches.length) % searchMatches.length;
+    setCurrentMatchIndex(prevIndex);
+    highlightMatch(searchMatches[prevIndex]);
+  };
+
+  /* Go To Line Logic */
+  const handleGoToLine = () => {
+    const line = parseInt(goToLineNumber);
+    if (isNaN(line) || line < 1 || line > inputLineCount) return;
+
+    // Estimate position: line * 19.5px (font size 13 * 1.5 lineHeight approx)
+    // "Fira Code", fontsize 13, padding 16 top.
+    // Line height default is usually around 1.5ish or 20px.
+    // Let's try to grab the textarea and scroll it.
+    
+    // Better: find newline chars.
+    const lines = code.split('\n');
+    let charIndex = 0;
+    for (let i = 0; i < line - 1; i++) {
+      charIndex += lines[i].length + 1; // +1 for \n
+    }
+    
+    const textarea = getTextArea();
+    if (textarea) {
+      textarea.focus();
+      textarea.setSelectionRange(charIndex, charIndex);
+      // Force scroll a bit roughly
+      // We can also set scrollTop on the container
+      if(inputEditorRef.current) {
+        // Approximate line height for Fira Code 13px is ~20px
+        // Padding top is 16px.
+        const lineHeight = 20; 
+        inputEditorRef.current.scrollTop = (line - 1) * lineHeight;
+      }
+    }
+    setShowGoToLine(false);
+  };
+
+  /* Keyboard Shortcuts */
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+F
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+        e.preventDefault();
+        setShowGoToLine(false);
+        setShowSearch(prev => !prev);
+        if (!showSearch) setTimeout(() => searchInputRef.current?.focus(), 50);
+      }
+      // Ctrl+G
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'g') {
+        e.preventDefault();
+        setShowSearch(false);
+        setShowGoToLine(prev => !prev);
+        if (!showGoToLine) {
+           setGoToLineNumber('');
+           setTimeout(() => goToLineInputRef.current?.focus(), 50);
+        }
+      }
+      // Esc
+      if (e.key === 'Escape') {
+        setShowSearch(false);
+        setShowGoToLine(false);
+        getTextArea()?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showSearch, showGoToLine]);
+
+  /* Performance constant */
+  const MAX_HIGHLIGHT_LENGTH = 20000;
 
   return (
     <div className="h-screen bg-[#0d0d0d] text-gray-300 font-sans selection:bg-emerald-500/20 flex flex-col overflow-hidden">
@@ -159,6 +305,7 @@ export default function ObfuscatorPage() {
                   <button
                     key={v}
                     onClick={() => setLuaVersion(v)}
+                    title={v === 'luau' ? 'Recommended for Roblox' : 'Standard 5.1'}
                     className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
                       luaVersion === v ? 'bg-[#2d2d2d] text-emerald-400' : 'text-gray-500 hover:text-gray-300'
                     }`}
@@ -206,14 +353,20 @@ export default function ObfuscatorPage() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 flex-1 overflow-hidden">
+      <div className="grid lg:grid-cols-2 flex-1 overflow-hidden min-h-0">
         {/* Input */}
-        <div className="flex flex-col border-r border-[#252525] bg-[#1e1e1e] relative">
+        <div className="flex flex-col border-r border-[#252525] bg-[#1e1e1e] relative min-h-0 group/editor">
           <div className="h-9 bg-[#252526] flex items-center px-0 shrink-0">
             <div className="h-full px-4 bg-[#1e1e1e] text-white flex items-center gap-2 text-xs font-medium border-r border-[#1e1e1e]">
               <FileCode className="w-3.5 h-3.5 text-orange-400" />
               <span>input.lua</span>
             </div>
+            {code.length > MAX_HIGHLIGHT_LENGTH && (
+               <div className="flex items-center gap-1 px-2 py-0.5 bg-yellow-500/10 text-yellow-500 rounded text-[9px] font-mono border border-yellow-500/20 mr-4" title="Syntax highlighting disabled for better performance">
+                  <AlertCircle className="w-3 h-3" />
+                  <span>Low Latency Mode</span>
+               </div>
+            )}
             <div className="ml-auto flex items-center px-4 gap-4">
               <button
                 onClick={() => setCode('local message = "Hello, Seisen!"\nprint(message)\n\nfor i = 1, 5 do\n    print("Count: " .. i)\nend')}
@@ -227,22 +380,89 @@ export default function ObfuscatorPage() {
               </label>
             </div>
           </div>
+          
+          {/* Search Widget */}
+          {showSearch && (
+            <div className="absolute top-10 right-4 z-50 bg-[#252526] border border-[#333] shadow-xl rounded-md flex items-center p-1 gap-1 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="relative">
+                <input 
+                  ref={searchInputRef}
+                  type="text" 
+                  placeholder="Find"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      e.shiftKey ? prevMatch() : nextMatch();
+                    }
+                  }}
+                  className="w-48 bg-[#1e1e1e] border border-[#333] rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-emerald-500/50 placeholder:text-gray-600"
+                />
+              </div>
+              <div className="flex items-center text-[10px] text-gray-500 font-mono px-2 min-w-[50px] justify-center">
+                {searchMatches.length > 0 ? `${currentMatchIndex + 1} of ${searchMatches.length}` : 'No results'}
+              </div>
+              <button onClick={prevMatch} className="p-1 hover:bg-[#333] rounded text-gray-400 hover:text-white" title="Previous (Shift+Enter)">
+                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 15l-6-6-6 6"/></svg>
+              </button>
+              <button onClick={nextMatch} className="p-1 hover:bg-[#333] rounded text-gray-400 hover:text-white" title="Next (Enter)">
+                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <button onClick={() => { setShowSearch(false); getTextArea()?.focus(); }} className="p-1 hover:bg-[#333] rounded text-gray-400 hover:text-white ml-1">
+                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+          )}
 
-          <div className="flex-1 overflow-hidden flex">
+          {/* Go To Line Widget */}
+          {showGoToLine && (
+            <div className="absolute top-10 left-1/2 -translate-x-1/2 z-50 bg-[#252526] border border-[#333] shadow-xl rounded-md p-2 flex flex-col gap-2 w-64 animate-in fade-in slide-in-from-top-2 duration-200">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Go to Line</span>
+              <div className="flex gap-2">
+                <input 
+                  ref={goToLineInputRef}
+                  type="number" 
+                  min="1"
+                  max={inputLineCount}
+                  value={goToLineNumber}
+                  onChange={(e) => setGoToLineNumber(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleGoToLine()}
+                  placeholder={`1 - ${inputLineCount}`}
+                  className="flex-1 bg-[#1e1e1e] border border-[#333] rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-emerald-500/50 placeholder:text-gray-600 appearance-none"
+                />
+                <button 
+                  onClick={handleGoToLine}
+                  className="px-3 py-1 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 rounded text-[10px] font-bold uppercase transition-colors"
+                >
+                  Go
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="flex-1 overflow-hidden flex min-h-0">
             {/* Gutter */}
-            <div className="w-10 bg-[#1e1e1e] pt-4 flex flex-col items-center text-[#858585] font-mono text-[10px] select-none border-r border-[#2d2d2d]/10 shrink-0 overflow-hidden">
+            <div 
+              ref={inputGutterRef}
+              className="w-10 bg-[#1e1e1e] pt-4 flex flex-col items-center text-[#858585] font-mono text-[10px] select-none border-r border-[#2d2d2d]/10 shrink-0 overflow-hidden"
+            >
               <div className="animate-in fade-in duration-500">
-                {Array.from({ length: 100 }).map((_, i) => (
+                {Array.from({ length: Math.max(inputLineCount, 30) }).map((_, i) => (
                   <div key={i} className="h-5 flex items-center">{i + 1}</div>
                 ))}
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto custom-editor scrollbar-thin scrollbar-thumb-white/10">
+            <div 
+              ref={inputEditorRef}
+              onScroll={() => handleScroll(inputEditorRef, inputGutterRef)}
+              className="flex-1 overflow-auto custom-editor scrollbar-thin scrollbar-thumb-white/10"
+            >
               <Editor
                 value={code}
                 onValueChange={setCode}
-                highlight={code => Prism.highlight(code, Prism.languages.lua, 'lua')}
+                highlight={code => code.length < MAX_HIGHLIGHT_LENGTH ? Prism.highlight(code, Prism.languages.lua, 'lua') : code}
                 padding={16}
                 style={{ 
                   fontFamily: '"Fira Code", monospace', 
@@ -266,14 +486,20 @@ export default function ObfuscatorPage() {
         </div>
 
         {/* Output */}
-        <div className="flex flex-col bg-[#1e1e1e]">
+        <div className="flex flex-col bg-[#1e1e1e] min-h-0">
           <div className="h-9 bg-[#252526] flex items-center px-0 shrink-0">
             <div className={`h-full px-4 flex items-center gap-2 text-xs font-medium transition-all ${obfuscatedCode ? 'bg-[#1e1e1e] text-white' : 'bg-[#2d2d2d]/30 text-gray-500'}`}>
               <CheckCircle className={`w-3.5 h-3.5 ${obfuscatedCode ? 'text-emerald-400' : 'text-gray-600'}`} />
               <span>obfuscated.lua</span>
             </div>
+            {obfuscatedCode && obfuscatedCode.length > MAX_HIGHLIGHT_LENGTH && (
+                <div className="flex items-center gap-1 px-2 py-0.5 bg-yellow-500/10 text-yellow-500 rounded text-[9px] font-mono border border-yellow-500/20 mr-4 ml-auto" title="Syntax highlighting disabled for better performance">
+                  <AlertCircle className="w-3 h-3" />
+                  <span>Low Latency Mode</span>
+               </div>
+            )}
             {obfuscatedCode && (
-              <div className="ml-auto flex items-center px-4 gap-2">
+              <div className={obfuscatedCode && obfuscatedCode.length > MAX_HIGHLIGHT_LENGTH ? "flex items-center px-4 gap-2" : "ml-auto flex items-center px-4 gap-2"}>
                 <button
                   onClick={handleCopy}
                   className="px-2 py-1 rounded text-[10px] font-bold bg-[#333] hover:bg-[#444] text-gray-300 flex items-center gap-1.5 transition-colors"
@@ -296,20 +522,27 @@ export default function ObfuscatorPage() {
             )}
           </div>
 
-          <div className="flex-1 overflow-hidden flex relative">
-            <div className="w-10 bg-[#1e1e1e] pt-4 flex flex-col items-center text-[#858585] font-mono text-[10px] select-none border-r border-[#2d2d2d]/10 shrink-0 overflow-hidden">
+          <div className="flex-1 overflow-hidden flex relative min-h-0">
+            <div 
+              ref={outputGutterRef}
+              className="w-10 bg-[#1e1e1e] pt-4 flex flex-col items-center text-[#858585] font-mono text-[10px] select-none border-r border-[#2d2d2d]/10 shrink-0 overflow-hidden"
+            >
               <div className="animate-in fade-in duration-500">
-                {Array.from({ length: 100 }).map((_, i) => (
+                {Array.from({ length: Math.max(outputLineCount, 30) }).map((_, i) => (
                   <div key={i} className="h-5 flex items-center">{i + 1}</div>
                 ))}
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto custom-editor scrollbar-thin scrollbar-thumb-white/10">
+            <div 
+              ref={outputEditorRef}
+              onScroll={() => handleScroll(outputEditorRef, outputGutterRef)}
+              className="flex-1 overflow-auto custom-editor scrollbar-thin scrollbar-thumb-white/10"
+            >
               <Editor
                 value={obfuscatedCode}
                 onValueChange={() => {}}
-                highlight={code => Prism.highlight(code, Prism.languages.lua, 'lua')}
+                highlight={code => code.length < MAX_HIGHLIGHT_LENGTH ? Prism.highlight(code, Prism.languages.lua, 'lua') : code}
                 padding={16}
                 readOnly
                 style={{ 

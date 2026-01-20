@@ -88,7 +88,17 @@ export async function POST(req: NextRequest) {
         await lua.doFile("cli.lua");
     } catch (luaError: any) {
         console.error("Lua execution error:", luaError);
-         return NextResponse.json({ error: 'Obfuscation failed', details: luaError.message }, { status: 500 });
+        const msg = luaError.message || '';
+        const match = msg.match(/Parsing Error at Position (\d+):(\d+), (.+)/);
+        if (match) {
+            return NextResponse.json({ 
+                error: 'Syntax Error', 
+                line: parseInt(match[1]), 
+                column: parseInt(match[2]), 
+                details: match[3] 
+            }, { status: 400 });
+        }
+        return NextResponse.json({ error: 'Obfuscation failed', details: msg }, { status: 500 });
     }
 
     // 5. Read Output

@@ -75,12 +75,6 @@ return {
                 };
             },
             {
-                Name = "AntiTamper";
-                Settings = {
-                    UseDebug = false;
-                };
-            },
-            {
                 Name = "Vmify";
                 Settings = {
                     
@@ -94,12 +88,6 @@ return {
                     Shuffle     = true;
                     Rotate      = true;
                     LocalWrapperTreshold = 0;
-                }
-            },
-            {
-                Name = "NumbersToExpressions";
-                Settings = {
-
                 }
             },
             {

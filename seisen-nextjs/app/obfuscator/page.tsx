@@ -229,34 +229,73 @@ export default function ObfuscatorPage() {
       handleNavigate(newPath === '' && currentPath.indexOf('/') === -1 ? '' : newPath);
   };
 
+  // Helper for safe UTF-8 Base64 encoding in browser
+  const toBase64 = (str: string) => {
+    return window.btoa(unescape(encodeURIComponent(str)));
+  };
+
   const handlePushToGithub = async () => {
     if (!githubToken || !selectedRepo || !githubPath || !obfuscatedCode) return;
     setIsPushing(true);
-    setPushStatus('Pushing...');
+    setPushStatus('Preparing...');
+    
     try {
-      const res = await fetch('/api/github/push', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const owner = selectedRepo.full_name.split('/')[0];
+      const repo = selectedRepo.name;
+      const branch = selectedRepo.default_branch || 'main'; // Fallback to main if undefined
+      const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${githubPath}`;
+
+      // 1. Get current SHA (if file exists)
+      let sha: string | undefined;
+      try {
+        const getRes = await fetch(`${apiUrl}?ref=${branch}`, {
+            headers: { 
+                'Authorization': `Bearer ${githubToken}`,
+                'Accept': 'application/vnd.github.v3+json'
+            }
+        });
+        
+        if (getRes.ok) {
+            const getData = await getRes.json();
+            sha = getData.sha;
+        } else if (getRes.status !== 404) {
+             throw new Error(`Failed to check file existence: ${getRes.statusText}`);
+        }
+      } catch (err) {
+        console.warn('Error fetching file SHA:', err);
+        // Continue, assuming new file if not found or other non-critical error
+      }
+
+      setPushStatus('Pushing to GitHub...');
+
+      // 2. Push File
+      const putRes = await fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${githubToken}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          token: githubToken,
-          owner: selectedRepo.full_name.split('/')[0],
-          repo: selectedRepo.name,
-          branch: selectedRepo.default_branch,
-          path: githubPath,
-          content: obfuscatedCode,
-          message: commitMessage
+          message: commitMessage || `Update ${githubPath}`,
+          content: toBase64(obfuscatedCode),
+          branch: branch,
+          sha: sha, // Include SHA if we are updating an existing file
         })
       });
-      const data = await res.json();
-      if (res.ok) {
+
+      const putData = await putRes.json();
+
+      if (putRes.ok) {
         setPushStatus('Success!');
         setTimeout(() => {
             setShowGithubModal(false);
             setPushStatus(null);
         }, 1500);
       } else {
-        setPushStatus(`Error: ${data.details || data.error}`);
+        throw new Error(putData.message || 'Failed to push file');
       }
+
     } catch (e: any) {
         setPushStatus(`Error: ${e.message}`);
     } finally {

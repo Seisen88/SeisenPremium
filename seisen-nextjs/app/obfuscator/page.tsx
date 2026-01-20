@@ -45,6 +45,19 @@ export default function ObfuscatorPage() {
   const [isPushing, setIsPushing] = useState(false);
   const [pushStatus, setPushStatus] = useState<string | null>(null);
 
+  /* Load Token from LocalStorage */
+  useEffect(() => {
+      const storedToken = localStorage.getItem('seisen_github_pat');
+      if (storedToken) setGithubToken(storedToken);
+  }, []);
+
+  /* Save Token to LocalStorage */
+  useEffect(() => {
+      if (githubToken) {
+          localStorage.setItem('seisen_github_pat', githubToken);
+      }
+  }, [githubToken]);
+
   useEffect(() => {
     const style = document.createElement('style');
     style.innerHTML = `

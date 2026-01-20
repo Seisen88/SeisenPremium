@@ -24,7 +24,7 @@ export default function ObfuscatorPage() {
   const [obfuscatedCode, setObfuscatedCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [preset, setPreset] = useState<Preset>('Strong');
+  const [preset, setPreset] = useState<Preset>('Medium');
   const [luaVersion, setLuaVersion] = useState<LuaVersion>('luau');
   const [fileName, setFileName] = useState('obfuscated_script');
   const [copied, setCopied] = useState(false);
@@ -480,22 +480,7 @@ export default function ObfuscatorPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-[9px] uppercase font-bold text-gray-500 tracking-widest">Security</span>
-              <div className="flex bg-[#0a0a0a] p-0.5 rounded-md border border-[#333]">
-                {PRESETS.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => setPreset(p.id as Preset)}
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
-                      preset === p.id ? 'bg-[#2d2d2d] text-emerald-400' : 'text-gray-500 hover:text-gray-300'
-                    }`}
-                  >
-                    {p.name}
-                  </button>
-                ))}
-              </div>
-            </div>
+
           </div>
         </div>
 

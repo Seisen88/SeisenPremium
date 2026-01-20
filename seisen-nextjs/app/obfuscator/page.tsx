@@ -664,7 +664,17 @@ export default function ObfuscatorPage() {
                 <div className="p-4 space-y-4">
                     {/* Token Input */}
                     <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase">Personal Access Token (PAT)</label>
+                        <div className="flex justify-between items-center">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase">Personal Access Token (PAT)</label>
+                            <a 
+                                href="https://github.com/settings/tokens/new?scopes=repo&description=Seisen%20Obfuscator" 
+                                target="_blank" 
+                                rel="noreferrer"
+                                className="text-[9px] text-emerald-500 hover:text-emerald-400 hover:underline"
+                            >
+                                Get Token (Requires 'repo')
+                            </a>
+                        </div>
                         <div className="flex gap-2">
                             <input 
                                 type="password" 
@@ -681,7 +691,6 @@ export default function ObfuscatorPage() {
                                 {loading ? '...' : 'Connect'}
                             </button>
                         </div>
-                        <p className="text-[9px] text-gray-600">Token requires 'repo' scope.</p>
                     </div>
 
                     {/* Repo Selection */}

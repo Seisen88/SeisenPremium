@@ -5,6 +5,11 @@ import path from 'path';
 
 const PROMETHEUS_DIR = path.join(process.cwd(), 'lib', 'prometheus');
 
+// Set max execution time to 300 seconds (5 minutes) for handling large files
+export const maxDuration = 300;
+
+let cachedPrometheusFiles: { path: string, content: string }[] | null = null;
+
 // Helper to recursively read directory
 async function getFilesRec(dir: string, baseDir: string = ''): Promise<{ path: string, content: string }[]> {
     const entries = await fs.readdir(dir, { withFileTypes: true });
@@ -26,6 +31,12 @@ async function getFilesRec(dir: string, baseDir: string = ''): Promise<{ path: s
     return files;
 }
 
+async function getPrometheusFiles() {
+    if (cachedPrometheusFiles) return cachedPrometheusFiles;
+    cachedPrometheusFiles = await getFilesRec(PROMETHEUS_DIR);
+    return cachedPrometheusFiles;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { code, version, preset } = await req.json();
@@ -42,7 +53,7 @@ export async function POST(req: NextRequest) {
 
     // 1. Mount Prometheus Files
     try {
-        const prometheusFiles = await getFilesRec(PROMETHEUS_DIR);
+        const prometheusFiles = await getPrometheusFiles();
         for (const file of prometheusFiles) {
             await factory.mountFile(file.path, file.content);
         }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Lock, FileCode, CheckCircle, AlertCircle, Copy, Download, RefreshCw, Upload, Trash2, RotateCcw } from 'lucide-react';
+import { Lock, FileCode, CheckCircle, AlertCircle, Copy, Download, RefreshCw, Upload, Trash2, RotateCcw, Github, X } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { copyToClipboard } from '@/lib/utils';
 import Editor from 'react-simple-code-editor';
@@ -28,6 +28,16 @@ export default function ObfuscatorPage() {
   const [luaVersion, setLuaVersion] = useState<LuaVersion>('luau');
   const [fileName, setFileName] = useState('obfuscated_script');
   const [copied, setCopied] = useState(false);
+  
+  /* GitHub State */
+  const [showGithubModal, setShowGithubModal] = useState(false);
+  const [githubToken, setGithubToken] = useState('');
+  const [githubRepos, setGithubRepos] = useState<any[]>([]);
+  const [selectedRepo, setSelectedRepo] = useState<any>(null);
+  const [githubPath, setGithubPath] = useState('scripts/obfuscated.lua');
+  const [commitMessage, setCommitMessage] = useState('Update obfuscated script');
+  const [isPushing, setIsPushing] = useState(false);
+  const [pushStatus, setPushStatus] = useState<string | null>(null);
 
   useEffect(() => {
     const style = document.createElement('style');
@@ -137,6 +147,62 @@ export default function ObfuscatorPage() {
       }
     };
     reader.readAsText(file);
+  };
+
+  /* GitHub Logic */
+  const fetchRepos = async () => {
+    if (!githubToken) return;
+    try {
+      setLoading(true);
+      const res = await fetch('/api/github/repos', {
+        headers: { Authorization: `Bearer ${githubToken}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setGithubRepos(data.repos);
+      } else {
+        setError(data.error);
+      }
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePushToGithub = async () => {
+    if (!githubToken || !selectedRepo || !githubPath || !obfuscatedCode) return;
+    setIsPushing(true);
+    setPushStatus('Pushing...');
+    try {
+      const res = await fetch('/api/github/push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token: githubToken,
+          owner: selectedRepo.full_name.split('/')[0],
+          repo: selectedRepo.name,
+          branch: selectedRepo.default_branch,
+          path: githubPath,
+          content: obfuscatedCode,
+          message: commitMessage
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPushStatus('Success!');
+        setTimeout(() => {
+            setShowGithubModal(false);
+            setPushStatus(null);
+        }, 1500);
+      } else {
+        setPushStatus(`Error: ${data.details || data.error}`);
+      }
+    } catch (e: any) {
+        setPushStatus(`Error: ${e.message}`);
+    } finally {
+      setIsPushing(false);
+    }
   };
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -518,6 +584,13 @@ export default function ObfuscatorPage() {
                     SAVE
                   </button>
                 </div>
+                <button
+                    onClick={() => setShowGithubModal(true)}
+                    className="ml-2 px-2 py-1 rounded text-[10px] font-bold bg-[#2da44e]/20 text-[#2da44e] hover:bg-[#2da44e]/30 flex items-center gap-1.5 transition-colors"
+                >
+                    <Github className="w-3 h-3" />
+                    PUSH
+                </button>
               </div>
             )}
           </div>
@@ -576,6 +649,103 @@ export default function ObfuscatorPage() {
           <span>{luaVersion === 'lua51' ? 'Lua 5.1' : 'LuaU'}</span>
         </div>
       </div>
+      {/* GitHub Modal */}
+      {showGithubModal && (
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-[#1e1e1e] border border-[#333] rounded-lg shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="flex items-center justify-between p-4 border-b border-[#333] bg-[#252526]">
+                    <div className="flex items-center gap-2">
+                        <Github className="w-4 h-4 text-white" />
+                        <span className="text-xs font-bold text-white uppercase tracking-wider">Push to GitHub</span>
+                    </div>
+                    <button onClick={() => setShowGithubModal(false)}><X className="w-4 h-4 text-gray-500 hover:text-white" /></button>
+                </div>
+                
+                <div className="p-4 space-y-4">
+                    {/* Token Input */}
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase">Personal Access Token (PAT)</label>
+                        <div className="flex gap-2">
+                            <input 
+                                type="password" 
+                                value={githubToken}
+                                onChange={(e) => setGithubToken(e.target.value)}
+                                placeholder="ghp_..."
+                                className="flex-1 bg-[#141414] border border-[#333] rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                            />
+                            <button 
+                                onClick={fetchRepos}
+                                disabled={!githubToken || loading}
+                                className="px-3 py-1 bg-[#333] hover:bg-[#444] text-xs font-bold text-white rounded disabled:opacity-50"
+                            >
+                                {loading ? '...' : 'Connect'}
+                            </button>
+                        </div>
+                        <p className="text-[9px] text-gray-600">Token requires 'repo' scope.</p>
+                    </div>
+
+                    {/* Repo Selection */}
+                    {githubRepos.length > 0 && (
+                        <div className="space-y-1 animate-in fade-in slide-in-from-top-2">
+                             <label className="text-[10px] font-bold text-gray-400 uppercase">Repository</label>
+                             <select 
+                                onChange={(e) => setSelectedRepo(githubRepos.find(r => r.id === parseInt(e.target.value)))}
+                                className="w-full bg-[#141414] border border-[#333] rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                             >
+                                <option value="">Select a repository...</option>
+                                {githubRepos.map(repo => (
+                                    <option key={repo.id} value={repo.id}>{repo.full_name}</option>
+                                ))}
+                             </select>
+                        </div>
+                    )}
+
+                    {/* File Details */}
+                    {selectedRepo && (
+                         <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 uppercase">File Path</label>
+                                <input 
+                                    type="text" 
+                                    value={githubPath}
+                                    onChange={(e) => setGithubPath(e.target.value)}
+                                    className="w-full bg-[#141414] border border-[#333] rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 uppercase">Commit Message</label>
+                                <input 
+                                    type="text" 
+                                    value={commitMessage}
+                                    onChange={(e) => setCommitMessage(e.target.value)}
+                                    className="w-full bg-[#141414] border border-[#333] rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                                />
+                            </div>
+                         </div>
+                    )}
+
+                    {/* Status Message */}
+                    {pushStatus && (
+                        <div className={`p-2 rounded text-[10px] font-mono break-all ${pushStatus.startsWith('Success') ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
+                            {pushStatus}
+                        </div>
+                    )}
+                </div>
+
+                <div className="p-4 border-t border-[#333] bg-[#252526] flex justify-end gap-2">
+                    <button onClick={() => setShowGithubModal(false)} className="px-3 py-1.5 text-gray-400 hover:text-white text-xs font-bold transition-colors">Cancel</button>
+                    <button 
+                        onClick={handlePushToGithub}
+                        disabled={!selectedRepo || isPushing}
+                        className="px-4 py-1.5 bg-[#2da44e] hover:bg-[#2c974b] text-white text-xs font-bold rounded flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-900/20"
+                    >
+                         {isPushing && <RefreshCw className="w-3 h-3 animate-spin" />}
+                         {isPushing ? 'Pushing...' : 'Push to GitHub'}
+                    </button>
+                </div>
+            </div>
+        </div>
+      )}
     </div>
   );
 }

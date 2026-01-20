@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Lock, FileCode, CheckCircle, AlertCircle, Copy, Download, RefreshCw, Upload, Trash2, RotateCcw, Github, X } from 'lucide-react';
+import { Lock, FileCode, CheckCircle, AlertCircle, Copy, Download, RefreshCw, Upload, Trash2, RotateCcw, Github, X, Folder, ChevronLeft, File } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { copyToClipboard } from '@/lib/utils';
 import Editor from 'react-simple-code-editor';
@@ -34,6 +34,12 @@ export default function ObfuscatorPage() {
   const [githubToken, setGithubToken] = useState('');
   const [githubRepos, setGithubRepos] = useState<any[]>([]);
   const [selectedRepo, setSelectedRepo] = useState<any>(null);
+  
+  // File Explorer State
+  const [currentPath, setCurrentPath] = useState('');
+  const [dirContents, setDirContents] = useState<any[]>([]);
+  const [loadingDir, setLoadingDir] = useState(false);
+
   const [githubPath, setGithubPath] = useState('scripts/obfuscated.lua');
   const [commitMessage, setCommitMessage] = useState('Update obfuscated script');
   const [isPushing, setIsPushing] = useState(false);
@@ -168,6 +174,46 @@ export default function ObfuscatorPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchDirContents = async (repo: any, path: string) => {
+    if (!githubToken || !repo) return;
+    setLoadingDir(true);
+    try {
+        const owner = repo.full_name.split('/')[0];
+        const res = await fetch(`/api/github/tree?owner=${owner}&repo=${repo.name}&path=${encodeURIComponent(path)}`, {
+            headers: { Authorization: `Bearer ${githubToken}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+            setDirContents(data.items || []);
+        }
+    } catch (e) {
+        console.error(e);
+    } finally {
+        setLoadingDir(false);
+    }
+  };
+
+  // Reset explorer when repo changes
+  useEffect(() => {
+    if (selectedRepo) {
+        setCurrentPath('');
+        fetchDirContents(selectedRepo, '');
+    }
+  }, [selectedRepo]);
+
+  const handleNavigate = (path: string) => {
+      setCurrentPath(path);
+      fetchDirContents(selectedRepo, path);
+  };
+
+  const handleGoBack = () => {
+      const parts = currentPath.split('/');
+      parts.pop();
+      const newPath = parts.join('/');
+      // If parts was empty or 1 element, newPath might be empty string which is root
+      handleNavigate(newPath === '' && currentPath.indexOf('/') === -1 ? '' : newPath);
   };
 
   const handlePushToGithub = async () => {
@@ -709,18 +755,53 @@ export default function ObfuscatorPage() {
                         </div>
                     )}
 
-                    {/* File Details */}
+                    {/* File Explorer & Details */}
                     {selectedRepo && (
                          <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
+                            
+                            {/* Browser */}
+                            <div className="border border-[#333] rounded-md bg-[#141414] overflow-hidden flex flex-col h-48">
+                                <div className="bg-[#252526] p-2 flex items-center gap-2 border-b border-[#333] text-xs">
+                                    {currentPath ? (
+                                        <button onClick={handleGoBack} className="p-1 hover:bg-[#333] rounded"><ChevronLeft className="w-3.5 h-3.5 text-gray-400" /></button>
+                                    ) : <div className="w-5.5" />} {/* Spacer */}
+                                    <span className="font-mono text-gray-400 truncate">/{currentPath}</span>
+                                </div>
+                                <div className="flex-1 overflow-y-auto p-1 space-y-0.5 scrollbar-thin scrollbar-thumb-[#333]">
+                                    {loadingDir ? (
+                                        <div className="p-4 text-center text-xs text-gray-500">Loading...</div>
+                                    ) : dirContents.length === 0 ? (
+                                        <div className="p-4 text-center text-xs text-gray-600">Empty directory</div>
+                                    ) : (
+                                        dirContents.map(item => (
+                                            <div 
+                                                key={item.path}
+                                                onClick={() => {
+                                                    if(item.type === 'dir') handleNavigate(item.path);
+                                                    else setGithubPath(item.path);
+                                                }}
+                                                className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer text-xs group ${item.path === githubPath ? 'bg-emerald-500/20 text-emerald-400' : 'hover:bg-[#252526] text-gray-300'}`}
+                                            >
+                                                {item.type === 'dir' ? <Folder className="w-3.5 h-3.5 text-yellow-500/80" /> : <File className="w-3.5 h-3.5 text-gray-500 group-hover:text-gray-400" />}
+                                                <span className="truncate">{item.name}</span>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+
                             <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 uppercase">File Path</label>
+                                <label className="text-[10px] font-bold text-gray-400 uppercase">Target Path</label>
                                 <input 
                                     type="text" 
                                     value={githubPath}
                                     onChange={(e) => setGithubPath(e.target.value)}
-                                    className="w-full bg-[#141414] border border-[#333] rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                                    placeholder="Enter path (e.g., scripts/new.lua)"
+                                    className="w-full bg-[#141414] border border-[#333] rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50 font-mono"
                                 />
+                                <p className="text-[9px] text-gray-500">Select a file above to overwrite, or type a new path.</p>
                             </div>
+
                             <div className="space-y-1">
                                 <label className="text-[10px] font-bold text-gray-400 uppercase">Commit Message</label>
                                 <input 

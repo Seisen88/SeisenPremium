@@ -116,7 +116,8 @@ export default function ObfuscatorPage() {
       }
 
       if (data.obfuscated) {
-        setObfuscatedCode(data.obfuscated);
+        const watermark = "--[[ Seisen Obfuscator v1.0 | Protected by Seisen ]]\n";
+        setObfuscatedCode(watermark + data.obfuscated);
       } else {
         throw new Error('Invalid response from server');
       }

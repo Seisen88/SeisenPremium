@@ -31,7 +31,9 @@ export async function POST(req: NextRequest) {
     });
 
     // Dynamic Frontend URL for Redirects
-    const frontendUrl = process.env.FRONTEND_URL || req.nextUrl.origin;
+    // Always use the origin of the request to ensure the user is returned to the correct domain they are visiting.
+    const frontendUrl = req.nextUrl.origin;
+
     const returnUrl = `${frontendUrl}/premium`;
     const cancelUrl = `${frontendUrl}/premium?canceled=true`;
     

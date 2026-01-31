@@ -8,8 +8,8 @@ export function cn(...inputs: ClassValue[]) {
 // API configuration
 // {SAME}
 export function getApiUrl() {
-  // Use environment variable if set, otherwise default to empty string for relative paths
-  return process.env.NEXT_PUBLIC_API_URL || '';
+  if (typeof window !== 'undefined') return ''; // Client-side: use relative path
+  return process.env.NEXT_PUBLIC_API_URL || ''; // Server-side: use env var
 }
 
 // Format number with commas

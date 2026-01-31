@@ -135,6 +135,7 @@ function PremiumContent() {
   
   const [showRobuxModal, setShowRobuxModal] = useState(false);
   const [robloxUsername, setRobloxUsername] = useState('');
+  const [email, setEmail] = useState(''); // NEW POINTER: Email State
   const [robuxDetails, setRobuxDetails] = useState<{ plan: string; price: number; productId: number } | null>(null);
   
   const [showTicketModal, setShowTicketModal] = useState(false);
@@ -246,11 +247,12 @@ function PremiumContent() {
 
       setRobuxDetails({ plan, price, productId });
       setRobloxUsername(''); 
+      setEmail(''); // Reset email
       setShowRobuxModal(true);
   };
 
   const verifyRobuxPurchase = async () => {
-    if (!robuxDetails || !robloxUsername.trim()) return;
+    if (!robuxDetails || !robloxUsername.trim() || !email.trim()) return; // Validate email
     
     setIsProcessing(true);
     setShowRobuxModal(false); 
@@ -262,6 +264,7 @@ function PremiumContent() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 username: robloxUsername,
+                email: email, // Send email
                 tier: robuxDetails.plan
             }),
         });
@@ -655,23 +658,36 @@ function PremiumContent() {
                           </div>
                       </div>
 
-                      <div>
-                          <label className="block text-sm font-medium text-gray-400 mb-1">Roblox Username</label>
-                          <input 
-                              type="text" 
-                              value={robloxUsername}
-                              onChange={(e) => setRobloxUsername(e.target.value)}
-                              placeholder="Enter your Roblox username..."
-                              className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-emerald-500 transition-colors"
-                          />
-                      </div>
+                          <div className="space-y-3">
+                              <div>
+                                  <label className="block text-sm font-medium text-gray-400 mb-1">Roblox Username</label>
+                                  <input 
+                                      type="text" 
+                                      value={robloxUsername}
+                                      onChange={(e) => setRobloxUsername(e.target.value)}
+                                      placeholder="Enter your Roblox username..."
+                                      className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                                  />
+                              </div>
+                              <div>
+                                  <label className="block text-sm font-medium text-gray-400 mb-1">Email Address</label>
+                                  <input 
+                                      type="email" 
+                                      value={email}
+                                      onChange={(e) => setEmail(e.target.value)}
+                                      placeholder="Enter your email for backup..."
+                                      className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                                  />
+                                  <p className="text-xs text-gray-500 mt-1">We'll save your key to this email as a backup.</p>
+                              </div>
+                          </div>
                   </div>
 
                   <div className="flex gap-3">
                       <Button variant="secondary" className="flex-1" onClick={() => setShowRobuxModal(false)}>
                           Cancel
                       </Button>
-                      <Button className="flex-1" onClick={verifyRobuxPurchase} disabled={!robloxUsername.trim()}>
+                      <Button className="flex-1" onClick={verifyRobuxPurchase} disabled={!robloxUsername.trim() || !email.trim()}>
                           <Check className="w-4 h-4" />
                           Verify
                       </Button>

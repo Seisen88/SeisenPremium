@@ -20,7 +20,12 @@ const junkieSystem = new JunkieKeySystem({
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { username, tier: requestedTier } = body;
+        const { username, email, tier: requestedTier } = body;
+
+        // Basic verification
+        if (!email || !email.includes('@')) {
+             return NextResponse.json({ error: 'Valid email is required for backup' }, { status: 400 });
+        }
 
         if (!username || typeof username !== 'string' || username.trim() === '') {
             return NextResponse.json({ error: 'Roblox username is required' }, { status: 400 });
@@ -131,14 +136,14 @@ export async function POST(req: Request) {
         if (!isRenewal && !isDuplicate) {
             await db.savePayment({
                 transactionId,
-                payerEmail: '',
+                payerEmail: email,
                 payerId: `ROBLOX_${verification.userId}`,
                 robloxUsername: verification.username,
                 robloxUaid: currentUaid,
                 tier,
                 amount: 0,
                 currency: 'ROBUX',
-                status: 'completed',
+                status: 'COMPLETED',
                 keys: null
             });
         } else if (isRenewal && currentUaid) {
@@ -152,7 +157,7 @@ export async function POST(req: Request) {
             validity: validityHours,
             quantity: 1,
             userInfo: {
-                email: `${verification.username}@roblox.com`,
+                email: email,
                 payerId: `ROBLOX_${verification.userId}`,
                 robloxUsername: verification.username
             },

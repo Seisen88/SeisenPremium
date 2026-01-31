@@ -504,7 +504,11 @@ function PremiumContent() {
               }}
               priceIcon={
                 paymentMethod === 'robux' ? (
-                  <span className="text-2xl mr-1">🎮</span>
+                  <img 
+                    src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg" 
+                    alt="R$" 
+                    className="w-6 h-6 mr-1 object-contain"
+                  />
                 ) : undefined
               }
             />

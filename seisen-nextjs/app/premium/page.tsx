@@ -435,7 +435,11 @@ function PremiumContent() {
               }`}
               title="PayPal"
             >
-              <CreditCard className="w-5 h-5" />
+              <img 
+                src="/images/paypal.png" 
+                alt="PayPal" 
+                className="w-5 h-5 object-contain"
+              />
             </button>
             <button
               onClick={() => setPaymentMethod('robux')}
@@ -461,7 +465,11 @@ function PremiumContent() {
               }`}
               title="GCash"
             >
-              <span className="text-lg">💳</span>
+              <img 
+                 src="/images/gcash.png" 
+                 alt="GCash" 
+                 className="w-6 h-6 object-contain"
+               />
             </button>
           </div>
         </section>

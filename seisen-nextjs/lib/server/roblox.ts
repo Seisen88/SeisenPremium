@@ -55,9 +55,11 @@ export class RobloxIntegration {
     /**
      * Check if user owns the product (checks Asset and GamePass)
      */
-    async userOwnsProduct(userId: number, productId: number): Promise<{ owned: boolean; uaid: number | null; created?: string }> {
+    async userOwnsProduct(userId: number, productId: number): Promise<{ owned: boolean; uaid: number | null; created?: string; error?: string }> {
         try {
             console.log(`🔍 Checking ownership for User: ${userId}, Product: ${productId}`);
+
+            let isPrivate = false;
 
             // 1. Try checking as an ASSET (Catalog item)
             try {
@@ -66,6 +68,10 @@ export class RobloxIntegration {
                     { headers: { 'Accept': 'application/json' } }
                 );
                 
+                if (assetResponse.status === 403) {
+                    isPrivate = true;
+                }
+
                 if (assetResponse.ok) {
                     const data = await assetResponse.json();
                     if (data && data.data && data.data.length > 0) {
@@ -85,6 +91,10 @@ export class RobloxIntegration {
                     { headers: { 'Accept': 'application/json' } }
                 );
                 
+                if (gamePassResponse.status === 403) {
+                    isPrivate = true;
+                }
+
                 if (gamePassResponse.ok) {
                     const data = await gamePassResponse.json();
                     if (data && data.data && data.data.length > 0) {
@@ -97,13 +107,21 @@ export class RobloxIntegration {
                 // Ignore
             }
 
+            if (isPrivate) {
+                return { 
+                    owned: false, 
+                    uaid: null, 
+                    error: 'Your Roblox inventory is private. Please go to Roblox Settings > Privacy and set "Who can see my inventory?" to "Everyone", then try again.' 
+                };
+            }
+
             return { owned: false, uaid: null };
 
         } catch (error: any) {
              // 403 means private inventory
              // In a fetch environment, check response status in the try blocks above
             console.error('Error checking ownership:', error.message);
-            return { owned: false, uaid: null };
+            return { owned: false, uaid: null, error: 'Failed to check ownership due to an API error.' };
         }
     }
 
@@ -138,7 +156,7 @@ export class RobloxIntegration {
                     console.log(`❌ User does not own ${targetTier} tier.`);
                     return {
                         success: false,
-                        error: `User does not own the ${targetTier} product`,
+                        error: result.error || `User does not own the ${targetTier} product`,
                         userId,
                         username
                     };
@@ -147,6 +165,7 @@ export class RobloxIntegration {
 
             // Fallback: Check tiers in order of priority (Best Tier Mode)
             const tiers = ['lifetime', 'monthly', 'weekly'];
+            let lastError: string | null = null;
             
             for (const tier of tiers) {
                 const productId = this.products[tier];
@@ -166,12 +185,16 @@ export class RobloxIntegration {
                         created: result.created
                     };
                 }
+                
+                if (result.error) {
+                    lastError = result.error;
+                }
             }
 
             console.log('❌ User does not own any product');
             return {
                 success: false,
-                error: 'User does not own any product',
+                error: lastError || 'User does not own any product',
                 userId,
                 username
             };

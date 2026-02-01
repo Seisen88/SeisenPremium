@@ -295,13 +295,26 @@ function PremiumContent() {
              };
 
              // Auto-Login
-             const email = `${data.username}@roblox.com`; // Fallback email
+             // Use the email user ENTERED, not the fallback roblox one, so it matches their input
              localStorage.setItem('client_email', email);
              localStorage.setItem('client_auth', 'true');
 
              setTimeout(() => {
-                 router.push('/client/dashboard');
-             }, 2000);
+                 // specific query params for success page
+                 const params = new URLSearchParams({
+                     orderId: successParams.orderId,
+                     tier: successParams.tier,
+                     amount: successParams.amount,
+                     currency: successParams.currency,
+                     key: successParams.key,
+                     email: email, // Use input email
+                     payerId: successParams.payerId,
+                     method: successParams.method,
+                     date: new Date().toISOString()
+                 });
+
+                 router.push(`/success?${params.toString()}`);
+             }, 1000);
 
         } else {
              setStatusModal({

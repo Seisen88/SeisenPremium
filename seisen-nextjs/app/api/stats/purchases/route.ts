@@ -6,11 +6,12 @@ export const revalidate = 60; // Cache for 60 seconds
 export async function GET() {
   try {
     const realCount = await db.getPurchaseCount();
+    const totalCount = realCount + 41; // +41 legacy/offset per user request
     
     return NextResponse.json({ 
-      count: realCount,
+      count: totalCount,
       real: realCount,
-      formatted: realCount.toLocaleString() + ' people' 
+      formatted: totalCount.toLocaleString() + ' people' 
     });
   } catch (error) {
     console.error('Error getting purchase stats:', error);

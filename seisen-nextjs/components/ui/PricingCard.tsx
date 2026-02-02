@@ -64,23 +64,23 @@ export default function PricingCard({
 
       {/* Price */}
       <div className="text-center mb-6">
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-3">
            {originalPrice && (
-            <div className="relative text-gray-500 font-medium text-xl">
+            <div className="relative text-gray-500 font-medium text-xl flex items-center gap-1">
                {priceIcon ? (
-                  <span className="opacity-70 grayscale">{priceIcon}</span> 
+                  <span className="opacity-70 grayscale flex items-center">{priceIcon}</span> 
                 ) : (
                   <span>{currency}</span>
                 )}
-               {originalPrice}
+               <span>{originalPrice}</span>
                {/* Red Strikethrough Line */}
                <div className="absolute top-1/2 left-0 w-full h-[2px] bg-red-500 -rotate-3 transform origin-center"></div>
             </div>
            )}
 
-          <div className="flex items-center">
+          <div className="flex items-center gap-1">
             {priceIcon ? (
-              priceIcon
+              <span className="flex items-center">{priceIcon}</span>
             ) : (
               <span className="text-2xl font-medium text-gray-400">{currency}</span>
             )}

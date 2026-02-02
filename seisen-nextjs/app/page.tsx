@@ -1,25 +1,26 @@
 import Link from 'next/link';
 import {
   Zap,
-  Code,
-  Key,
   Crown,
   CheckCircle,
   Bell,
   Smartphone,
-  Shield,
   Play,
   Briefcase,
   ExternalLink,
   ArrowRight,
+  Key,
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { fetchScripts } from '@/lib/scripts';
+import { fetchVideos } from '@/lib/videos';
 import ScriptCarousel from '@/components/ScriptCarousel';
+import YoutubeCarousel from '@/components/YoutubeCarousel';
 
 export default async function HomePage() {
   const scripts = await fetchScripts();
+  const videos = await fetchVideos();
   
   // Randomize scripts
   const shuffledScripts = [...scripts].sort(() => 0.5 - Math.random());
@@ -49,7 +50,7 @@ export default async function HomePage() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link href="/scripts">
               <Button size="lg">
-                <Code className="w-5 h-5" />
+                <Play className="w-5 h-5" />
                 Browse Scripts
               </Button>
             </Link>
@@ -134,48 +135,28 @@ export default async function HomePage() {
            </div>
         </section>
 
-        {/* Getting Started Section */}
-        <section>
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold text-white mb-2">Getting Started</h2>
-            <p className="text-gray-500">Three simple steps to access premium scripts</p>
-          </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              {
-                step: 1,
-                icon: Code,
-                title: 'Get Your Key',
-                desc: 'Obtain a free or premium access key to unlock scripts',
-              },
-              {
-                step: 2,
-                icon: Key,
-                title: 'Browse Scripts',
-                desc: 'Explore our library of premium scripts and tools',
-              },
-              {
-                step: 3,
-                icon: Shield,
-                title: 'Copy & Execute',
-                desc: 'Copy the script and run it in your game environment',
-              },
-            ].map((item) => (
-              <Card key={item.step} variant="hover" className="p-6 relative">
-                <div className="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold text-sm">
-                  {item.step}
-                </div>
-                <div className="text-center pt-4">
-                  <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-[#1a1a1a] flex items-center justify-center">
-                    <item.icon className="w-6 h-6 text-emerald-500" />
-                  </div>
-                  <h3 className="font-semibold text-white mb-2">{item.title}</h3>
-                  <p className="text-gray-500 text-sm">{item.desc}</p>
-                </div>
-              </Card>
-            ))}
-          </div>
+
+        {/* YouTube Videos Carousel */}
+        <section className="animate-fade-in animation-delay-300">
+           <div className="flex items-center justify-between mb-8 px-2">
+              <div>
+                  <h2 className="text-2xl font-bold text-white mb-1">Latest Videos</h2>
+                  <p className="text-gray-500 text-sm">Watch our latest showcases and tutorials</p>
+              </div>
+              <a href="https://www.youtube.com/@SeisenHub" target="_blank" rel="noreferrer" className="hidden md:flex items-center gap-2 text-red-500 hover:text-red-400 text-sm font-medium transition-colors">
+                  Visit Channel <ArrowRight className="w-4 h-4" />
+              </a>
+           </div>
+           
+           <YoutubeCarousel videos={videos} />
+           
+           <div className="md:hidden text-center mt-6">
+              <a href="https://www.youtube.com/@SeisenHub" target="_blank" rel="noreferrer">
+                  <Button variant="outline" className="w-full">Visit Channel</Button>
+              </a>
+           </div>
+        </section>
 
           {/* Status Indicator */}
           <Card variant="default" className="mt-8 p-4 flex items-center justify-between flex-wrap gap-4">
@@ -201,7 +182,7 @@ export default async function HomePage() {
               </Button>
             </a>
           </Card>
-        </section>
+
 
         {/* Access Options Section */}
         <section id="access-options">

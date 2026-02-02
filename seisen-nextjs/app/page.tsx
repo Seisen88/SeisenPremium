@@ -11,11 +11,16 @@ import {
   Play,
   Briefcase,
   ExternalLink,
+  ArrowRight,
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { fetchScripts } from '@/lib/scripts';
+import ScriptCarousel from '@/components/ScriptCarousel';
 
-export default function HomePage() {
+export default async function HomePage() {
+  const scripts = await fetchScripts();
+
   return (
     <div className="min-h-screen py-8 px-4 md:px-8">
       <div className="max-w-5xl mx-auto space-y-16">
@@ -102,6 +107,27 @@ export default function HomePage() {
               </div>
             </div>
           </Card>
+        </section>
+
+        {/* Featured Scripts Carousel */}
+        <section className="animate-fade-in animation-delay-200">
+           <div className="flex items-center justify-between mb-8 px-2">
+              <div>
+                  <h2 className="text-2xl font-bold text-white mb-1">Featured Scripts</h2>
+                  <p className="text-gray-500 text-sm">Most popular scripts available right now</p>
+              </div>
+              <Link href="/scripts" className="hidden md:flex items-center gap-2 text-emerald-500 hover:text-emerald-400 text-sm font-medium transition-colors">
+                  View All <ArrowRight className="w-4 h-4" />
+              </Link>
+           </div>
+           
+           <ScriptCarousel scripts={scripts} />
+           
+           <div className="md:hidden text-center mt-6">
+              <Link href="/scripts">
+                  <Button variant="outline" className="w-full">View All Scripts</Button>
+              </Link>
+           </div>
         </section>
 
         {/* Getting Started Section */}

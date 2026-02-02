@@ -6,6 +6,7 @@ interface PricingCardProps {
   title: string;
   badge: string;
   price: string | number;
+  originalPrice?: string | number;
   currency?: string;
   period?: string;
   features: string[];
@@ -32,6 +33,7 @@ export default function PricingCard({
   onButtonClick,
   badgeVariant = 'default',
   priceIcon,
+  originalPrice,
 }: PricingCardProps) {
   return (
     <Card
@@ -62,15 +64,30 @@ export default function PricingCard({
 
       {/* Price */}
       <div className="text-center mb-6">
-        <div className="flex items-center justify-center gap-1">
-          {priceIcon ? (
-            priceIcon
-          ) : (
-            <span className="text-2xl font-medium text-gray-400">{currency}</span>
-          )}
-          <span className="text-5xl font-bold text-white">{price}</span>
+        <div className="flex items-center justify-center gap-2">
+           {originalPrice && (
+            <div className="relative text-gray-500 font-medium text-xl">
+               {priceIcon ? (
+                  <span className="opacity-70 grayscale">{priceIcon}</span> 
+                ) : (
+                  <span>{currency}</span>
+                )}
+               {originalPrice}
+               {/* Red Strikethrough Line */}
+               <div className="absolute top-1/2 left-0 w-full h-[2px] bg-red-500 -rotate-3 transform origin-center"></div>
+            </div>
+           )}
+
+          <div className="flex items-center">
+            {priceIcon ? (
+              priceIcon
+            ) : (
+              <span className="text-2xl font-medium text-gray-400">{currency}</span>
+            )}
+            <span className="text-5xl font-bold text-white">{price}</span>
+          </div>
         </div>
-        {period && <span className="text-gray-500 text-sm">{period}</span>}
+        {period && <span className="text-gray-500 text-sm block mt-1">{period}</span>}
       </div>
 
       {/* Features */}

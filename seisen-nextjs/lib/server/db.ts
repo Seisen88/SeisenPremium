@@ -289,6 +289,18 @@ export class TicketDatabase {
     });
   }
 
+  async getPurchaseCount() {
+    const { count, error } = await this.client
+      .from('payments')
+      .select('*', { count: 'exact', head: true }); // Head request for count only
+
+    if (error) {
+      console.error('Error fetching purchase count:', error);
+      return 0;
+    }
+    return count || 0;
+  }
+
   // --- Visitor Stats ---
   async getVisitorStats() {
     // We now use a single 'global_counter' row for all stats

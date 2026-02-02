@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { Crown, Check, HelpCircle, History, CreditCard, Copy, X, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import PricingCard from '@/components/ui/PricingCard';
+import PurchaseCounter from '@/components/ui/PurchaseCounter';
 import { Card } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { getApiUrl, copyToClipboard } from '@/lib/utils';
@@ -34,13 +35,12 @@ const paypalPlans = [
   },
   {
     title: 'Lifetime',
-    badge: 'Best Value',
-    badgeVariant: 'best-value' as const,
-    price: 10,
-    currency: '€',
-    period: 'one-time',
     features: ['All premium scripts', 'No key system', 'Priority support', 'Early access', 'Exclusive updates', 'Lifetime access'],
     plan: 'lifetime',
+    price: 10,
+    originalPrice: 12,
+    badge: '17% OFF',
+    badgeVariant: 'best-value' as const,
   },
 ];
 
@@ -66,9 +66,10 @@ const robuxPlans = [
   },
   {
     title: 'Lifetime',
-    badge: 'Best Value',
+    badge: '16% OFF',
     badgeVariant: 'best-value' as const,
     price: 1600,
+    originalPrice: 1900,
     currency: '',
     period: '',
     features: ['All premium scripts', 'No key system', 'Priority support', 'Early access', 'Exclusive updates', 'Lifetime access'],
@@ -98,9 +99,10 @@ const gcashPlans = [
   },
   {
     title: 'Lifetime',
-    badge: 'Best Value',
+    badge: '18% OFF',
     badgeVariant: 'best-value' as const,
     price: 700,
+    originalPrice: 850,
     currency: '₱',
     period: 'one-time',
     features: ['All premium scripts', 'No key system', 'Priority support', 'Early access', 'Exclusive updates', 'Lifetime access'],
@@ -435,6 +437,10 @@ function PremiumContent() {
           </p>
         </section>
 
+        <section className="flex justify-center -mt-8 mb-8">
+            <PurchaseCounter />
+        </section>
+
         {/* Payment Method Selection */}
         <section>
           <h3 className="text-sm font-medium text-gray-400 mb-3">Payment Method:</h3>
@@ -496,6 +502,8 @@ function PremiumContent() {
               badge={plan.badge}
               badgeVariant={plan.badgeVariant}
               price={plan.price}
+              // @ts-ignore
+              originalPrice={plan.originalPrice}
               currency={plan.currency}
               period={plan.period}
               features={plan.features}

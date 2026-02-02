@@ -20,6 +20,10 @@ import ScriptCarousel from '@/components/ScriptCarousel';
 
 export default async function HomePage() {
   const scripts = await fetchScripts();
+  
+  // Randomize scripts
+  const shuffledScripts = [...scripts].sort(() => 0.5 - Math.random());
+
 
   return (
     <div className="min-h-screen py-8 px-4 md:px-8">
@@ -121,7 +125,7 @@ export default async function HomePage() {
               </Link>
            </div>
            
-           <ScriptCarousel scripts={scripts} />
+           <ScriptCarousel scripts={shuffledScripts} />
            
            <div className="md:hidden text-center mt-6">
               <Link href="/scripts">

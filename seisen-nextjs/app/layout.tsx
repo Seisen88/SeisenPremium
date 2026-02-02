@@ -5,6 +5,8 @@ import Sidebar from '@/components/layout/Sidebar';
 import Footer from '@/components/layout/Footer';
 import LoadingScreen from '@/components/layout/LoadingScreen';
 import VisitorTracker from '@/components/layout/VisitorTracker';
+import ParticleBackground from '@/components/layout/ParticleBackground';
+import CustomCursor from '@/components/ui/CustomCursor';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -36,6 +38,8 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col" suppressHydrationWarning>
         <LoadingScreen />
         <VisitorTracker />
+        <ParticleBackground />
+        <CustomCursor />
         
         {/* Background Text */}
         <div className="page-bg-text">Seisen</div>

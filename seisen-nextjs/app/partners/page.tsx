@@ -79,8 +79,8 @@ export default function PartnersPage() {
           <div className="grid md:grid-cols-3 gap-6">
             {partnerBenefits.map((benefit) => (
               <Card key={benefit.title} variant="hover" className="p-6 text-center">
-                <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                  <benefit.icon className="w-6 h-6 text-emerald-500" />
+                <div className="w-12 h-12 mx-auto mb-4 rounded-xl accent-bg flex items-center justify-center">
+                  <benefit.icon className="w-6 h-6 accent-text" />
                 </div>
                 <h3 className="font-semibold text-white mb-2">{benefit.title}</h3>
                 <p className="text-gray-500 text-sm">{benefit.description}</p>
@@ -112,7 +112,7 @@ export default function PartnersPage() {
                      /* @ts-ignore */
                     <span className="text-3xl">{partner.icon}</span>
                   ) : (
-                    <Handshake className="w-8 h-8 text-emerald-500" />
+                    <Handshake className="w-8 h-8 accent-text" />
                   )}
                 </div>
                 <h3 className="font-bold text-white mb-2 text-lg">{partner.name}</h3>

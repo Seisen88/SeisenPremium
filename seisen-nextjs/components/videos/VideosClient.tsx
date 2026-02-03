@@ -49,7 +49,7 @@ export default function VideosClient({ initialVideos }: VideosClientProps) {
           <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-2xl bg-gradient-to-br from-red-500 to-pink-500 shadow-lg shadow-red-500/30">
             <Play className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Tutorial Videos</h1>
+          <h1 className="text-lg font-bold text-white mb-2">Tutorial Videos</h1>
           <p className="text-gray-500">
             Watch guides, tutorials, and feature showcases
           </p>

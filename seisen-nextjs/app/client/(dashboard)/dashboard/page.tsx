@@ -77,7 +77,7 @@ export default function DashboardPage() {
                 <div className="grid md:grid-cols-2 gap-8 relative z-10">
                     <div>
                         <h3 className="text-gray-400 font-medium mb-2">Total Expenses</h3>
-                        <p className="text-4xl font-bold text-emerald-500 mb-1">${data?.stats?.totalSpent || '0.00'}</p>
+                        <p className="text-4xl font-bold accent-text mb-1">${data?.stats?.totalSpent || '0.00'}</p>
                         <p className="text-sm text-gray-500">Lifetime Spend</p>
                         
                         <div className="mt-8">
@@ -103,7 +103,7 @@ export default function DashboardPage() {
                 
                  {/* Decorative Icon */}
                  <div className="absolute top-4 right-4 p-4 opacity-5">
-                    <CreditCard className="w-32 h-32 text-emerald-500" />
+                    <CreditCard className="w-32 h-32 accent-text" />
                  </div>
             </Card>
 
@@ -111,7 +111,7 @@ export default function DashboardPage() {
             <div className="space-y-4">
                 <div className="flex justify-between items-center">
                     <h2 className="text-xl font-bold text-white">Recent Orders</h2>
-                    <Link href="/client/orders" className="text-sm text-emerald-500 hover:text-emerald-400 flex items-center gap-1">
+                    <Link href="/client/orders" className="text-sm accent-text flex items-center gap-1">
                         View All Orders <ChevronRight className="w-4 h-4" />
                     </Link>
                 </div>
@@ -134,14 +134,14 @@ export default function DashboardPage() {
                                     data.orders.slice(0, 5).map((order: any) => (
                                         <tr key={order.transaction_id} className="hover:bg-[#141414] transition-colors">
                                             <td className="px-6 py-4 text-white capitalize">{order.tier} Plan</td>
-                                            <td className="px-6 py-4 text-emerald-500 font-bold">${order.amount}</td>
+                                            <td className="px-6 py-4 accent-text font-bold">${order.amount}</td>
                                             <td className="px-6 py-4">
-                                                <span className="bg-emerald-500/10 text-emerald-500 px-2 py-1 rounded text-xs font-semibold border border-emerald-500/20">
+                                                <span className="accent-bg accent-text px-2 py-1 rounded text-xs font-semibold accent-border border">
                                                     {order.payment_status}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-right">
-                                                <Link href={`/client/orders/${order.transaction_id}`} className="text-gray-400 hover:text-emerald-500 font-medium">
+                                                <Link href={`/client/orders/${order.transaction_id}`} className="text-gray-400 hover-accent font-medium">
                                                     View Details
                                                 </Link>
                                             </td>
@@ -163,7 +163,7 @@ export default function DashboardPage() {
 
 function StatsCard({ title, value, subtext, icon: Icon, highlightIcon }: any) {
     return (
-        <Card className="bg-[#0f0f0f] border border-[#1f1f1f] p-5 relative overflow-hidden group hover:border-emerald-500/30 transition-all">
+        <Card className="bg-[#0f0f0f] border border-[#1f1f1f] p-5 relative overflow-hidden group hover-accent-border transition-all">
             <div className="flex justify-between items-start">
                 <div>
                      <h3 className="text-white font-bold mb-1">{title}</h3>

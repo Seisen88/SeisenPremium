@@ -448,12 +448,12 @@ export default function ObfuscatorPage() {
   const MAX_HIGHLIGHT_LENGTH = 20000;
 
   return (
-    <div className="h-screen bg-[#0d0d0d] text-gray-300 font-sans selection:bg-emerald-500/20 flex flex-col overflow-hidden">
+    <div className="h-screen bg-[#0d0d0d] text-gray-300 font-sans flex flex-col overflow-hidden">
       {/* Top IDE Header */}
       <div className="h-12 border-b border-[#252525] bg-[#181818] flex items-center justify-between px-4 sticky top-0 z-50 shrink-0">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 group cursor-pointer">
-            <div className="w-6 h-6 flex items-center justify-center rounded-md bg-emerald-500/10 text-emerald-500 group-hover:scale-110 transition-transform">
+            <div className="w-6 h-6 flex items-center justify-center rounded-md accent-text group-hover:scale-110 transition-transform accent-bg">
               <Lock className="w-3.5 h-3.5" />
             </div>
             <span className="text-xs font-bold tracking-tight text-white/90">Seisen Obfuscator</span>
@@ -472,7 +472,7 @@ export default function ObfuscatorPage() {
                     onClick={() => setLuaVersion(v)}
                     title={v === 'luau' ? 'Recommended for Roblox' : 'Standard 5.1'}
                     className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
-                      luaVersion === v ? 'bg-[#2d2d2d] text-emerald-400' : 'text-gray-500 hover:text-gray-300'
+                      luaVersion === v ? 'bg-[#2d2d2d] accent-text' : 'text-gray-500 hover:text-gray-300'
                     }`}
                   >
                     {v === 'lua51' ? '5.1' : 'U'}
@@ -520,7 +520,7 @@ export default function ObfuscatorPage() {
             <div className="ml-auto flex items-center px-4 gap-4">
               <button
                 onClick={() => setCode('local message = "Hello, Seisen!"\nprint(message)\n\nfor i = 1, 5 do\n    print("Count: " .. i)\nend')}
-                className="text-[9px] font-black text-emerald-500/80 hover:text-emerald-400 uppercase tracking-widest transition-colors"
+                className="text-[9px] font-black uppercase tracking-widest transition-colors" style={{ color: 'rgba(var(--accent-rgb), 0.8)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-hover)'} onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(var(--accent-rgb), 0.8)'}
               >
                 Try Example
               </button>
@@ -547,7 +547,7 @@ export default function ObfuscatorPage() {
                       e.shiftKey ? prevMatch() : nextMatch();
                     }
                   }}
-                  className="w-48 bg-[#1e1e1e] border border-[#333] rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-emerald-500/50 placeholder:text-gray-600"
+                  className="w-48 bg-[#1e1e1e] border border-[#333] rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-[var(--accent)]/50 placeholder:text-gray-600"
                 />
               </div>
               <div className="flex items-center text-[10px] text-gray-500 font-mono px-2 min-w-[50px] justify-center">
@@ -579,11 +579,11 @@ export default function ObfuscatorPage() {
                   onChange={(e) => setGoToLineNumber(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleGoToLine()}
                   placeholder={`1 - ${inputLineCount}`}
-                  className="flex-1 bg-[#1e1e1e] border border-[#333] rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-emerald-500/50 placeholder:text-gray-600 appearance-none"
+                  className="flex-1 bg-[#1e1e1e] border border-[#333] rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-[var(--accent)]/50 placeholder:text-gray-600 appearance-none"
                 />
                 <button 
                   onClick={handleGoToLine}
-                  className="px-3 py-1 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 rounded text-[10px] font-bold uppercase transition-colors"
+                  className="px-3 py-1 accent-bg accent-text hover-accent-bg rounded text-[10px] font-bold uppercase transition-colors"
                 >
                   Go
                 </button>
@@ -639,7 +639,7 @@ export default function ObfuscatorPage() {
         <div className="flex flex-col bg-[#1e1e1e] min-h-0">
           <div className="h-9 bg-[#252526] flex items-center px-0 shrink-0">
             <div className={`h-full px-4 flex items-center gap-2 text-xs font-medium transition-all ${obfuscatedCode ? 'bg-[#1e1e1e] text-white' : 'bg-[#2d2d2d]/30 text-gray-500'}`}>
-              <CheckCircle className={`w-3.5 h-3.5 ${obfuscatedCode ? 'text-emerald-400' : 'text-gray-600'}`} />
+              <CheckCircle className={`w-3.5 h-3.5 ${obfuscatedCode ? 'accent-text' : 'text-gray-600'}`} />
               <span>obfuscated.lua</span>
             </div>
             {obfuscatedCode && obfuscatedCode.length > MAX_HIGHLIGHT_LENGTH && (
@@ -664,7 +664,7 @@ export default function ObfuscatorPage() {
                     onChange={(e) => setFileName(e.target.value)}
                     className="bg-transparent border-none outline-none text-[10px] font-medium text-gray-300 w-20 px-1 focus:ring-0"
                   />
-                  <button onClick={handleDownload} className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 transition-colors">
+                  <button onClick={handleDownload} className="px-2 py-0.5 rounded text-[10px] font-bold accent-bg accent-text hover:opacity-80 transition-colors">
                     SAVE
                   </button>
                 </div>
@@ -720,7 +720,7 @@ export default function ObfuscatorPage() {
         </div>
       </div>
 
-      <div className="h-5 bg-emerald-600 flex items-center justify-between px-3 text-white text-[9px] font-bold uppercase shrink-0">
+      <div className="h-5 bg-[var(--accent)] flex items-center justify-between px-3 text-white text-[9px] font-bold uppercase shrink-0">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1">
             <RefreshCw className={`w-2 h-2 ${loading ? 'animate-spin' : ''}`} />
@@ -754,7 +754,7 @@ export default function ObfuscatorPage() {
                                 href="https://github.com/settings/tokens/new?scopes=repo&description=Seisen%20Obfuscator" 
                                 target="_blank" 
                                 rel="noreferrer"
-                                className="text-[9px] text-emerald-500 hover:text-emerald-400 hover:underline"
+                                className="text-[9px] accent-text hover:underline"
                             >
                                 Get Token (Requires 'repo')
                             </a>
@@ -765,7 +765,7 @@ export default function ObfuscatorPage() {
                                 value={githubToken}
                                 onChange={(e) => setGithubToken(e.target.value)}
                                 placeholder="ghp_..."
-                                className="flex-1 bg-[#141414] border border-[#333] rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                                className="flex-1 bg-[#141414] border border-[#333] rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-[var(--accent)]/50"
                             />
                             <button 
                                 onClick={fetchRepos}
@@ -783,7 +783,7 @@ export default function ObfuscatorPage() {
                              <label className="text-[10px] font-bold text-gray-400 uppercase">Repository</label>
                              <select 
                                 onChange={(e) => setSelectedRepo(githubRepos.find(r => r.id === parseInt(e.target.value)))}
-                                className="w-full bg-[#141414] border border-[#333] rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                                className="w-full bg-[#141414] border border-[#333] rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-[var(--accent)]/50"
                              >
                                 <option value="">Select a repository...</option>
                                 {githubRepos.map(repo => (
@@ -818,7 +818,7 @@ export default function ObfuscatorPage() {
                                                     if(item.type === 'dir') handleNavigate(item.path);
                                                     else setGithubPath(item.path);
                                                 }}
-                                                className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer text-xs group ${item.path === githubPath ? 'bg-emerald-500/20 text-emerald-400' : 'hover:bg-[#252526] text-gray-300'}`}
+                                                className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer text-xs group ${item.path === githubPath ? 'accent-bg accent-text' : 'hover:bg-[#252526] text-gray-300'}`}
                                             >
                                                 {item.type === 'dir' ? <Folder className="w-3.5 h-3.5 text-yellow-500/80" /> : <File className="w-3.5 h-3.5 text-gray-500 group-hover:text-gray-400" />}
                                                 <span className="truncate">{item.name}</span>
@@ -835,7 +835,7 @@ export default function ObfuscatorPage() {
                                     value={githubPath}
                                     onChange={(e) => setGithubPath(e.target.value)}
                                     placeholder="Enter path (e.g., scripts/new.lua)"
-                                    className="w-full bg-[#141414] border border-[#333] rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50 font-mono"
+                                    className="w-full bg-[#141414] border border-[#333] rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-[var(--accent)]/50 font-mono"
                                 />
                                 <p className="text-[9px] text-gray-500">Select a file above to overwrite, or type a new path.</p>
                             </div>
@@ -846,7 +846,7 @@ export default function ObfuscatorPage() {
                                     type="text" 
                                     value={commitMessage}
                                     onChange={(e) => setCommitMessage(e.target.value)}
-                                    className="w-full bg-[#141414] border border-[#333] rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                                    className="w-full bg-[#141414] border border-[#333] rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-[var(--accent)]/50"
                                 />
                             </div>
                          </div>
@@ -854,7 +854,7 @@ export default function ObfuscatorPage() {
 
                     {/* Status Message */}
                     {pushStatus && (
-                        <div className={`p-2 rounded text-[10px] font-mono break-all ${pushStatus.startsWith('Success') ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
+                        <div className={`p-2 rounded text-[10px] font-mono break-all ${pushStatus.startsWith('Success') ? 'accent-bg accent-text' : 'bg-red-500/10 text-red-500'}`}>
                             {pushStatus}
                         </div>
                     )}

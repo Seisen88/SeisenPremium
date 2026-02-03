@@ -20,7 +20,7 @@ export default function LegalPage() {
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center animate-fade-in">
-          <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/30">
+          <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center rounded-2xl shadow-lg" style={{ background: 'linear-gradient(to bottom right, var(--accent), var(--accent-hover))', boxShadow: '0 10px 15px -3px rgba(var(--accent-rgb), 0.3)' }}>
             <FileText className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
@@ -45,7 +45,7 @@ export default function LegalPage() {
                     transition-all duration-300 font-medium text-sm md:text-base
                     ${
                       activeTab === tab.id
-                        ? 'bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30'
+                        ? 'accent-bg accent-text shadow-lg'
                         : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
                     }
                   `}
@@ -76,7 +76,7 @@ export default function LegalPage() {
               href="https://discord.gg/F4sAf6z8Ph"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-emerald-500 hover:text-emerald-400 transition-colors"
+              className="accent-text hover-accent transition-colors"
             >
               Discord
             </a>
@@ -92,7 +92,7 @@ function TermsOfService() {
     <div className="space-y-6 text-gray-300">
       <div>
         <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-          <Scale className="w-6 h-6 text-emerald-500" />
+          <Scale className="w-6 h-6 accent-text" />
           Terms of Service
         </h2>
         <p className="text-gray-400 mb-6">
@@ -199,7 +199,7 @@ function PrivacyPolicy() {
     <div className="space-y-6 text-gray-300">
       <div>
         <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-          <Shield className="w-6 h-6 text-emerald-500" />
+          <Shield className="w-6 h-6 accent-text" />
           Privacy Policy
         </h2>
         <p className="text-gray-400 mb-6">
@@ -331,7 +331,7 @@ function RefundPolicy() {
     <div className="space-y-6 text-gray-300">
       <div>
         <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-          <RefreshCw className="w-6 h-6 text-emerald-500" />
+          <RefreshCw className="w-6 h-6 accent-text" />
           Refund Policy
         </h2>
         <p className="text-gray-400 mb-6">

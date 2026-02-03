@@ -91,7 +91,7 @@ export default function VerifyPage() {
                         onChange={(e) => handleChange(index, e.target.value)}
                         onKeyDown={(e) => handleKeyDown(index, e)}
                         onPaste={handlePaste}
-                        className="w-12 h-14 bg-[#141414] border border-[#2a2a2a] rounded-lg text-center text-xl font-bold text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder-transparent"
+                        className="w-12 h-14 bg-[#141414] border border-[#2a2a2a] rounded-lg text-center text-xl font-bold text-white focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-all placeholder-transparent"
                     />
                 ))}
             </div>
@@ -105,7 +105,7 @@ export default function VerifyPage() {
             <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_20px_rgba(16,185,129,0.2)] hover:shadow-[0_4px_25px_rgba(16,185,129,0.3)] hover:-translate-y-0.5"
+                className="w-full accent-bg hover-accent-bg text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_20px_rgba(var(--accent-rgb),0.2)] hover:shadow-[0_4px_25px_rgba(var(--accent-rgb),0.3)] hover:-translate-y-0.5"
             >
                 {loading ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -118,7 +118,7 @@ export default function VerifyPage() {
                 <button 
                     type="button" 
                     onClick={() => router.push('/client/login')}
-                    className="text-xs text-gray-500 hover:text-emerald-500 transition-colors"
+                    className="text-xs text-gray-500 hover-accent transition-colors"
                 >
                     Entered the wrong email?
                 </button>

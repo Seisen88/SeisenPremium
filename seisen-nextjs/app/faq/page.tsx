@@ -25,7 +25,7 @@ const faqItems = [
   },
   {
     category: 'Key System',
-    gradient: 'from-emerald-500 to-teal-500',
+    gradient: 'from-[var(--accent)] to-[var(--accent-hover)]',
     questions: [
       {
         q: 'How does the key system work?',
@@ -135,7 +135,7 @@ export default function FAQPage() {
                     <Card
                       key={id}
                       variant="hover"
-                      className="overflow-hidden transition-all duration-300 hover:border-emerald-500/30"
+                      className="overflow-hidden transition-all duration-300 hover-accent-border"
                     >
                       <button
                         onClick={() => toggleItem(id)}
@@ -143,12 +143,12 @@ export default function FAQPage() {
                       >
                         <div className="flex items-start gap-3 flex-1 pr-4">
                           <div className={`mt-1 w-1.5 h-1.5 rounded-full bg-gradient-to-r ${category.gradient} flex-shrink-0`} />
-                          <span className="font-semibold text-white text-lg group-hover:text-emerald-400 transition-colors">
+                          <span className="font-semibold text-white text-lg hover-accent-text transition-colors">
                             {item.q}
                           </span>
                         </div>
                         <div className={`flex-shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
-                          <ChevronDown className="w-5 h-5 text-gray-400 group-hover:text-emerald-500" />
+                          <ChevronDown className="w-5 h-5 text-gray-400 hover-accent-text" />
                         </div>
                       </button>
                       
@@ -175,8 +175,8 @@ export default function FAQPage() {
         </div>
 
         {/* Still Need Help */}
-        <Card className="mt-16 p-8 text-center bg-gradient-to-br from-[#141414] via-[#1a1a1a] to-[#141414] border-emerald-500/20">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/30 mb-4">
+        <Card className="mt-16 p-8 text-center bg-gradient-to-br from-[#141414] via-[#1a1a1a] to-[#141414] accent-border">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl shadow-lg mb-4" style={{ background: 'linear-gradient(to bottom right, var(--accent), var(--accent-hover))', boxShadow: '0 10px 15px -3px rgba(var(--accent-rgb), 0.3)' }}>
             <Sparkles className="w-8 h-8 text-white" />
           </div>
           <h3 className="text-2xl font-bold text-white mb-3">Still have questions?</h3>

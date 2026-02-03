@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes, forwardRef } from 'react';
+import { ButtonHTMLAttributes, forwardRef, CSSProperties } from 'react';
 import { cn } from '@/lib/utils';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -7,19 +7,30 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', children, ...props }, ref) => {
+  ({ className, variant = 'primary', size = 'md', children, style, ...props }, ref) => {
     const baseStyles =
       'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
 
-    const variants = {
-      primary:
-        'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30',
-      secondary:
-        'bg-[#1a1a1a] text-gray-200 border border-[#2a2a2a] hover:bg-[#222] hover:border-[#333]',
-      outline:
-        'bg-transparent text-gray-300 border border-[#2a2a2a] hover:bg-[#1a1a1a] hover:border-emerald-500/50 hover:text-emerald-500',
-      ghost:
-        'bg-transparent text-gray-400 hover:text-emerald-500 hover:bg-emerald-500/10',
+    const variantStyles: Record<string, CSSProperties> = {
+      primary: {
+        background: 'linear-gradient(to right, var(--accent), var(--accent-hover))',
+        color: 'var(--text-primary)',
+        boxShadow: '0 10px 15px -3px rgba(16, 185, 129, 0.2)',
+      },
+      secondary: {
+        backgroundColor: 'var(--bg-tertiary)',
+        color: 'var(--text-secondary)',
+        border: '1px solid var(--border)',
+      },
+      outline: {
+        backgroundColor: 'transparent',
+        color: 'var(--text-secondary)',
+        border: '1px solid var(--border)',
+      },
+      ghost: {
+        backgroundColor: 'transparent',
+        color: 'var(--text-muted)',
+      },
     };
 
     const sizes = {
@@ -31,7 +42,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={cn(baseStyles, variants[variant], sizes[size], className)}
+        className={cn(baseStyles, sizes[size], className)}
+        style={{ ...variantStyles[variant], ...style }}
         {...props}
       >
         {children}
@@ -43,3 +55,4 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button';
 
 export default Button;
+

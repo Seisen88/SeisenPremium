@@ -44,7 +44,7 @@ export default function Sidebar() {
       {/* Mobile Hamburger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 z-[2001] p-2 rounded-lg bg-[#1a1a1a] border border-[#1f1f1f] text-gray-400 hover:text-emerald-500 hover:border-emerald-500/50 transition-all md:hidden"
+        className="fixed top-4 left-4 z-[2001] p-2 rounded-lg bg-[#1a1a1a] border border-[#1f1f1f] text-gray-400 hover-accent hover-accent-border transition-all md:hidden"
         aria-label="Toggle menu"
       >
         {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -68,7 +68,7 @@ export default function Sidebar() {
           {/* Logo */}
           <Link
             href="/"
-            className="text-emerald-500 hover:scale-110 transition-transform mb-auto"
+            className="accent-text hover:scale-110 transition-transform mb-auto"
             onClick={() => setIsOpen(false)}
           >
             <Zap className="w-6 h-6" />
@@ -83,8 +83,8 @@ export default function Sidebar() {
 
               const linkClass = `group relative flex items-center justify-center w-8 h-8 rounded-md transition-all ${
                 isActive
-                  ? 'text-emerald-500 bg-emerald-500/10 border border-emerald-500/20'
-                  : 'text-gray-500 hover:text-emerald-500'
+                  ? 'accent-text accent-bg border accent-border'
+                  : 'text-gray-500 hover-accent'
               }`;
 
               const content = (
@@ -131,8 +131,8 @@ export default function Sidebar() {
                 href="/client/dashboard"
                 className={`group relative flex items-center justify-center w-10 h-10 rounded-full transition-all ${
                    pathname.startsWith('/client') 
-                   ? 'bg-emerald-500/20 text-emerald-500 border border-emerald-500/30' 
-                   : 'bg-[#1a1a1a] text-gray-400 hover:text-emerald-500 hover:border-emerald-500/50 border border-[#1f1f1f]'
+                   ? 'accent-bg accent-text border accent-border' 
+                   : 'bg-[#1a1a1a] text-gray-400 hover-accent hover-accent-border border border-[#1f1f1f]'
                 }`}
                 onClick={() => setIsOpen(false)}
              >

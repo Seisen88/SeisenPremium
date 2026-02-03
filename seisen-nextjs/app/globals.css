@@ -12,9 +12,39 @@
   --text-muted: #666666;
   --accent: #10b981;
   --accent-hover: #059669;
+  --accent-rgb: 16, 185, 129; /* RGB values for rgba() usage */
   --border-color: #1f1f1f;
   --border-light: #2a2a2a;
 }
+
+/* Utility Classes */
+.accent-link {
+  color: var(--accent);
+}
+.accent-link:hover {
+  color: var(--accent-hover);
+}
+
+.accent-text {
+  color: var(--accent);
+}
+
+.accent-bg {
+  background-color: rgba(var(--accent-rgb), 0.1);
+}
+
+.accent-border {
+  border-color: rgba(var(--accent-rgb), 0.2);
+}
+
+.hover-accent:hover {
+  color: var(--accent);
+}
+
+.hover-accent-border:hover {
+  border-color: rgba(var(--accent-rgb), 0.5);
+}
+
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
@@ -33,6 +63,24 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--border-light);
+}
+
+/* Custom Scrollbar for Theme Selector */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
 }
 
 /* Base Styles */
@@ -55,6 +103,7 @@ body {
     sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Selection */

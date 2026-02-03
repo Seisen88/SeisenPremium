@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Code, Search, Copy, Check, Lock, Crown, ExternalLink } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
+import TiltCard from '@/components/ui/TiltCard';
 import Button from '@/components/ui/Button';
 import { copyToClipboard } from '@/lib/utils';
 import Image from 'next/image';
@@ -109,7 +110,7 @@ export default function ScriptsClient({ initialScripts }: ScriptsClientProps) {
           <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-500 shadow-lg shadow-blue-500/30">
             <Code className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Script Hub</h1>
+          <h1 className="text-lg font-bold text-white mb-2">Script Hub</h1>
           <p className="text-gray-500">
             Browse our collection of {initialScripts.length} premium and free scripts
           </p>
@@ -146,15 +147,22 @@ export default function ScriptsClient({ initialScripts }: ScriptsClientProps) {
         </section>
 
         {/* Scripts Grid */}
-        <section className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <section className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredScripts.map((script) => (
-            <Card
-              key={script.id}
-              variant="hover"
-              className="group overflow-hidden bg-[#101010] border-[#1f1f1f]"
-            >
-              {/* Thumbnail Area */}
-              <div className="relative aspect-video bg-[#0a0a0a] overflow-hidden">
+            <TiltCard key={script.id}>
+              <Card
+                variant="hover"
+                className="group relative overflow-hidden bg-[#101010] border-[#1f1f1f] cursor-pointer h-64"
+                onClick={() => {
+                  if (script.status === 'Discontinued') return;
+                  if (script.type === 'Premium' && script.displayType !== 'Free & Premium') {
+                    window.location.href = '/premium';
+                  } else {
+                    handleCopy(script);
+                  }
+                }}
+              >
+                {/* Full Image Background */}
                 {script.universeId && thumbnails[script.universeId] ? (
                   <Image
                     src={thumbnails[script.universeId]}
@@ -164,93 +172,40 @@ export default function ScriptsClient({ initialScripts }: ScriptsClientProps) {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-[#1a1a1a]">
-                   <Code className="w-12 h-12 text-[#333]" />
+                    <Code className="w-16 h-16 text-[#333]" />
                   </div>
                 )}
-                
-                {/* Badges */}
-                <div className="absolute top-3 left-3 flex gap-2">
-                   <div className={`px-2 py-1 rounded-md text-xs font-bold shadow-lg ${
-                     script.status === 'Discontinued' 
-                       ? 'bg-red-500 text-white' 
-                       : 'bg-emerald-500 text-white'
-                   }`}>
-                     {script.status}
-                   </div>
-                </div>
-                
-                {/* Type Badge */}
-                <div className="absolute top-3 right-3">
-                   {script.displayType === 'Free & Premium' ? (
-                     <div className="px-2 py-1 bg-gradient-to-r from-blue-500 to-amber-500 rounded-md text-xs font-bold text-white shadow-lg flex items-center gap-1">
-                       <Crown className="w-3 h-3" />
-                       Free & Premium
-                     </div>
-                   ) : script.type === 'Premium' ? (
-                     <div className="px-2 py-1 bg-amber-500 rounded-md text-xs font-bold text-white shadow-lg flex items-center gap-1">
-                       <Crown className="w-3 h-3" />
-                       Premium
-                     </div>
-                   ) : (
-                     <div className="px-2 py-1 bg-blue-500 rounded-md text-xs font-bold text-white shadow-lg">
-                       Free
+
+                {/* Overlay Gradient - Stronger for better text visibility */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+
+                {/* Name Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-5 z-20">
+                  <div className="flex items-center gap-2 mb-1">
+                    {script.status === 'Working' ? (
+                      <div className="relative flex-shrink-0">
+                        <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
+                        <div className="absolute inset-0 w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping opacity-75"></div>
+                      </div>
+                    ) : (
+                      <div className="relative flex-shrink-0">
+                        <div className="w-2.5 h-2.5 bg-red-500 rounded-full"></div>
+                        <div className="absolute inset-0 w-2.5 h-2.5 bg-red-500 rounded-full animate-ping opacity-75"></div>
+                      </div>
+                    )}
+                    <h3 className="text-xl font-bold text-white drop-shadow-md">
+                      {script.name}
+                    </h3>
+                  </div>
+                   {copiedId === script.id && (
+                     <div className="text-emerald-400 text-sm font-medium flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
+                       <Check className="w-4 h-4" />
+                       Loader Copied!
                      </div>
                    )}
                 </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-5">
-                <h3 className="text-lg font-bold text-white mb-4 line-clamp-1" title={script.name}>
-                  {script.name}
-                </h3>
-                
-                <div className="space-y-3">
-                  {script.status === 'Discontinued' ? (
-                     <Button variant="secondary" className="w-full opacity-50 cursor-not-allowed" disabled>
-                       <Lock className="w-4 h-4" />
-                       Discontinued
-                     </Button>
-                  ) : script.displayType === 'Free & Premium' ? (
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button variant="secondary" className="w-full text-xs" onClick={() => handleCopy(script)}>
-                        Copy Loader
-                      </Button>
-                      <Link href="/premium" className="w-full">
-                        <Button variant="primary" className="w-full text-xs">
-                          Buy Premium
-                        </Button>
-                      </Link>
-                    </div>
-                  ) : script.type === 'Premium' ? (
-                    <Link href="/premium" className="block w-full">
-                      <Button variant="primary" className="w-full">
-                        <Crown className="w-4 h-4 mr-2" />
-                        Buy Premium
-                      </Button>
-                    </Link>
-                  ) : (
-                     <Button
-                      variant="secondary"
-                      className="w-full"
-                      onClick={() => handleCopy(script)}
-                    >
-                      {copiedId === script.id ? (
-                        <>
-                          <Check className="w-4 h-4 text-emerald-500" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          Copy Loader
-                        </>
-                      )}
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </TiltCard>
           ))}
         </section>
 

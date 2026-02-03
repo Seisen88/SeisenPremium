@@ -65,29 +65,29 @@ export default function ClientDownloadsPage() {
         ) : hasAccess ? (
             <div className="grid md:grid-cols-2 gap-8">
                 {/* Product Card */}
-                <Card className="p-6 border-l-4 border-l-emerald-500 bg-[#0f0f0f] flex flex-col">
+                <Card className="p-6 border-l-4 accent-border-left bg-[#0f0f0f] flex flex-col" style={{ borderLeftColor: 'var(--accent)' }}>
                     <div className="flex justify-between items-start mb-4">
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                                <Package className="w-6 h-6 text-emerald-500" />
+                            <div className="w-12 h-12 rounded-lg accent-bg flex items-center justify-center border accent-border">
+                                <Package className="w-6 h-6 accent-text" />
                             </div>
                             <div>
                                 <h3 className="text-xl font-bold text-white">Seisen Hub Premium Loader</h3>
                                 <p className="text-sm text-gray-500">Premium Version • v2.4.5</p>
                             </div>
                         </div>
-                        <span className="px-2 py-1 rounded bg-emerald-500/10 text-emerald-500 text-xs border border-emerald-500/20">
+                        <span className="px-2 py-1 rounded accent-bg accent-text text-xs border accent-border">
                             Active
                         </span>
                     </div>
                     
                     <div className="flex-1 space-y-3 mb-6">
                         <div className="flex items-center gap-2 text-sm text-gray-400">
-                             <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                             <ShieldCheck className="w-4 h-4 accent-text" />
                              <span>HWID Protection Enabled</span>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-gray-400">
-                             <Clock className="w-4 h-4 text-emerald-500" />
+                             <Clock className="w-4 h-4 accent-text" />
                              <span>Auto-Updates Included</span>
                         </div>
                     </div>
@@ -118,7 +118,7 @@ export default function ClientDownloadsPage() {
                                  <div key={i} className="flex justify-between items-center p-3 bg-[#141414] rounded-lg border border-[#1f1f1f]">
                                      <div>
                                          <div className="text-white text-sm font-medium">{entry.file}</div>
-                                         <div className="text-xs text-emerald-500">{entry.version}</div>
+                                         <div className="text-xs accent-text">{entry.version}</div>
                                      </div>
                                      <div className="text-xs text-gray-500">
                                          {new Date(entry.date).toLocaleString()}

@@ -78,7 +78,14 @@ export default function ScriptCarousel({ scripts }: ScriptCarouselProps) {
             return (
               <div key={`${script.id}-${index}`} className="w-[180px] md:w-[220px] flex-shrink-0 group">
                 <Link href={`/scripts?id=${script.id}`}>
-                    <div className="relative aspect-square rounded-xl overflow-hidden border border-white/10 bg-[#1a1a1a] transition-transform duration-300 group-hover:scale-105 group-hover:border-emerald-500/50">
+                    <div 
+                      className="relative aspect-square rounded-xl overflow-hidden border border-white/10 bg-[#1a1a1a] transition-all duration-300 group-hover:scale-105"
+                      style={{
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.borderColor = `rgba(var(--accent-rgb), 0.5)`}
+                      onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'}
+                    >
                         {thumb ? (
                             <img 
                                 src={thumb} 

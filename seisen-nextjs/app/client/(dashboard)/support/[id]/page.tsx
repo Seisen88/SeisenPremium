@@ -104,7 +104,7 @@ export default function TicketDetailPage() {
 
   const getStatusColor = (status: string) => {
       switch (status?.toLowerCase()) {
-          case 'open': return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
+          case 'open': return 'accent-text accent-bg accent-border';
           case 'closed': return 'text-gray-500 bg-gray-500/10 border-gray-500/20';
           case 'replied': return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
           default: return 'text-gray-400 bg-gray-500/10';
@@ -114,7 +114,7 @@ export default function TicketDetailPage() {
   if (loading) {
       return (
           <div className="flex items-center justify-center min-h-[50vh]">
-              <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+              <Loader2 className="w-8 h-8 animate-spin accent-text" />
           </div>
       );
   }
@@ -179,7 +179,7 @@ export default function TicketDetailPage() {
                         <div key={reply.id} className={`flex gap-4 ${isStaff ? 'flex-row-reverse' : ''}`}>
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border ${
                                 isStaff 
-                                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500' 
+                                    ? 'accent-bg accent-border accent-text' 
                                     : 'bg-[#1a1a1a] border-[#2a2a2a] text-gray-400'
                             }`}>
                                 {isStaff ? <ShieldAlert className="w-5 h-5" /> : <User className="w-5 h-5" />}
@@ -187,14 +187,14 @@ export default function TicketDetailPage() {
                             
                             <div className={`flex-1 flex flex-col ${isStaff ? 'items-end' : 'items-start'}`}>
                                 <div className="flex items-baseline gap-3 mb-1">
-                                    <span className={`font-bold ${isStaff ? 'text-emerald-500' : 'text-white'}`}>
+                                    <span className={`font-bold ${isStaff ? 'accent-text' : 'text-white'}`}>
                                         {reply.author_name} {isStaff && '(Staff)'}
                                     </span>
                                     <span className="text-xs text-gray-500">{new Date(reply.created_at).toLocaleString()}</span>
                                 </div>
                                 <div className={`p-4 rounded-xl border whitespace-pre-wrap ${
                                     isStaff 
-                                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-100 rounded-tr-none' 
+                                        ? 'accent-bg accent-border accent-text rounded-tr-none' 
                                         : 'bg-[#1a1a1a] border-[#2a2a2a] text-gray-300 rounded-tl-none'
                                 }`}>
                                     {reply.message}
@@ -226,7 +226,7 @@ export default function TicketDetailPage() {
                                     handleReply(e);
                                 }
                             }}
-                            className="flex-1 bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                            className="flex-1 bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[var(--accent)] transition-colors resize-none"
                         />
                         <Button 
                             type="submit" 

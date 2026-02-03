@@ -449,7 +449,7 @@ function PremiumContent() {
               onClick={() => setPaymentMethod('paypal')}
               className={`px-4 py-2.5 rounded-lg border transition-all flex items-center gap-2 ${
                 paymentMethod === 'paypal'
-                  ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-500'
+                  ? 'accent-bg accent-border accent-text'
                   : 'bg-[#1a1a1a] border-[#2a2a2a] text-gray-400 hover:border-[#3a3a3a]'
               }`}
               title="PayPal"
@@ -464,7 +464,7 @@ function PremiumContent() {
               onClick={() => setPaymentMethod('robux')}
               className={`px-4 py-2.5 rounded-lg border transition-all flex items-center gap-2 ${
                 paymentMethod === 'robux'
-                  ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-500'
+                  ? 'accent-bg accent-border accent-text'
                   : 'bg-[#1a1a1a] border-[#2a2a2a] text-gray-400 hover:border-[#3a3a3a]'
               }`}
               title="Robux"
@@ -479,7 +479,7 @@ function PremiumContent() {
               onClick={() => setPaymentMethod('gcash')}
               className={`px-4 py-2.5 rounded-lg border transition-all flex items-center gap-2 ${
                 paymentMethod === 'gcash'
-                  ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-500'
+                  ? 'accent-bg accent-border accent-text'
                   : 'bg-[#1a1a1a] border-[#2a2a2a] text-gray-400 hover:border-[#3a3a3a]'
               }`}
               title="GCash"
@@ -543,7 +543,7 @@ function PremiumContent() {
             {faqs.map((faq, index) => (
               <Card key={index} variant="hover" className="p-5">
                 <h3 className="font-medium text-white mb-2 flex items-center gap-2">
-                  <HelpCircle className="w-4 h-4 text-emerald-500" />
+                  <HelpCircle className="w-4 h-4 accent-text" />
                   {faq.question}
                 </h3>
                 <p className="text-gray-500 text-sm">{faq.answer}</p>
@@ -557,7 +557,7 @@ function PremiumContent() {
       {isProcessing && !statusModal.isOpen && (
           <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
               <div className="text-center animate-fade-in">
-                  <Loader2 className="w-12 h-12 text-emerald-500 animate-spin mx-auto mb-4" />
+                  <Loader2 className="w-12 h-12 accent-text animate-spin mx-auto mb-4" />
                   <h2 className="text-2xl font-bold text-white mb-2">Processing Payment...</h2>
                   <p className="text-gray-500 max-w-sm mx-auto">
                       Please do not close this window or refresh the page. This may take a few seconds.
@@ -571,7 +571,7 @@ function PremiumContent() {
           <div className="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4 animate-in fade-in zoom-in duration-200">
               <Card className="w-full max-w-md p-6 text-center border shadow-2xl relative">
                   <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
-                      statusModal.type === 'success' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-red-500/20 text-red-500'
+                      statusModal.type === 'success' ? 'accent-bg accent-text' : 'bg-red-500/20 text-red-500'
                   }`}>
                       {statusModal.type === 'success' ? <CheckCircle className="w-8 h-8"/> : <AlertCircle className="w-8 h-8"/>}
                   </div>
@@ -602,7 +602,7 @@ function PremiumContent() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 animate-in fade-in duration-200">
           <Card className="w-full max-w-md p-6 relative">
             <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-              <HelpCircle className="w-5 h-5 text-emerald-500" />
+              <HelpCircle className="w-5 h-5 accent-text" />
               Terms of Service
             </h2>
             
@@ -621,11 +621,11 @@ function PremiumContent() {
                 type="checkbox"
                 checked={tosAccepted}
                 onChange={(e) => setTosAccepted(e.target.checked)}
-                className="mt-1 w-4 h-4 accent-emerald-500"
+                className="mt-1 w-4 h-4 accent-[var(--accent)]"
               />
               <span className="text-gray-400 text-sm">
                 I have read and agree to the{' '}
-                <a href="/legal" className="text-emerald-500 hover:underline" target="_blank">
+                <a href="/legal" className="accent-text hover:underline" target="_blank">
                   Terms of Service
                 </a>.
               </span>
@@ -675,7 +675,7 @@ function PremiumContent() {
                                   href={`https://www.roblox.com/catalog/${robuxDetails.productId}`} 
                                   target="_blank" 
                                   rel="noopener noreferrer"
-                                  className="text-emerald-400 font-mono hover:underline"
+                                  className="accent-text font-mono hover:underline"
                               >
                                   Click here to Buy Item ({robuxDetails.productId})
                               </a>
@@ -699,7 +699,7 @@ function PremiumContent() {
                                       value={robloxUsername}
                                       onChange={(e) => setRobloxUsername(e.target.value)}
                                       placeholder="Enter your Roblox username..."
-                                      className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                                      className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-4 py-2 text-white focus:outline-none focus-visible:border-[var(--accent)] transition-colors"
                                   />
                               </div>
                               <div>
@@ -709,7 +709,7 @@ function PremiumContent() {
                                       value={email}
                                       onChange={(e) => setEmail(e.target.value)}
                                       placeholder="Enter your email for backup..."
-                                      className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                                      className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-4 py-2 text-white focus:outline-none focus-visible:border-[var(--accent)] transition-colors"
                                   />
                                   <p className="text-xs text-gray-500 mt-1">We'll save your key to this email as a backup.</p>
                               </div>
@@ -734,7 +734,7 @@ function PremiumContent() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 animate-in fade-in duration-200">
               <Card className="w-full max-w-md p-6 relative">
                   <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                      <CreditCard className="w-5 h-5 text-emerald-500" />
+                      <CreditCard className="w-5 h-5 accent-text" />
                       Complete Purchase
                   </h2>
                   
@@ -774,7 +774,7 @@ function PremiumContent() {
 
 export default function PremiumPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-emerald-500"/></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin accent-text"/></div>}>
       <PremiumContent />
     </Suspense>
   );

@@ -77,27 +77,27 @@ function SuccessContent() {
                     </h1>
                     <p className="text-gray-500 text-sm">Placed on {date.toLocaleString()}</p>
                 </div>
-                <div className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-4 py-2 rounded-lg flex items-center gap-2 font-medium print:border-black print:text-black">
+                <div className="accent-bg accent-text border accent-border px-4 py-2 rounded-lg flex items-center gap-2 font-medium print:border-black print:text-black">
                     <CheckCircle className="w-4 h-4" />
                     Status: COMPLETED
                 </div>
             </div>
 
             {/* Delivered Items (Key) - Prominent at Top */}
-            <Card className="p-6 border-l-4 border-l-emerald-500 print:border p-6 shadow-none">
+            <Card className="p-6 border-l-4 border-l-[var(--accent)] print:border p-6 shadow-none">
                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2 print:text-black">
-                    <Key className="w-5 h-5 text-emerald-500 print:text-black" />
+                    <Key className="w-5 h-5 accent-text print:text-black" />
                     Delivered Items
                 </h3>
                 
                 {keys.length > 0 ? (
                     <div className="space-y-3">
                          {keys.map((k, i) => (
-                            <div key={i} className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg p-4 flex items-center justify-between gap-4 group hover:border-emerald-500/30 transition-colors print:bg-white print:border-gray-300">
-                                <code className="text-emerald-500 font-mono text-lg truncate print:text-black">{k}</code>
+                            <div key={i} className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg p-4 flex items-center justify-between gap-4 group hover-accent-border transition-colors print:bg-white print:border-gray-300">
+                                <code className="accent-text font-mono text-lg truncate print:text-black">{k}</code>
                                 <button 
                                     onClick={() => handleCopy(k)}
-                                    className={`p-2 rounded text-sm font-medium transition-colors flex items-center gap-2 print:hidden ${copiedKey === k ? "bg-emerald-500/20 text-emerald-500" : "bg-[#1f1f1f] text-gray-400 hover:text-white"}`}
+                                    className={`p-2 rounded text-sm font-medium transition-colors flex items-center gap-2 print:hidden ${copiedKey === k ? "accent-bg accent-text" : "bg-[#1f1f1f] text-gray-400 hover:text-white"}`}
                                 >
                                     {copiedKey === k ? <CheckCircle className="w-4 h-4"/> : <Copy className="w-4 h-4"/>}
                                     {copiedKey === k ? "Copied" : "Copy"}
@@ -118,7 +118,7 @@ function SuccessContent() {
                 {/* Order Items */}
                 <Card className="p-6 h-full flex flex-col print:border shadow-none">
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2 print:text-black">
-                        <ShoppingBag className="w-5 h-5 text-emerald-500 print:text-black" />
+                        <ShoppingBag className="w-5 h-5 accent-text print:text-black" />
                         Order Items
                     </h3>
                     
@@ -147,7 +147,7 @@ function SuccessContent() {
                 {/* Payment Information */}
                 <Card className="p-6 print:border shadow-none">
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2 print:text-black">
-                        <CreditCard className="w-5 h-5 text-emerald-500 print:text-black" />
+                        <CreditCard className="w-5 h-5 accent-text print:text-black" />
                         Payment Information
                     </h3>
                     
@@ -181,14 +181,14 @@ function SuccessContent() {
             {/* Order Timeline */}
             <Card className="p-6 print:border shadow-none">
                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2 print:text-black">
-                    <Calendar className="w-5 h-5 text-emerald-500 print:text-black" />
+                    <Calendar className="w-5 h-5 accent-text print:text-black" />
                     Order Timeline
                 </h3>
                 
                 <div className="space-y-6 ml-2 border-l-2 border-[#2a2a2a] pl-6 relative print:border-gray-300">
                      <div className="relative">
-                        <div className="absolute -left-[31px] w-6 h-6 rounded-full bg-[#1a1a1a] border-2 border-emerald-500 flex items-center justify-center print:bg-white print:border-black">
-                            <CreditCard className="w-3 h-3 text-emerald-500 print:text-black" />
+                        <div className="absolute -left-[31px] w-6 h-6 rounded-full bg-[#1a1a1a] border-2 border-[var(--accent)] flex items-center justify-center print:bg-white print:border-black">
+                            <CreditCard className="w-3 h-3 accent-text print:text-black" />
                         </div>
                         <div>
                             <h4 className="text-white font-medium print:text-black">Order Placed</h4>
@@ -197,7 +197,7 @@ function SuccessContent() {
                     </div>
                     
                     <div className="relative">
-                        <div className="absolute -left-[31px] w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20 print:shadow-none print:bg-black">
+                        <div className="absolute -left-[31px] w-6 h-6 rounded-full flex items-center justify-center shadow-lg print:shadow-none print:bg-black" style={{ backgroundColor: 'var(--accent)', boxShadow: '0 10px 15px -3px rgba(var(--accent-rgb), 0.2)' }}>
                             <CheckCircle className="w-3 h-3 text-white" />
                         </div>
                         <div>
@@ -236,7 +236,7 @@ export default function SuccessPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center text-emerald-500">
+        <div className="min-h-screen flex items-center justify-center accent-text">
           <Clock className="animate-spin w-8 h-8" />
         </div>
       }

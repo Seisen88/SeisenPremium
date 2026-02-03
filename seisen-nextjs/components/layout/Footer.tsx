@@ -92,7 +92,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-gray-500 hover:text-emerald-500 text-sm transition-colors"
+                    className="text-gray-500 hover-accent text-sm transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -113,7 +113,7 @@ export default function Footer() {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-500 hover:text-emerald-500 text-sm transition-colors inline-flex items-center gap-1"
+                    className="text-gray-500 hover-accent text-sm transition-colors inline-flex items-center gap-1"
                   >
                     {link.label}
                     {link.icon && <ExternalLink className="w-3 h-3" />}
@@ -133,7 +133,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-gray-500 hover:text-emerald-500 text-sm transition-colors"
+                    className="text-gray-500 hover-accent text-sm transition-colors"
                   >
                     {link.label}
                   </Link>

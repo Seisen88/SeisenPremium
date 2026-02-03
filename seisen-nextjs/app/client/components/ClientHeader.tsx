@@ -35,7 +35,7 @@ export default function ClientHeader() {
                     : 'text-gray-400 hover:text-white hover:bg-[#141414]'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-500' : ''}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'accent-text' : ''}`} />
                 {item.label}
               </Link>
             );

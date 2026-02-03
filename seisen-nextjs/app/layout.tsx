@@ -1,12 +1,14 @@
 import type { Metadata } from 'next';
 import { Inter, Fira_Code } from 'next/font/google';
 import './globals.css';
-import Sidebar from '@/components/layout/Sidebar';
+import Dock from '@/components/layout/Dock';
 import Footer from '@/components/layout/Footer';
 import LoadingScreen from '@/components/layout/LoadingScreen';
 import VisitorTracker from '@/components/layout/VisitorTracker';
 import ParticleBackground from '@/components/layout/ParticleBackground';
 import CustomCursor from '@/components/ui/CustomCursor';
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import ThemeSelector from '@/components/ui/ThemeSelector';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -36,26 +38,31 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${firaCode.variable}`} suppressHydrationWarning>
       <body className="min-h-screen flex flex-col" suppressHydrationWarning>
-        <LoadingScreen />
-        <VisitorTracker />
-        <ParticleBackground />
-        <CustomCursor />
-        
-        {/* Background Text */}
-        <div className="page-bg-text">Seisen</div>
-        
-        {/* Sidebar */}
-        <Sidebar />
-        
-        {/* Main Content */}
-        <main className="flex-1 ml-0 md:ml-[60px] relative z-10">
-          {children}
-        </main>
-        
-        {/* Footer */}
-        <div className="ml-0 md:ml-[60px]">
-          <Footer />
-        </div>
+        <ThemeProvider>
+          <LoadingScreen />
+          <VisitorTracker />
+          <ParticleBackground />
+          <CustomCursor />
+          
+          {/* Background Text */}
+          <div className="page-bg-text">Seisen</div>
+          
+          {/* Dock */}
+          <Dock />
+          
+          {/* Theme Selector */}
+          <ThemeSelector />
+          
+          {/* Main Content */}
+          <main className="flex-1 pb-24 relative z-10">
+            {children}
+          </main>
+          
+          {/* Footer */}
+          <div className="pb-24">
+            <Footer />
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );

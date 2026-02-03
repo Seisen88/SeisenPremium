@@ -173,7 +173,7 @@ export default function OrdersPage() {
                                     <td className="px-6 py-4 font-mono text-white text-xs">{order.transaction_id}</td>
                                     <td className="px-6 py-4">{new Date(order.created_at).toLocaleDateString()}</td>
                                     <td className="px-6 py-4 text-white capitalize">{order.tier} Plan</td>
-                                    <td className="px-6 py-4 text-emerald-500 font-bold">${order.amount}</td>
+                                    <td className="px-6 py-4 accent-text font-bold">${order.amount}</td>
                                     <td className="px-6 py-4 uppercase text-xs font-bold tracking-wider">{order.payment_status}</td>
                                     <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
                                         <button 
@@ -185,7 +185,7 @@ export default function OrdersPage() {
                                         </button>
                                         <Link 
                                             href={`/client/orders/${order.transaction_id}`}
-                                            className="p-2 hover:bg-[#2a2a2a] rounded-lg text-emerald-500 hover:text-emerald-400 transition-colors flex items-center gap-1 font-medium"
+                                            className="p-2 hover:bg-[#2a2a2a] rounded-lg accent-text hover-accent transition-colors flex items-center gap-1 font-medium"
                                         >
                                             <Eye className="w-4 h-4" />
                                             View

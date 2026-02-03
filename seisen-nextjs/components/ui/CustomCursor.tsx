@@ -66,7 +66,8 @@ export default function CustomCursor() {
       {/* Main Cursor Dot */}
       <div 
         ref={cursorRef} 
-        className="fixed top-0 left-0 w-3 h-3 bg-emerald-500 rounded-full pointer-events-none z-[9999] mix-blend-difference -ml-1.5 -mt-1.5 will-change-transform"
+        className="fixed top-0 left-0 w-3 h-3 rounded-full pointer-events-none z-[9999] mix-blend-difference -ml-1.5 -mt-1.5 will-change-transform"
+        style={{ backgroundColor: 'var(--accent)' }}
       />
       
       {/* Position Wrapper for Follower */}
@@ -76,9 +77,13 @@ export default function CustomCursor() {
       >
           {/* Visual Follower Ring */}
           <div 
-            className={`w-8 h-8 rounded-full border border-emerald-500 transition-all duration-300 ease-out ${
-                isHovering ? 'scale-150 bg-emerald-500/10 border-emerald-400' : 'scale-100 opacity-50'
+            className={`w-8 h-8 rounded-full transition-all duration-300 ease-out ${
+                isHovering ? 'scale-150' : 'scale-100 opacity-50'
             }`}
+            style={{ 
+              border: '1px solid var(--accent)',
+              backgroundColor: isHovering ? 'var(--accent)/10' : 'transparent'
+            }}
           />
       </div>
     </>

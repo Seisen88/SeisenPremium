@@ -1,4 +1,4 @@
-import { HTMLAttributes, forwardRef } from 'react';
+import { HTMLAttributes, forwardRef, CSSProperties } from 'react';
 import { cn } from '@/lib/utils';
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
@@ -6,18 +6,32 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant = 'default', children, ...props }, ref) => {
+  ({ className, variant = 'default', children, style, ...props }, ref) => {
     const baseStyles = 'rounded-xl border transition-all duration-300';
 
-    const variants = {
-      default: 'bg-[#141414] border-[#1f1f1f]',
-      hover: 'bg-[#141414] border-[#1f1f1f] hover:bg-[#1a1a1a] hover:border-[#2a2a2a]',
-      featured:
-        'bg-[#141414] border-emerald-500/30 hover:border-emerald-500/50 shadow-lg shadow-emerald-500/5',
+    const variantStyles: Record<string, CSSProperties> = {
+      default: {
+        backgroundColor: 'var(--bg-secondary)',
+        border: '1px solid var(--border)',
+      },
+      hover: {
+        backgroundColor: 'var(--bg-secondary)',
+        border: '1px solid var(--border)',
+      },
+      featured: {
+        backgroundColor: 'var(--bg-secondary)',
+        border: '1px solid var(--accent)',
+        boxShadow: '0 10px 15px -3px rgba(16, 185, 129, 0.05)',
+      },
     };
 
     return (
-      <div ref={ref} className={cn(baseStyles, variants[variant], className)} {...props}>
+      <div 
+        ref={ref} 
+        className={cn(baseStyles, className)} 
+        style={{ ...variantStyles[variant], ...style }}
+        {...props}
+      >
         {children}
       </div>
     );
@@ -42,3 +56,4 @@ export function CardContent({ className, ...props }: HTMLAttributes<HTMLDivEleme
 export function CardFooter({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return <div className={cn('p-6 pt-4', className)} {...props} />;
 }
+

@@ -107,7 +107,7 @@ export default function ClientSupportContent() {
 
   const getStatusColor = (status: string) => {
       switch (status.toLowerCase()) {
-          case 'open': return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
+          case 'open': return 'accent-text accent-bg accent-border';
           case 'closed': return 'text-gray-500 bg-gray-500/10 border-gray-500/20';
           case 'replied': return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
           default: return 'text-gray-400 bg-gray-500/10';
@@ -123,7 +123,7 @@ export default function ClientSupportContent() {
             </div>
              <Button 
                 onClick={() => setShowCreateModal(true)}
-                className="bg-[#D980FA] hover:bg-[#C470E0] text-black font-semibold border-none rounded-lg px-6"
+                className="accent-bg accent-text font-semibold border-none rounded-lg px-6 hover:opacity-90 transition-opacity"
             >
                 <Plus className="w-4 h-4 mr-2" />
                 Create ticket
@@ -134,7 +134,7 @@ export default function ClientSupportContent() {
         <Card className="p-0 overflow-hidden flex flex-col bg-[#0f0f0f] border-[#1f1f1f]">
             {loading ? (
                  <div className="flex-1 flex flex-col items-center justify-center p-8">
-                     <Loader2 className="w-6 h-6 animate-spin text-emerald-500 mb-4" />
+                     <Loader2 className="w-6 h-6 animate-spin accent-text mb-4" />
                  </div>
             ) : tickets.length === 0 ? (
                  <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-gray-500">
@@ -145,7 +145,7 @@ export default function ClientSupportContent() {
                     <p className="mb-4 text-sm text-gray-600">You haven't created any support tickets yet.</p>
                     <Button 
                         onClick={() => setShowCreateModal(true)}
-                        className="bg-[#D980FA] hover:bg-[#C470E0] text-black font-semibold border-none rounded-lg px-4 py-2 text-sm"
+                        className="accent-bg accent-text font-semibold border-none rounded-lg px-4 py-2 text-sm hover:opacity-90 transition-opacity"
                     >
                          <Plus className="w-3 h-3 mr-2" />
                         Create ticket
@@ -212,7 +212,7 @@ export default function ClientSupportContent() {
                                 value={subject}
                                 onChange={(e) => setSubject(e.target.value)}
                                 placeholder="Brief summary of the issue..."
-                                className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                                className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[var(--accent)] transition-colors"
                             />
                         </div>
                         
@@ -221,7 +221,7 @@ export default function ClientSupportContent() {
                             <select 
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value)}
-                                className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                                className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[var(--accent)] transition-colors"
                             >
                                 <option value="general">General Inquiry</option>
                                 <option value="payment">Payment Issue</option>
@@ -238,7 +238,7 @@ export default function ClientSupportContent() {
                                 onChange={(e) => setMessage(e.target.value)}
                                 placeholder="Describe your issue in detail..."
                                 rows={5}
-                                className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                                className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[var(--accent)] transition-colors resize-none"
                             />
                         </div>
                         

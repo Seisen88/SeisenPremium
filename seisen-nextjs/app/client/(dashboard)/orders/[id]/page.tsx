@@ -55,7 +55,7 @@ export default function OrderDetailsPage() {
     if (authLoading || loading) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
-                <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+                <Loader2 className="w-8 h-8 animate-spin accent-text" />
             </div>
         );
     }
@@ -65,7 +65,7 @@ export default function OrderDetailsPage() {
             <div className="p-8 max-w-7xl mx-auto text-center">
                 <h1 className="text-2xl font-bold text-white mb-4">Error</h1>
                 <p className="text-red-500 mb-6">{error || 'Order not found'}</p>
-                <Link href="/client/orders" className="text-emerald-500 hover:underline">
+                <Link href="/client/orders" className="accent-text hover:underline">
                     &larr; Back to Orders
                 </Link>
             </div>
@@ -77,7 +77,7 @@ export default function OrderDetailsPage() {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                     <Link href="/client/orders" className="text-sm text-gray-400 hover:text-emerald-500 mb-2 inline-block">
+                     <Link href="/client/orders" className="text-sm text-gray-400 hover-accent mb-2 inline-block">
                         &larr; Back to Orders
                     </Link>
                     <h1 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -85,27 +85,27 @@ export default function OrderDetailsPage() {
                     </h1>
                     <p className="text-gray-500 text-sm">Placed on {new Date(order.created_at).toLocaleString()}</p>
                 </div>
-                <div className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-4 py-2 rounded-lg flex items-center gap-2 font-medium">
+                <div className="accent-bg accent-text accent-border border px-4 py-2 rounded-lg flex items-center gap-2 font-medium">
                     <Check className="w-4 h-4" />
                     Status: {order.payment_status}
                 </div>
             </div>
 
             {/* Delivered Items (Key) - Prominent at Top */}
-            <Card className="p-6 border-l-4 border-l-emerald-500">
+            <Card className="p-6 border-l-4" style={{ borderLeftColor: 'var(--accent)' }}>
                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                    <Key className="w-5 h-5 text-emerald-500" />
+                    <Key className="w-5 h-5 accent-text" />
                     Delivered Items
                 </h3>
                 
                 {order.generated_keys && order.generated_keys.length > 0 ? (
                     <div className="space-y-3">
                          {order.generated_keys.map((key: string, i: number) => (
-                            <div key={i} className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg p-4 flex items-center justify-between gap-4 group hover:border-emerald-500/30 transition-colors">
-                                <code className="text-emerald-500 font-mono text-lg truncate">{key}</code>
+                            <div key={i} className="bg-[#0a0a0a] border border-[#2a2a2a] rounded-lg p-4 flex items-center justify-between gap-4 group hover-accent-border transition-colors">
+                                <code className="accent-text font-mono text-lg truncate">{key}</code>
                                 <button 
                                     onClick={() => copyToClipboard(key)}
-                                    className={`p-2 rounded text-sm font-medium transition-colors flex items-center gap-2 ${copiedKey === key ? "bg-emerald-500/20 text-emerald-500" : "bg-[#1f1f1f] text-gray-400 hover:text-white"}`}
+                                    className={`p-2 rounded text-sm font-medium transition-colors flex items-center gap-2 ${copiedKey === key ? "accent-bg accent-text" : "bg-[#1f1f1f] text-gray-400 hover:text-white"}`}
                                 >
                                     {copiedKey === key ? <Check className="w-4 h-4"/> : <Copy className="w-4 h-4"/>}
                                     {copiedKey === key ? "Copied" : "Copy"}
@@ -126,7 +126,7 @@ export default function OrderDetailsPage() {
                 {/* Order Items */}
                 <Card className="p-6 h-full flex flex-col">
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                        <ShoppingBag className="w-5 h-5 text-emerald-500" />
+                        <ShoppingBag className="w-5 h-5 accent-text" />
                         Order Items
                     </h3>
                     
@@ -153,7 +153,7 @@ export default function OrderDetailsPage() {
                 {/* Payment Information */}
                 <Card className="p-6">
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                        <CreditCard className="w-5 h-5 text-emerald-500" />
+                        <CreditCard className="w-5 h-5 accent-text" />
                         Payment Information
                     </h3>
                     
@@ -183,14 +183,14 @@ export default function OrderDetailsPage() {
             {/* Order Timeline */}
             <Card className="p-6">
                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-emerald-500" />
+                    <Calendar className="w-5 h-5 accent-text" />
                     Order Timeline
                 </h3>
                 
                 <div className="space-y-6 ml-2 border-l-2 border-[#2a2a2a] pl-6 relative">
                      <div className="relative">
-                        <div className="absolute -left-[31px] w-6 h-6 rounded-full bg-[#1a1a1a] border-2 border-emerald-500 flex items-center justify-center">
-                            <CreditCard className="w-3 h-3 text-emerald-500" />
+                        <div className="absolute -left-[31px] w-6 h-6 rounded-full bg-[#1a1a1a] border-2 border-[var(--accent)] flex items-center justify-center">
+                            <CreditCard className="w-3 h-3 accent-text" />
                         </div>
                         <div>
                             <h4 className="text-white font-medium">Order Placed</h4>
@@ -199,7 +199,7 @@ export default function OrderDetailsPage() {
                     </div>
                     
                     <div className="relative">
-                        <div className="absolute -left-[31px] w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                        <div className="absolute -left-[31px] w-6 h-6 rounded-full accent-bg flex items-center justify-center shadow-lg" style={{ boxShadow: '0 10px 15px -3px rgba(var(--accent-rgb), 0.2)' }}>
                             <Check className="w-3 h-3 text-white" />
                         </div>
                         <div>

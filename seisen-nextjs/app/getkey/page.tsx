@@ -39,13 +39,13 @@ export default function GetKeyPage() {
           
           {/* Free Access Card */}
           <div className="relative group">
-            <div className="absolute inset-0 bg-emerald-500/10 blur-3xl opacity-20 group-hover:opacity-40 transition-opacity rounded-3xl" />
+            <div className="absolute inset-0 accent-bg blur-3xl opacity-20 group-hover:opacity-40 transition-opacity rounded-3xl" />
             <Card className="h-full border-[#2a2a2a] bg-[#0a0a0a]/80 backdrop-blur-sm p-8 flex flex-col relative overflow-hidden">
                {/* Shine effect */}
-               <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -mr-32 -mt-32" />
+               <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent)]/5 rounded-full blur-3xl -mr-32 -mt-32" />
                
                <div className="flex items-center gap-3 mb-6 relative z-10">
-                 <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
+                 <div className="p-3 rounded-xl accent-bg border accent-border accent-text">
                    <Key className="w-6 h-6" />
                  </div>
                  <h2 className="text-2xl font-bold text-white">Free Access Key</h2>
@@ -58,20 +58,20 @@ export default function GetKeyPage() {
                    
                    <ul className="space-y-4">
                      <li className="flex items-center gap-3 text-sm text-gray-300">
-                         <div className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                            <CheckCircle className="w-3 h-3 text-emerald-500" />
+                         <div className="w-5 h-5 rounded-full accent-bg flex items-center justify-center">
+                            <CheckCircle className="w-3 h-3 accent-text" />
                          </div>
                          Key valid for: <span className="font-bold text-white ml-1">1h, 10h, 24h, or 48h</span>
                      </li>
                      <li className="flex items-center gap-3 text-sm text-gray-300">
-                         <div className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                            <AlertCircle className="w-3 h-3 text-emerald-500" />
+                         <div className="w-5 h-5 rounded-full accent-bg flex items-center justify-center">
+                            <AlertCircle className="w-3 h-3 accent-text" />
                          </div>
                          Page opens in new tab for verification
                      </li>
                      <li className="flex items-center gap-3 text-sm text-gray-300">
-                         <div className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                            <Zap className="w-3 h-3 text-emerald-500" />
+                         <div className="w-5 h-5 rounded-full accent-bg flex items-center justify-center">
+                            <Zap className="w-3 h-3 accent-text" />
                          </div>
                          Tip: Use different browser or disable ad-blockers if issues occur
                      </li>
@@ -80,7 +80,7 @@ export default function GetKeyPage() {
                    <div className="pt-4 mt-auto">
                      <a href="https://jnkie.com/get-key/seisenhub" target="_blank" rel="noopener noreferrer">
                         <Button 
-                          className="w-full h-12 text-lg bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-900/20"
+                          className="w-full h-12 text-lg bg-[var(--accent)] hover:opacity-90 shadow-lg shadow-[var(--accent)]/20"
                         >
                           <ExternalLink className="w-5 h-5 mr-2" />
                           Get Free Key
@@ -170,7 +170,7 @@ export default function GetKeyPage() {
         {/* Script Loader Section */}
         <section className="animate-fade-in animation-delay-200">
             <div className="flex items-center justify-center gap-2 mb-4">
-                <Terminal className="w-5 h-5 text-emerald-500" />
+                <Terminal className="w-5 h-5 accent-text" />
                 <h2 className="text-xl font-bold text-white">Script Loader</h2>
             </div>
             <p className="text-center text-gray-500 text-sm mb-6 max-w-lg mx-auto">
@@ -182,17 +182,17 @@ export default function GetKeyPage() {
                     <div className="flex gap-1.5">
                         <div className="w-3 h-3 rounded-full bg-red-500/20" />
                         <div className="w-3 h-3 rounded-full bg-yellow-500/20" />
-                        <div className="w-3 h-3 rounded-full bg-green-500/20" />
+                        <div className="w-3 h-3 rounded-full accent-bg" />
                     </div>
                     <span className="text-xs text-gray-600 font-mono">loader.lua</span>
                 </div>
                 <div className="p-6 relative group">
-                    <pre className="text-emerald-400 font-mono text-sm break-all whitespace-pre-wrap">
+                    <pre className="accent-text font-mono text-sm break-all whitespace-pre-wrap">
                         {scriptLoader}
                     </pre>
                     <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button size="sm" variant="secondary" onClick={handleCopyLoader}>
-                            {copiedLoader ? <CheckCircle className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                            {copiedLoader ? <CheckCircle className="w-4 h-4 accent-text" /> : <Copy className="w-4 h-4" />}
                             {copiedLoader ? 'Copied' : 'Copy'}
                         </Button>
                     </div>

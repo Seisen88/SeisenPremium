@@ -1,4 +1,6 @@
 
+import { SCRIPT_METADATA } from './script-metadata';
+
 interface Script {
   id: string;
   name: string;
@@ -8,6 +10,8 @@ interface Script {
   universeId?: string;
   displayType?: string;
   additionalUrls?: { url: string; type: string }[];
+  description?: string;
+  features?: string[];
 }
 
 export async function fetchScripts(): Promise<Script[]> {
@@ -52,8 +56,35 @@ export async function fetchScripts(): Promise<Script[]> {
       gamesByUrl.set(game.scriptUrl, game);
     });
 
-    // Combine by Name
+    // Fetch metadata from database
+    let metadataMap: Record<string, { description: string; features: string[] }> = {};
+    try {
+      const { supabase } = await import('./server/db');
+      const { data: metadataData } = await supabase
+        .from('script_metadata')
+        .select('*');
+      
+      if (metadataData) {
+        metadataData.forEach((item: any) => {
+          metadataMap[item.script_name] = {
+            description: item.description,
+            features: item.features || []
+          };
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching metadata from database:', error);
+    }
+
+    // Combine by Name and Merge Metadata
     Array.from(gamesByUrl.values()).forEach(game => {
+      // Lookup Metadata from database
+      const metadata = metadataMap[game.name];
+      if (metadata) {
+        game.description = metadata.description;
+        game.features = metadata.features;
+      }
+
       if (gamesByName.has(game.name)) {
         const existing = gamesByName.get(game.name)!;
         if (!existing.additionalUrls) existing.additionalUrls = [];
@@ -62,6 +93,12 @@ export async function fetchScripts(): Promise<Script[]> {
         if (game.type === 'Premium' && existing.type === 'Free') {
           existing.displayType = 'Free & Premium';
         }
+        // Merge metadata into existing if it was missing (e.g., from the second variant)
+        if (!existing.description && game.description) {
+           existing.description = game.description;
+           existing.features = game.features;
+        }
+
       } else {
         const gameCopy = { ...game, displayType: game.type };
         gamesByName.set(game.name, gameCopy);

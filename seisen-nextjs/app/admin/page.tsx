@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Shield, CreditCard, Settings, LogOut, Search, Copy, Check, Lock, Loader2, AlertCircle, MessageSquare, Eye } from 'lucide-react';
+import { Shield, CreditCard, Settings, LogOut, Search, Copy, Check, Lock, Loader2, AlertCircle, MessageSquare, Eye, FileCode, Plus, Save, Trash2, X } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { getApiUrl, copyToClipboard } from '@/lib/utils';
 import Link from 'next/link';
 import Image from 'next/image';
+import { fetchScripts } from '@/lib/scripts';
 
 interface Payment {
   transaction_id: string;
@@ -43,12 +44,22 @@ export default function AdminPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const [activeTab, setActiveTab] = useState<'payments' | 'tickets' | 'settings'>('payments');
+  const [activeTab, setActiveTab] = useState<'payments' | 'tickets' | 'scripts' | 'settings'>('payments');
   const [payments, setPayments] = useState<Payment[]>([]);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [stats, setStats] = useState<Stats>({ totalPurchases: 0, paypalPurchases: 0, robloxPurchases: 0, totalRevenue: 0 });
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  
+  // Script metadata state
+  const [scripts, setScripts] = useState<any[]>([]);
+  const [metadata, setMetadata] = useState<Record<string, any>>({});
+  const [saving, setSaving] = useState<string | null>(null);
+  const [scriptSearch, setScriptSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedScript, setSelectedScript] = useState<any | null>(null);
+  const [bulkFeatures, setBulkFeatures] = useState('');
+  const ITEMS_PER_PAGE = 5;
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -95,6 +106,34 @@ export default function AdminPage() {
       setIsLoading(false);
     }
   };
+
+  const loadScriptData = async () => {
+    try {
+      // Fetch scripts from GitHub
+      const scriptsData = await fetchScripts();
+      setScripts(scriptsData);
+
+      // Fetch existing metadata from database
+      const response = await fetch('/api/admin/script-metadata');
+      const metadataData = await response.json();
+      
+      // Convert to map for easy lookup
+      const metadataMap: Record<string, any> = {};
+      metadataData.forEach((item: any) => {
+        metadataMap[item.script_name] = item;
+      });
+      
+      setMetadata(metadataMap);
+    } catch (error) {
+      console.error('Error loading script data:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'scripts' && scripts.length === 0) {
+      loadScriptData();
+    }
+  }, [activeTab]);
 
   const login = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -146,6 +185,109 @@ export default function AdminPage() {
       setCopiedKey(text);
       setTimeout(() => setCopiedKey(null), 2000);
     }
+  };
+
+  // Script metadata functions
+  const saveMetadata = async (scriptName: string) => {
+    try {
+      setSaving(scriptName);
+      const data = metadata[scriptName];
+      if (!data) return;
+
+      const method = data.id ? 'PUT' : 'POST';
+      const response = await fetch('/api/admin/script-metadata', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) throw new Error('Failed to save');
+
+      const savedData = await response.json();
+      setMetadata(prev => ({ ...prev, [scriptName]: savedData }));
+      alert('Saved successfully!');
+    } catch (error) {
+      console.error('Error saving metadata:', error);
+      alert('Failed to save metadata');
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const deleteMetadata = async (scriptName: string) => {
+    if (!confirm(`Delete metadata for ${scriptName}?`)) return;
+
+    try {
+      const data = metadata[scriptName];
+      if (!data?.id) return;
+
+      const response = await fetch(`/api/admin/script-metadata?id=${data.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to delete');
+
+      setMetadata(prev => {
+        const newMetadata = { ...prev };
+        delete newMetadata[scriptName];
+        return newMetadata;
+      });
+      alert('Deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting metadata:', error);
+      alert('Failed to delete metadata');
+    }
+  };
+
+  const updateMetadata = (scriptName: string, field: string, value: any) => {
+    setMetadata(prev => ({
+      ...prev,
+      [scriptName]: {
+        ...prev[scriptName],
+        script_name: scriptName,
+        [field]: value,
+      }
+    }));
+  };
+
+  const addFeature = (scriptName: string) => {
+    const current = metadata[scriptName]?.features || [];
+    updateMetadata(scriptName, 'features', [...current, '']);
+  };
+
+  const updateFeature = (scriptName: string, index: number, value: string) => {
+    const current = metadata[scriptName]?.features || [];
+    const updated = [...current];
+    updated[index] = value;
+    updateMetadata(scriptName, 'features', updated);
+  };
+
+  const removeFeature = (scriptName: string, index: number) => {
+    const current = metadata[scriptName]?.features || [];
+    const updated = current.filter((_: string, i: number) => i !== index);
+    updateMetadata(scriptName, 'features', updated);
+  };
+
+  const importBulkFeatures = (scriptName: string) => {
+    if (!bulkFeatures.trim()) return;
+    
+    // Parse features from text - split by newlines and filter lines starting with * or -
+    const features = bulkFeatures
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.startsWith('*') || line.startsWith('-'))
+      .map(line => line.replace(/^[\*\-]\s*/, '').trim())
+      .filter(line => line.length > 0);
+    
+    if (features.length === 0) {
+      alert('No features found. Make sure each feature starts with * or -');
+      return;
+    }
+
+    const current = metadata[scriptName]?.features || [];
+    updateMetadata(scriptName, 'features', [...current, ...features]);
+    setBulkFeatures('');
+    alert(`Imported ${features.length} features!`);
   };
 
   const filteredPayments = payments.filter(p => {
@@ -243,6 +385,7 @@ export default function AdminPage() {
           {[
             { id: 'payments', label: 'Recent Payments', icon: CreditCard },
             { id: 'tickets', label: 'Support Tickets', icon: MessageSquare },
+            { id: 'scripts', label: 'Script Metadata', icon: FileCode },
             { id: 'settings', label: 'Settings', icon: Settings },
           ].map((tab) => (
             <button
@@ -433,6 +576,306 @@ export default function AdminPage() {
             </Card>
           </div>
         )}
+
+        {activeTab === 'scripts' && (
+
+  <div className="space-y-4">
+    {/* Search */}
+    <div className="relative">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+      <input
+        type="text"
+        placeholder="Search scripts..."
+        value={scriptSearch}
+        onChange={(e) => {
+          setScriptSearch(e.target.value);
+          setCurrentPage(1);
+        }}
+        className="w-full pl-10 pr-4 py-3 bg-[#141414] border border-[#2a2a2a] rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500/50"
+      />
+    </div>
+
+    {/* Scripts Table */}
+    <Card className="overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-[#0a0a0a]">
+            <tr>
+              <th className="text-left p-4 text-gray-400 font-medium">Title</th>
+              <th className="text-left p-4 text-gray-400 font-medium">Status</th>
+              <th className="text-left p-4 text-gray-400 font-medium">Type</th>
+              <th className="text-left p-4 text-gray-400 font-medium">Last Updated</th>
+              <th className="text-right p-4 text-gray-400 font-medium">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#1f1f1f]">
+            {(() => {
+              const filteredScripts = scripts.filter(s => 
+                s.name.toLowerCase().includes(scriptSearch.toLowerCase())
+              );
+              const totalPages = Math.ceil(filteredScripts.length / ITEMS_PER_PAGE);
+              const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+              const paginatedScripts = filteredScripts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+              if (paginatedScripts.length === 0) {
+                return (
+                  <tr>
+                    <td colSpan={5} className="p-8 text-center text-gray-500">
+                      {scriptSearch ? `No scripts found matching "${scriptSearch}"` : 'No scripts available'}
+                    </td>
+                  </tr>
+                );
+              }
+
+              return paginatedScripts.map((script) => {
+                const hasMeta = !!metadata[script.name]?.id;
+                const lastUpdated = metadata[script.name]?.updated_at || metadata[script.name]?.created_at;
+                
+                return (
+                  <tr key={script.id} className="hover:bg-[#1a1a1a] transition-colors">
+                    <td className="p-4 text-white font-medium">{script.name}</td>
+                    <td className="p-4">
+                      <span className={`text-xs px-2 py-1 rounded border ${
+                        script.status === 'Working' 
+                          ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' 
+                          : 'bg-red-500/10 text-red-500 border-red-500/20'
+                      }`}>
+                        {script.status}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <span className={`text-xs px-2 py-1 rounded border ${
+                        script.type === 'Premium'
+                          ? 'bg-purple-500/10 text-purple-500 border-purple-500/20'
+                          : 'bg-blue-500/10 text-blue-500 border-blue-500/20'
+                      }`}>
+                        {script.type}
+                      </span>
+                    </td>
+                    <td className="p-4 text-gray-500 text-xs">
+                      {lastUpdated ? new Date(lastUpdated).toLocaleDateString() : 'Never'}
+                    </td>
+                    <td className="p-4 text-right">
+                      <Button
+                        onClick={() => setSelectedScript(script)}
+                        size="sm"
+                        variant="secondary"
+                        className="h-8 px-3 flex items-center justify-center gap-1 ml-auto"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        View
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              });
+            })()}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      {(() => {
+        const filteredScripts = scripts.filter(s => 
+          s.name.toLowerCase().includes(scriptSearch.toLowerCase())
+        );
+        const totalPages = Math.ceil(filteredScripts.length / ITEMS_PER_PAGE);
+
+        if (totalPages > 1) {
+          return (
+            <div className="flex items-center justify-between p-4 border-t border-[#1f1f1f]">
+              <div className="text-sm text-gray-500">
+                Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredScripts.length)} of {filteredScripts.length} scripts
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  size="sm"
+                  variant="secondary"
+                >
+                  Previous
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-3 py-1 rounded text-sm ${
+                        currentPage === page
+                          ? 'bg-emerald-500 text-white'
+                          : 'bg-[#1a1a1a] text-gray-400 hover:bg-[#252525]'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+                <Button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  size="sm"
+                  variant="secondary"
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          );
+        }
+        return null;
+      })()}
+    </Card>
+
+    {/* Edit Modal */}
+    {selectedScript && (
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="p-6">
+            {/* Header */}
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h3 className="text-2xl font-bold text-white">{selectedScript.name}</h3>
+                <div className="flex gap-2 mt-2">
+                  <span className="text-xs px-2 py-1 rounded bg-[#333] text-gray-300">
+                    {selectedScript.type}
+                  </span>
+                  <span className={`text-xs px-2 py-1 rounded ${
+                    selectedScript.status === 'Working' 
+                      ? 'bg-emerald-500/20 text-emerald-400' 
+                      : 'bg-red-500/20 text-red-400'
+                  }`}>
+                    {selectedScript.status}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedScript(null)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Description */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                Description
+              </label>
+              <textarea
+                value={metadata[selectedScript.name]?.description || ''}
+                onChange={(e) => updateMetadata(selectedScript.name, 'description', e.target.value)}
+                placeholder="Enter script description..."
+                rows={4}
+                className="w-full px-4 py-3 bg-black border border-[#333] rounded-lg text-white focus:outline-none focus:border-emerald-500/50 resize-none"
+              />
+            </div>
+
+            {/* Features */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-sm font-semibold text-gray-300">
+                  Features
+                </label>
+                <Button
+                  onClick={() => addFeature(selectedScript.name)}
+                  variant="secondary"
+                  size="sm"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add Feature
+                </Button>
+              </div>
+              
+              {/* Bulk Import */}
+              <div className="mb-4 p-4 bg-[#0a0a0a] rounded-lg border border-[#2a2a2a]">
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  Bulk Import Features
+                </label>
+                <p className="text-xs text-gray-500 mb-2">
+                  Paste a list of features (one per line, starting with * or -). Example:
+                </p>
+                <textarea
+                  value={bulkFeatures}
+                  onChange={(e) => setBulkFeatures(e.target.value)}
+                  placeholder="* Auto Farm&#10;- Kill Aura&#10;* Auto Quest&#10;- Auto Collect"
+                  rows={4}
+                  className="w-full px-3 py-2 bg-black border border-[#333] rounded text-white text-sm focus:outline-none focus:border-emerald-500/50 resize-none mb-2"
+                />
+                <Button
+                  onClick={() => importBulkFeatures(selectedScript.name)}
+                  variant="secondary"
+                  size="sm"
+                  disabled={!bulkFeatures.trim()}
+                >
+                  Import Features
+                </Button>
+              </div>
+
+              <div className="space-y-2">
+                {(metadata[selectedScript.name]?.features || []).map((feature: string, index: number) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={feature}
+                      onChange={(e) => updateFeature(selectedScript.name, index, e.target.value)}
+                      placeholder={`Feature ${index + 1}`}
+                      className="flex-1 px-4 py-2 bg-black border border-[#333] rounded-lg text-white focus:outline-none focus:border-emerald-500/50"
+                    />
+                    <Button
+                      onClick={() => removeFeature(selectedScript.name, index)}
+                      variant="secondary"
+                      size="sm"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+                {(!metadata[selectedScript.name]?.features || metadata[selectedScript.name].features.length === 0) && (
+                  <p className="text-sm text-gray-500 italic">No features added yet</p>
+                )}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <Button
+                onClick={() => {
+                  saveMetadata(selectedScript.name);
+                  setSelectedScript(null);
+                }}
+                disabled={saving === selectedScript.name}
+                className="flex-1"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {saving === selectedScript.name ? 'Saving...' : 'Save Changes'}
+              </Button>
+              {metadata[selectedScript.name]?.id && (
+                <Button
+                  onClick={() => {
+                    deleteMetadata(selectedScript.name);
+                    setSelectedScript(null);
+                  }}
+                  variant="secondary"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
+                </Button>
+              )}
+              <Button
+                onClick={() => setSelectedScript(null)}
+                variant="secondary"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    )}
+  </div>
+)}
+
 
         {activeTab === 'settings' && (
           <Card className="p-6 text-center">

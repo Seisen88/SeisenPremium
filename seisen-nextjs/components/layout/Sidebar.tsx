@@ -17,6 +17,7 @@ import {
   Menu,
   X,
 } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
@@ -71,7 +72,7 @@ export default function Sidebar() {
             className="accent-text hover:scale-110 transition-transform mb-auto"
             onClick={() => setIsOpen(false)}
           >
-            <Zap className="w-6 h-6" />
+            <Logo className="w-8 h-8" />
           </Link>
 
           {/* Navigation Links */}

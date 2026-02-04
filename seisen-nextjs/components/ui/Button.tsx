@@ -9,13 +9,13 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', children, style, ...props }, ref) => {
     const baseStyles =
-      'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+      'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 hover:scale-[1.02] active:scale-[0.98]';
 
     const variantStyles: Record<string, CSSProperties> = {
       primary: {
         background: 'linear-gradient(to right, var(--accent), var(--accent-hover))',
         color: 'var(--text-primary)',
-        boxShadow: '0 10px 15px -3px rgba(16, 185, 129, 0.2)',
+        boxShadow: '0 10px 15px -3px rgba(var(--accent-rgb), 0.2)',
       },
       secondary: {
         backgroundColor: 'var(--bg-tertiary)',
@@ -55,4 +55,3 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button';
 
 export default Button;
-

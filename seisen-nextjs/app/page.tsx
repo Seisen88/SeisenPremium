@@ -11,6 +11,7 @@ import {
   ArrowRight,
   Key,
 } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 import Button from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { fetchScripts } from '@/lib/scripts';
@@ -32,8 +33,8 @@ export default async function HomePage() {
         {/* Hero Section */}
         <section className="text-center py-12 animate-fade-in">
           {/* Logo */}
-          <div className="w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-            <Zap className="w-16 h-16" style={{ color: 'var(--accent)' }} />
+          <div className="w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+            <Logo className="w-20 h-20" style={{ color: 'var(--accent)' }} />
           </div>
 
           {/* Title */}

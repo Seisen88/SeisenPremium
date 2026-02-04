@@ -14,6 +14,7 @@ import {
   Youtube,
   Zap,
 } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
@@ -109,24 +110,24 @@ export default function Dock() {
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[2000] pointer-events-none">
       <div
         ref={dockRef}
-        className="flex items-end gap-2 px-3 py-2.5 backdrop-blur-xl rounded-3xl shadow-2xl pointer-events-auto"
+        className="flex items-end gap-2 px-3 py-2.5 backdrop-blur-xl rounded-3xl pointer-events-auto"
         style={{
-          backgroundColor: 'var(--bg-primary)/80',
-          border: '1px solid var(--border)',
-          boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05)',
+          backgroundColor: '#0a0a0aa1', // Higher opacity (90%) but keeping it dark
+          border: '1px solid rgba(255, 255, 255, 0.12)', // Slightly brighter border
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 0, 0, 0.5)', // Stronger shadow for depth
         }}
       >
         {/* Logo */}
         <Link href="/">
           <div className="relative flex flex-col items-center transition-transform duration-200 hover:scale-110">
             <div className="flex items-center justify-center w-10 h-10" style={{ color: 'var(--accent)' }}>
-              <Zap className="w-6 h-6" />
+              <Logo className="w-6 h-6" />
             </div>
           </div>
         </Link>
 
         {/* Divider */}
-        <div className="w-px h-8 mx-0.5" style={{ backgroundColor: 'var(--border-hover)' }} />
+        <div className="w-px h-10 mx-2" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
 
         {/* Nav Items */}
         {navItems.map((item, index) => (
@@ -134,7 +135,7 @@ export default function Dock() {
         ))}
 
         {/* Divider */}
-        <div className="w-px h-8 mx-0.5" style={{ backgroundColor: 'var(--border-hover)' }} />
+        <div className="w-px h-10 mx-2" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
 
         {/* Client Area */}
         <Link href="/client/dashboard">

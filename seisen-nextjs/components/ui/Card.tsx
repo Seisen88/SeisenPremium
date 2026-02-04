@@ -16,12 +16,13 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
       },
       hover: {
         backgroundColor: 'var(--bg-secondary)',
-        border: '1px solid var(--border)',
+        border: '1px solid var(--accent)',
+        boxShadow: '0 0 20px rgba(var(--accent-rgb), 0.1)',
       },
       featured: {
         backgroundColor: 'var(--bg-secondary)',
         border: '1px solid var(--accent)',
-        boxShadow: '0 10px 15px -3px rgba(16, 185, 129, 0.05)',
+        boxShadow: '0 10px 15px -3px rgba(var(--accent-rgb), 0.05)',
       },
     };
 
@@ -56,4 +57,3 @@ export function CardContent({ className, ...props }: HTMLAttributes<HTMLDivEleme
 export function CardFooter({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return <div className={cn('p-6 pt-4', className)} {...props} />;
 }
-

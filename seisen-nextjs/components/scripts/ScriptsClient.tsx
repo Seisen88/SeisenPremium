@@ -125,7 +125,7 @@ export default function ScriptsClient({ initialScripts }: ScriptsClientProps) {
               placeholder="Search scripts..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-[#141414] border border-[#2a2a2a] rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500/50 transition-colors"
+              className="w-full pl-10 pr-4 py-2.5 bg-[#141414] border border-[#2a2a2a] rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:border-[rgba(var(--accent-rgb),0.5)] transition-colors"
             />
           </div>
 
@@ -134,9 +134,14 @@ export default function ScriptsClient({ initialScripts }: ScriptsClientProps) {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
+                style={filter === f ? {
+                  backgroundColor: 'rgba(var(--accent-rgb), 0.1)',
+                  borderColor: 'rgba(var(--accent-rgb), 0.5)',
+                  color: 'var(--accent)'
+                } : undefined}
                 className={`px-4 py-2.5 rounded-lg border transition-all capitalize ${
                   filter === f
-                    ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-500'
+                    ? ''
                     : 'bg-[#1a1a1a] border-[#2a2a2a] text-gray-400 hover:border-[#3a3a3a]'
                 }`}
               >

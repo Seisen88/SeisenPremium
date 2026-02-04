@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Zap, ExternalLink } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 import { useEffect, useState } from 'react';
 
 const productLinks = [
@@ -70,7 +71,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <Zap className="w-5 h-5 text-emerald-500" />
+              <Logo className="w-6 h-6" style={{ color: 'var(--accent)' }} />
               <span className="font-semibold text-lg">Seisen</span>
             </div>
             <p

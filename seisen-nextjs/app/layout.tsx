@@ -37,30 +37,32 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${firaCode.variable}`} suppressHydrationWarning>
-      <body className="min-h-screen flex flex-col" suppressHydrationWarning>
+      <body className="min-h-screen" suppressHydrationWarning>
         <ThemeProvider>
-          <LoadingScreen />
-          <VisitorTracker />
-          <ParticleBackground />
-          <CustomCursor />
-          
-          {/* Background Text */}
-          <div className="page-bg-text">Seisen</div>
-          
-          {/* Dock */}
-          <Dock />
-          
-          {/* Theme Selector */}
-          <ThemeSelector />
-          
-          {/* Main Content */}
-          <main className="flex-1 pb-24 relative z-10">
-            {children}
-          </main>
-          
-          {/* Footer */}
-          <div className="pb-24">
-            <Footer />
+          <div className="min-h-screen flex flex-col">
+            <LoadingScreen />
+            <VisitorTracker />
+            <ParticleBackground />
+            <CustomCursor />
+            
+            {/* Background Text */}
+            <div className="page-bg-text">Seisen</div>
+            
+            {/* Dock */}
+            <Dock />
+            
+            {/* Theme Selector */}
+            <ThemeSelector />
+            
+            {/* Main Content */}
+            <main className="flex-1 pb-28 relative z-10">
+              {children}
+            </main>
+            
+            {/* Footer */}
+            <footer className="mt-auto">
+              <Footer />
+            </footer>
           </div>
         </ThemeProvider>
       </body>

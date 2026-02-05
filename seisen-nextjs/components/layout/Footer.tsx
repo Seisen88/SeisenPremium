@@ -65,14 +65,14 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="bg-[#0d0d0d] border-t border-[#1f1f1f] mt-auto">
-      <div className="max-w-6xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+    <footer className="bg-[#0d0d0d] border-t border-[#1f1f1f]">
+      <div className="max-w-6xl mx-auto px-6 py-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <Logo className="w-6 h-6" style={{ color: 'var(--accent)' }} />
-              <span className="font-semibold text-lg">Seisen</span>
+            <div className="flex items-center gap-2 mb-2">
+              <Logo className="w-5 h-5" style={{ color: 'var(--accent)' }} />
+              <span className="font-semibold text-base">Seisen</span>
             </div>
             <p
               className={`text-gray-500 text-sm transition-opacity duration-300 ${
@@ -85,7 +85,7 @@ export default function Footer() {
 
           {/* Products */}
           <div>
-            <h4 className="font-medium text-sm uppercase tracking-wider text-gray-400 mb-4">
+            <h4 className="font-medium text-xs uppercase tracking-wider text-gray-400 mb-2">
               Products
             </h4>
             <ul className="space-y-2">
@@ -104,7 +104,7 @@ export default function Footer() {
 
           {/* Community */}
           <div>
-            <h4 className="font-medium text-sm uppercase tracking-wider text-gray-400 mb-4">
+            <h4 className="font-medium text-xs uppercase tracking-wider text-gray-400 mb-2">
               Community
             </h4>
             <ul className="space-y-2">
@@ -126,7 +126,7 @@ export default function Footer() {
 
           {/* Legal */}
           <div>
-            <h4 className="font-medium text-sm uppercase tracking-wider text-gray-400 mb-4">
+            <h4 className="font-medium text-xs uppercase tracking-wider text-gray-400 mb-2">
               Legal
             </h4>
             <ul className="space-y-2">
@@ -145,7 +145,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-6 border-t border-[#1f1f1f] flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
+        <div className="mt-4 pt-3 border-t border-[#1f1f1f] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
           <p>© 2026 Seisen. All rights reserved.</p>
           <p className="flex items-center gap-1">
             <span>👁</span>

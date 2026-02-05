@@ -234,7 +234,9 @@ export default function ScriptsClient({ initialScripts }: ScriptsClientProps) {
                         background: `linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%)`,
                         borderColor: 'var(--accent)',
                         borderWidth: '2px',
-                        borderStyle: 'solid'
+                        borderStyle: 'solid',
+                        maxHeight: '750px',
+                        height: '750px'
                       }}
                     >
                       {/* Decorative gradient overlay with accent color */}
@@ -245,7 +247,7 @@ export default function ScriptsClient({ initialScripts }: ScriptsClientProps) {
                         }}
                       ></div>
                       
-                      <div className="relative p-8">
+                      <div className="relative p-8 h-full overflow-y-auto custom-scrollbar">
                         {/* Close Button */}
                         <button
                           onClick={() => setSelectedScript(null)}

@@ -1,14 +1,11 @@
 'use client';
 
-import { X, Copy, Check, Lock, Crown, Code, Shield } from 'lucide-react';
+import { X, Copy, Check, Crown, Code } from 'lucide-react';
 import { useState } from 'react';
 import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import { copyToClipboard } from '@/lib/utils';
-import { Dialog } from '@headlessui/react'; // Assuming headlessui is installed, or we build a custom one.
-// Actually, let's build a custom one to avoid dep issues if not installed, or match existing style.
-// Checking existing modal usage... looks like we don't have a standard modal yet or used Overlay.
-// I will build a custom accessible modal using fixed overlay.
+
 
 interface Script {
   id: string;

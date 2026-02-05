@@ -153,27 +153,36 @@ export default function ScriptsClient({ initialScripts }: ScriptsClientProps) {
           </div>
         </section>
 
-        {/* Scripts Grid with Inline Details */}
+        {/* Scripts Masonry Grid (Pinterest-style) */}
         <section className="relative">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div 
+            className="masonry-grid"
+            style={{
+              columnCount: 'auto',
+              columnGap: '1.5rem',
+              columnWidth: '280px'
+            }}
+          >
             {filteredScripts.map((script, index) => {
               const isSelected = selectedScript?.id === script.id;
-              
-              // Calculate if card is on the right edge of the grid
-              const cols = typeof window !== 'undefined' 
-                ? (window.innerWidth >= 1280 ? 4 : window.innerWidth >= 1024 ? 3 : window.innerWidth >= 768 ? 2 : 1)
-                : 4;
-              const isRightEdge = (index + 1) % cols === 0;
 
               return (
-                <div key={script.id} className="relative" id={`script-card-${script.id}`}>
+                <div 
+                  key={script.id} 
+                  className="relative mb-6 break-inside-avoid" 
+                  id={`script-card-${script.id}`}
+                  style={{ display: 'inline-block', width: '100%' }}
+                >
                   <TiltCard>
                     <Card
                       variant="hover"
-                      className={`group relative overflow-hidden bg-[#101010] border-[#1f1f1f] cursor-pointer h-64 transition-all ${
+                      className={`group relative overflow-hidden bg-[#101010] border-[#1f1f1f] cursor-pointer transition-all ${
                         isSelected ? 'ring-2 ring-[var(--accent)] z-50' : selectedScript ? 'blur-sm opacity-60' : ''
                       }`}
                       onClick={() => setSelectedScript(selectedScript?.id === script.id ? null : script)}
+                      style={{
+                        height: `${200 + (index % 4) * 80}px` // Varying heights: 200px, 280px, 360px, 440px
+                      }}
                     >
                       {/* Full Image Background */}
                       {script.universeId && thumbnails[script.universeId] ? (
@@ -224,12 +233,10 @@ export default function ScriptsClient({ initialScripts }: ScriptsClientProps) {
                     </Card>
                   </TiltCard>
 
-                  {/* Details Panel - Auto-positioned based on card location */}
+                  {/* Details Panel - Positioned to the side */}
                   {isSelected && (
                     <div 
-                      className={`absolute top-0 w-[420px] rounded-3xl shadow-2xl overflow-hidden z-[100] animate-in duration-300 ${
-                        isRightEdge ? 'right-full mr-6 slide-in-from-right' : 'left-full ml-6 slide-in-from-left'
-                      }`}
+                      className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] rounded-3xl shadow-2xl overflow-hidden z-[100] animate-in duration-300"
                       style={{ 
                         background: `linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%)`,
                         borderColor: 'var(--accent)',

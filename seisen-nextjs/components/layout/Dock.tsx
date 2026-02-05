@@ -22,7 +22,7 @@ const navItems = [
   { href: '/scripts', icon: Code, label: 'Scripts' },
   { href: '/getkey', icon: Key, label: 'Get Key' },
   { href: '/premium', icon: Crown, label: 'Premium' },
-  { href: '/partners', icon: Handshake, label: 'Partners' },
+
   { href: '/faq', icon: HelpCircle, label: 'FAQ' },
   { href: 'https://discord.gg/F4sAf6z8Ph', icon: () => (
     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">

@@ -9,6 +9,7 @@ import ParticleBackground from '@/components/layout/ParticleBackground';
 import CustomCursor from '@/components/ui/CustomCursor';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import ThemeSelector from '@/components/ui/ThemeSelector';
+import TabTitleAnimation from '@/components/layout/TabTitleAnimation';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -21,12 +22,18 @@ const firaCode = Fira_Code({
 });
 
 export const metadata: Metadata = {
-  title: 'Seisen - Premium Scripts',
+  title: 'Seisen',
   description:
     'Seisen - Premium scripts and tools for enhanced gaming experiences. Access powerful scripts with advanced features.',
   keywords: 'scripts, gaming, seisen, premium scripts, game scripts, roblox scripts',
   icons: {
-    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path fill='%2310b981' d='M60,10 L35,55 L50,55 L40,90 L65,45 L50,45 Z'/></svg>",
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico', 
+    other: {
+      rel: 'apple-touch-icon-precomposed',
+      url: '/favicon.ico',
+    },
   },
 };
 
@@ -40,6 +47,7 @@ export default function RootLayout({
       <body className="min-h-screen" suppressHydrationWarning>
         <ThemeProvider>
           <div className="min-h-screen flex flex-col">
+            <TabTitleAnimation />
             <LoadingScreen />
             <VisitorTracker />
             <ParticleBackground />

@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/server/db';
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 
 export async function GET() {
   try {
@@ -40,6 +41,7 @@ export async function POST(request: Request) {
 
     if (error) throw error;
 
+    revalidatePath('/scripts');
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error creating script metadata:', error);
@@ -71,6 +73,7 @@ export async function PUT(request: Request) {
 
     if (error) throw error;
 
+    revalidatePath('/scripts');
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error updating script metadata:', error);
@@ -94,6 +97,7 @@ export async function DELETE(request: Request) {
 
     if (error) throw error;
 
+    revalidatePath('/scripts');
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting script metadata:', error);

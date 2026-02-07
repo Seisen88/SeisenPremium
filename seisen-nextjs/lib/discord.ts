@@ -1,5 +1,5 @@
 
-export async function getDiscordMemberCount(inviteCode: string = 'n4ruXzdq'): Promise<{ total: number; online: number } | null> {
+export async function getDiscordMemberCount(inviteCode: string = 'HmMArPeN'): Promise<{ total: number; online: number } | null> {
   try {
     const res = await fetch(`https://discord.com/api/v9/invites/${inviteCode}?with_counts=true`, {
       next: { revalidate: 3600 } // Cache for 1 hour

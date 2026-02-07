@@ -32,8 +32,9 @@ export default function ScriptsClient({ initialScripts }: ScriptsClientProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [thumbnails, setThumbnails] = useState<Record<string, string>>({});
   const [selectedScript, setSelectedScript] = useState<Script | null>(null);
-  const [detailsPosition, setDetailsPosition] = useState<'left' | 'right'>('right');
-  
+  // State to track the position of the details panel
+  const [panelPosition, setPanelPosition] = useState<{ top: number; left?: number; right?: number } | null>(null);
+
   // Generate random heights for each script card
   const getCardHeight = (scriptId: string) => {
     // Use script ID as seed for consistent random heights
@@ -120,52 +121,45 @@ export default function ScriptsClient({ initialScripts }: ScriptsClientProps) {
     };
   }, [selectedScript]);
 
-  // Click outside to close details panel
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (selectedScript) {
-        const target = event.target as Element;
-        const detailsPanel = target.closest('[data-details-panel="true"]');
-        const scriptCard = target.closest('[data-script-card="true"]');
-        
-        // Close if clicked outside both the details panel and script cards
-        if (!detailsPanel && !scriptCard) {
-          setSelectedScript(null);
-        }
-      }
-    };
-
-    if (selectedScript) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [selectedScript]);
-
   const handleScriptClick = (e: React.MouseEvent, script: Script) => {
     e.stopPropagation();
-    const isCurrentlySelected = selectedScript?.id === script.id;
-    const newSelectedScript = isCurrentlySelected ? null : script;
     
-    if (newSelectedScript) {
-      // Get the card element to check its position
-      const cardElement = document.getElementById(`script-card-${script.id}`);
-      if (cardElement) {
-        const cardRect = cardElement.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-        
-        // Check if there's enough space on the right (420px for details + 24px margin)
-        const spaceOnRight = viewportWidth - (cardRect.right + 24);
-        const detailsWidth = 420;
-        
-        // Position on left if not enough space on right
-        setDetailsPosition(spaceOnRight < detailsWidth ? 'left' : 'right');
-      }
+    if (selectedScript?.id === script.id) {
+      setSelectedScript(null);
+      setPanelPosition(null);
+      return;
     }
+
+    // Get position
+    // We use the card element found by ID or the current target
+    const cardElement = e.currentTarget as HTMLElement;
+    const rect = cardElement.getBoundingClientRect();
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
     
-    setSelectedScript(newSelectedScript);
+    // Calculate available space
+    const viewportWidth = window.innerWidth;
+    const spaceOnRight = viewportWidth - (rect.right + 24);
+    const detailsWidth = 420;
+    const positionRight = spaceOnRight >= detailsWidth;
+
+    // Set position relative to the document (absolute positioning context)
+    // We will render the panel as a direct child of the body or a top-level relative container
+    // Actually, making it fixed might be easier for positioning but scrolling is issue.
+    // Let's stick to Absolute. We assume the parent has 'relative' equivalent to body or we use portal.
+    // For simplicity in this structure, we'll render it at the bottom of the component and use absolute coordinates relative to the page.
+    // NOTE: This assumes the parent container doesn't create a new stacking context that messes up 'top' if it's not at 0,0.
+    // Safer to use Fixed positioning for the panel itself if we want it to "float" over, but user wants it next to card.
+    
+    // Let's align it with the top of the card
+    const top = rect.top + scrollTop;
+    
+    setPanelPosition({
+      top: top,
+      left: positionRight ? rect.right + 24 : undefined,
+      right: positionRight ? undefined : (viewportWidth - rect.left) + 24
+    });
+    
+    setSelectedScript(script);
   };
 
   const filteredScripts = scripts.filter((script) => {
@@ -195,10 +189,11 @@ export default function ScriptsClient({ initialScripts }: ScriptsClientProps) {
   };
 
   return (
-    <div className="min-h-screen py-8 px-4 md:px-8">
+    <div className="min-h-screen py-8 px-4 md:px-8 relative"> 
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <section className="text-center animate-fade-in">
+          {/* ... (header content same) ... */}
           <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-500 shadow-lg shadow-blue-500/30">
             <Code className="w-8 h-8 text-white" />
           </div>
@@ -210,7 +205,8 @@ export default function ScriptsClient({ initialScripts }: ScriptsClientProps) {
 
         {/* Search and Filters */}
         <section className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
+           {/* ... (search and filter content same) ... */}
+           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
             <input
               type="text"
@@ -317,279 +313,6 @@ export default function ScriptsClient({ initialScripts }: ScriptsClientProps) {
                       </div>
                     </Card>
                   </TiltCard>
-
-                  {/* Details Panel - Smart positioned to prevent overflow */}
-                  {isSelected && (
-                    <div 
-                      className="absolute top-0 w-[420px] rounded-3xl shadow-2xl overflow-hidden z-[100] animate-in duration-300 hidden lg:block"
-                      data-details-panel="true"
-                      style={{ 
-                        background: `linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%)`,
-                        borderColor: 'var(--accent)',
-                        borderWidth: '2px',
-                        borderStyle: 'solid',
-                        maxHeight: '750px',
-                        height: '750px',
-                        // Smart positioning based on available space
-                        ...(detailsPosition === 'right' ? {
-                          left: 'calc(100% + 1.5rem)'
-                        } : {
-                          right: 'calc(100% + 1.5rem)'
-                        })
-                      }}
-                    >
-                      {/* Decorative gradient overlay with accent color */}
-                      <div 
-                        className="absolute inset-0 pointer-events-none opacity-20"
-                        style={{
-                          background: `radial-gradient(circle at top right, var(--accent), transparent 60%)`
-                        }}
-                      ></div>
-                      
-                      <div className="relative p-8 h-full overflow-y-auto custom-scrollbar">
-                        {/* Close Button */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedScript(null);
-                          }}
-                          className="absolute top-6 right-6 p-2.5 rounded-xl bg-black/20 hover:bg-black/30 text-white/80 hover:text-white transition-all backdrop-blur-sm shadow-lg"
-                        >
-                          <X className="w-5 h-5" />
-                        </button>
-
-                        {/* Mini Card Preview with Glow */}
-                        <div className="mb-8 relative">
-                          <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent blur-2xl"></div>
-                          <div className="relative aspect-square w-44 mx-auto rounded-2xl overflow-hidden shadow-2xl ring-4 ring-white/20">
-                            {script.universeId && thumbnails[script.universeId] ? (
-                              <Image
-                                src={thumbnails[script.universeId]}
-                                alt={script.name}
-                                fill
-                                className="object-contain"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-black/30 to-black/50">
-                                <Code className="w-12 h-12 text-white/40" />
-                              </div>
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-                          </div>
-                        </div>
-
-                        {/* Type Badge with Gradient */}
-                        <div className="mb-8 text-center">
-                          <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold bg-gradient-to-r from-black/30 to-black/20 backdrop-blur-md text-white shadow-xl border border-white/20">
-                            <div className="w-2 h-2 rounded-full bg-white/60"></div>
-                            {script.displayType || script.type}
-                          </span>
-                        </div>
-
-                        {/* Description with Glass Effect */}
-                        <div className="mb-6 backdrop-blur-md bg-white/10 rounded-2xl p-6 border border-white/20 shadow-xl">
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="w-1.5 h-8 bg-gradient-to-b from-white/80 to-white/40 rounded-full shadow-lg"></div>
-                            <h3 className="text-lg font-bold text-white">Description</h3>
-                          </div>
-                          <p className="text-white/90 leading-relaxed text-sm">
-                            {script.description || "No description available for this script. Verified and tested by the Seisen Team."}
-                          </p>
-                        </div>
-
-                        {/* Features with Glass Effect */}
-                        <div className="mb-8 backdrop-blur-md bg-white/10 rounded-2xl p-6 border border-white/20 shadow-xl">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="w-1.5 h-8 bg-gradient-to-b from-white/80 to-white/40 rounded-full shadow-lg"></div>
-                            <h3 className="text-lg font-bold text-white">Features</h3>
-                          </div>
-                          {script.features && script.features.length > 0 ? (
-                            <ul className="space-y-3">
-                              {script.features.map((feature, idx) => (
-                                <li key={idx} className="flex items-start gap-3 text-white/90 text-sm group">
-                                  <div className="mt-0.5 w-5 h-5 rounded-full bg-gradient-to-br from-white/30 to-white/10 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform">
-                                    <Check className="w-3 h-3 text-white" />
-                                  </div>
-                                  <span className="flex-1">{feature}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <div className="text-white/60 italic text-sm">
-                              Features list not available.
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Action Button with Gradient */}
-                        {script.status !== 'Discontinued' && (
-                          <>
-                            {script.type === 'Premium' && script.displayType !== 'Free & Premium' ? (
-                              <Button className="w-full justify-center h-12 text-base font-bold bg-gradient-to-r from-black via-black/90 to-black text-white hover:from-black/90 hover:via-black/80 hover:to-black/90 shadow-2xl border border-white/20 backdrop-blur-sm" onClick={() => window.location.href = '/premium'}>
-                                <Crown className="w-5 h-5 mr-2" />
-                                Get Premium Access
-                              </Button>
-                            ) : (
-                              <Button 
-                                className={`w-full justify-center h-12 text-base font-bold transition-all shadow-2xl border border-white/20 backdrop-blur-sm ${
-                                  copiedId === script.id 
-                                    ? 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600' 
-                                    : 'bg-gradient-to-r from-black via-black/90 to-black hover:from-black/90 hover:via-black/80 hover:to-black/90'
-                                } text-white`}
-                                onClick={(e) => handleCopy(e, script)}
-                              >
-                                {copiedId === script.id ? (
-                                  <>
-                                    <Check className="w-5 h-5 mr-2" />
-                                    Copied Successfully!
-                                  </>
-                                ) : (
-                                  <>
-                                    <Copy className="w-5 h-5 mr-2" />
-                                    Copy Loader Script
-                                  </>
-                                )}
-                              </Button>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Mobile Details Panel - Centered overlay for smaller screens */}
-                  {isSelected && (
-                    <div 
-                      className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] max-w-[90vw] rounded-3xl shadow-2xl overflow-hidden z-[100] animate-in duration-300 lg:hidden"
-                      data-details-panel="true"
-                      style={{ 
-                        background: `linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%)`,
-                        borderColor: 'var(--accent)',
-                        borderWidth: '2px',
-                        borderStyle: 'solid',
-                        maxHeight: '90vh',
-                        height: 'auto'
-                      }}
-                    >
-                      {/* Decorative gradient overlay with accent color */}
-                      <div 
-                        className="absolute inset-0 pointer-events-none opacity-20"
-                        style={{
-                          background: `radial-gradient(circle at top right, var(--accent), transparent 60%)`
-                        }}
-                      ></div>
-                      
-                      <div className="relative p-6 h-full overflow-y-auto custom-scrollbar">
-                        {/* Close Button */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedScript(null);
-                          }}
-                          className="absolute top-4 right-4 p-2.5 rounded-xl bg-black/20 hover:bg-black/30 text-white/80 hover:text-white transition-all backdrop-blur-sm shadow-lg"
-                        >
-                          <X className="w-5 h-5" />
-                        </button>
-
-                        {/* Mini Card Preview with Glow */}
-                        <div className="mb-6 relative">
-                          <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent blur-2xl"></div>
-                          <div className="relative aspect-square w-32 mx-auto rounded-2xl overflow-hidden shadow-2xl ring-4 ring-white/20">
-                            {script.universeId && thumbnails[script.universeId] ? (
-                              <Image
-                                src={thumbnails[script.universeId]}
-                                alt={script.name}
-                                fill
-                                className="object-contain"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-black/30 to-black/50">
-                                <Code className="w-10 h-10 text-white/40" />
-                              </div>
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                          </div>
-                        </div>
-
-                        {/* Type Badge with Gradient */}
-                        <div className="mb-6 text-center">
-                          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-black/30 to-black/20 backdrop-blur-md text-white shadow-xl border border-white/20">
-                            <div className="w-2 h-2 rounded-full bg-white/60"></div>
-                            {script.displayType || script.type}
-                          </span>
-                        </div>
-
-                        {/* Description with Glass Effect */}
-                        <div className="mb-4 backdrop-blur-md bg-white/10 rounded-2xl p-4 border border-white/20 shadow-xl">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="w-1.5 h-6 bg-gradient-to-b from-white/80 to-white/40 rounded-full shadow-lg"></div>
-                            <h3 className="text-base font-bold text-white">Description</h3>
-                          </div>
-                          <p className="text-white/90 leading-relaxed text-sm">
-                            {script.description || "No description available for this script. Verified and tested by the Seisen Team."}
-                          </p>
-                        </div>
-
-                        {/* Features with Glass Effect */}
-                        <div className="mb-6 backdrop-blur-md bg-white/10 rounded-2xl p-4 border border-white/20 shadow-xl">
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="w-1.5 h-6 bg-gradient-to-b from-white/80 to-white/40 rounded-full shadow-lg"></div>
-                            <h3 className="text-base font-bold text-white">Features</h3>
-                          </div>
-                          {script.features && script.features.length > 0 ? (
-                            <ul className="space-y-2">
-                              {script.features.map((feature, idx) => (
-                                <li key={idx} className="flex items-start gap-2 text-white/90 text-sm group">
-                                  <div className="mt-0.5 w-4 h-4 rounded-full bg-gradient-to-br from-white/30 to-white/10 flex items-center justify-center flex-shrink-0 shadow-lg">
-                                    <Check className="w-2.5 h-2.5 text-white" />
-                                  </div>
-                                  <span className="flex-1">{feature}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <div className="text-white/60 italic text-sm">
-                              Features list not available.
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Action Button with Gradient */}
-                        {script.status !== 'Discontinued' && (
-                          <>
-                            {script.type === 'Premium' && script.displayType !== 'Free & Premium' ? (
-                              <Button className="w-full justify-center h-10 text-sm font-bold bg-gradient-to-r from-black via-black/90 to-black text-white hover:from-black/90 hover:via-black/80 hover:to-black/90 shadow-2xl border border-white/20 backdrop-blur-sm" onClick={() => window.location.href = '/premium'}>
-                                <Crown className="w-4 h-4 mr-2" />
-                                Get Premium Access
-                              </Button>
-                            ) : (
-                              <Button 
-                                className={`w-full justify-center h-10 text-sm font-bold transition-all shadow-2xl border border-white/20 backdrop-blur-sm ${
-                                  copiedId === script.id 
-                                    ? 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600' 
-                                    : 'bg-gradient-to-r from-black via-black/90 to-black hover:from-black/90 hover:via-black/80 hover:to-black/90'
-                                } text-white`}
-                                onClick={(e) => handleCopy(e, script)}
-                              >
-                                {copiedId === script.id ? (
-                                  <>
-                                    <Check className="w-4 h-4 mr-2" />
-                                    Copied!
-                                  </>
-                                ) : (
-                                  <>
-                                    <Copy className="w-4 h-4 mr-2" />
-                                    Copy Script
-                                  </>
-                                )}
-                              </Button>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  )}
                 </div>
               );
             })}
@@ -604,6 +327,272 @@ export default function ScriptsClient({ initialScripts }: ScriptsClientProps) {
           </div>
         )}
       </div>
+
+      {/* Independent Details Panel */}
+      {selectedScript && panelPosition && (
+        <>
+           {/* Desktop Panel */}
+           <div 
+            className="absolute z-[100] w-[420px] rounded-3xl shadow-2xl overflow-hidden animate-in duration-300 hidden lg:block"
+            data-details-panel="true"
+            style={{ 
+              top: `${panelPosition.top}px`,
+              left: panelPosition.left ? `${panelPosition.left}px` : undefined,
+              right: panelPosition.right ? `${panelPosition.right}px` : undefined,
+              background: `linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%)`,
+              borderColor: 'var(--accent)',
+              borderWidth: '2px',
+              borderStyle: 'solid',
+              maxHeight: '750px',
+              height: '750px',
+            }}
+          >
+            {/* Same content as before */}
+            <div 
+              className="absolute inset-0 pointer-events-none opacity-20"
+              style={{
+                background: `radial-gradient(circle at top right, var(--accent), transparent 60%)`
+              }}
+            ></div>
+            
+            <div className="relative p-8 h-full overflow-y-auto custom-scrollbar">
+              {/* Close Button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedScript(null);
+                }}
+                className="absolute top-6 right-6 p-2.5 rounded-xl bg-black/20 hover:bg-black/30 text-white/80 hover:text-white transition-all backdrop-blur-sm shadow-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Content Reused from Previous Implementation */}
+              {/* Mini Card Preview */}
+              <div className="mb-8 relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent blur-2xl"></div>
+                <div className="relative aspect-square w-44 mx-auto rounded-2xl overflow-hidden shadow-2xl ring-4 ring-white/20">
+                  {selectedScript.universeId && thumbnails[selectedScript.universeId] ? (
+                    <Image
+                      src={thumbnails[selectedScript.universeId]}
+                      alt={selectedScript.name}
+                      fill
+                      className="object-contain"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-black/30 to-black/50">
+                      <Code className="w-12 h-12 text-white/40" />
+                    </div>
+                  )}
+                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                </div>
+              </div>
+
+              {/* Type Badge */}
+              <div className="mb-8 text-center">
+                <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold bg-gradient-to-r from-black/30 to-black/20 backdrop-blur-md text-white shadow-xl border border-white/20">
+                  <div className="w-2 h-2 rounded-full bg-white/60"></div>
+                  {selectedScript.displayType || selectedScript.type}
+                </span>
+              </div>
+
+              {/* Description */}
+              <div className="mb-6 backdrop-blur-md bg-white/10 rounded-2xl p-6 border border-white/20 shadow-xl">
+                 <div className="flex items-center gap-3 mb-3">
+                  <div className="w-1.5 h-8 bg-gradient-to-b from-white/80 to-white/40 rounded-full shadow-lg"></div>
+                  <h3 className="text-lg font-bold text-white">Description</h3>
+                </div>
+                <p className="text-white/90 leading-relaxed text-sm">
+                  {selectedScript.description || "No description available for this script. Verified and tested by the Seisen Team."}
+                </p>
+              </div>
+
+              {/* Features */}
+              <div className="mb-8 backdrop-blur-md bg-white/10 rounded-2xl p-6 border border-white/20 shadow-xl">
+                 <div className="flex items-center gap-3 mb-4">
+                  <div className="w-1.5 h-8 bg-gradient-to-b from-white/80 to-white/40 rounded-full shadow-lg"></div>
+                  <h3 className="text-lg font-bold text-white">Features</h3>
+                </div>
+                {selectedScript.features && selectedScript.features.length > 0 ? (
+                  <ul className="space-y-3">
+                    {selectedScript.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-3 text-white/90 text-sm group">
+                        <div className="mt-0.5 w-5 h-5 rounded-full bg-gradient-to-br from-white/30 to-white/10 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform">
+                          <Check className="w-3 h-3 text-white" />
+                        </div>
+                        <span className="flex-1">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="text-white/60 italic text-sm">
+                    Features list not available.
+                  </div>
+                )}
+              </div>
+
+              {/* Buttons */}
+              {selectedScript.status !== 'Discontinued' && (
+                <>
+                  {selectedScript.type === 'Premium' && selectedScript.displayType !== 'Free & Premium' ? (
+                     <Button className="w-full justify-center h-12 text-base font-bold bg-gradient-to-r from-black via-black/90 to-black text-white hover:from-black/90 hover:via-black/80 hover:to-black/90 shadow-2xl border border-white/20 backdrop-blur-sm" onClick={() => window.location.href = '/premium'}>
+                      <Crown className="w-5 h-5 mr-2" />
+                      Get Premium Access
+                    </Button>
+                  ) : (
+                    <Button 
+                      className={`w-full justify-center h-12 text-base font-bold transition-all shadow-2xl border border-white/20 backdrop-blur-sm ${
+                        copiedId === selectedScript.id 
+                          ? 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600' 
+                          : 'bg-gradient-to-r from-black via-black/90 to-black hover:from-black/90 hover:via-black/80 hover:to-black/90'
+                      } text-white`}
+                      onClick={(e) => handleCopy(e, selectedScript)}
+                    >
+                      {copiedId === selectedScript.id ? (
+                        <>
+                          <Check className="w-5 h-5 mr-2" />
+                          Copied Successfully!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-5 h-5 mr-2" />
+                          Copy Loader Script
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Mobile Details Panel (unchanged except wrapper location) */}
+          <div 
+             className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] max-w-[90vw] rounded-3xl shadow-2xl overflow-hidden z-[100] animate-in duration-300 lg:hidden"
+             data-details-panel="true"
+             style={{ 
+               background: `linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%)`,
+               borderColor: 'var(--accent)',
+               borderWidth: '2px',
+               borderStyle: 'solid',
+               maxHeight: '90vh',
+               height: 'auto'
+             }}
+           >
+             {/* ... Mobile Content same as before ... */}
+              <div 
+                className="absolute inset-0 pointer-events-none opacity-20"
+                style={{
+                  background: `radial-gradient(circle at top right, var(--accent), transparent 60%)`
+                }}
+              ></div>
+              
+              <div className="relative p-6 h-full overflow-y-auto custom-scrollbar">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedScript(null);
+                  }}
+                  className="absolute top-4 right-4 p-2.5 rounded-xl bg-black/20 hover:bg-black/30 text-white/80 hover:text-white transition-all backdrop-blur-sm shadow-lg"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+
+                {/* Mobile Preview */}
+                <div className="mb-6 relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent blur-2xl"></div>
+                   <div className="relative aspect-square w-32 mx-auto rounded-2xl overflow-hidden shadow-2xl ring-4 ring-white/20">
+                    {selectedScript.universeId && thumbnails[selectedScript.universeId] ? (
+                      <Image
+                        src={thumbnails[selectedScript.universeId]}
+                        alt={selectedScript.name}
+                        fill
+                        className="object-contain"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-black/30 to-black/50">
+                        <Code className="w-10 h-10 text-white/40" />
+                      </div>
+                    )}
+                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  </div>
+                </div>
+
+                <div className="mb-6 text-center">
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-black/30 to-black/20 backdrop-blur-md text-white shadow-xl border border-white/20">
+                    <div className="w-2 h-2 rounded-full bg-white/60"></div>
+                    {selectedScript.displayType || selectedScript.type}
+                  </span>
+                </div>
+
+                <div className="mb-4 backdrop-blur-md bg-white/10 rounded-2xl p-4 border border-white/20 shadow-xl">
+                   <div className="flex items-center gap-3 mb-2">
+                    <div className="w-1.5 h-6 bg-gradient-to-b from-white/80 to-white/40 rounded-full shadow-lg"></div>
+                    <h3 className="text-base font-bold text-white">Description</h3>
+                  </div>
+                  <p className="text-white/90 leading-relaxed text-sm">
+                    {selectedScript.description || "No description available for this script. Verified and tested by the Seisen Team."}
+                  </p>
+                </div>
+
+                 <div className="mb-6 backdrop-blur-md bg-white/10 rounded-2xl p-4 border border-white/20 shadow-xl">
+                   <div className="flex items-center gap-3 mb-3">
+                    <div className="w-1.5 h-6 bg-gradient-to-b from-white/80 to-white/40 rounded-full shadow-lg"></div>
+                    <h3 className="text-base font-bold text-white">Features</h3>
+                  </div>
+                  {selectedScript.features && selectedScript.features.length > 0 ? (
+                    <ul className="space-y-2">
+                      {selectedScript.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-start gap-2 text-white/90 text-sm group">
+                          <div className="mt-0.5 w-4 h-4 rounded-full bg-gradient-to-br from-white/30 to-white/10 flex items-center justify-center flex-shrink-0 shadow-lg">
+                            <Check className="w-2.5 h-2.5 text-white" />
+                          </div>
+                          <span className="flex-1">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="text-white/60 italic text-sm">
+                      Features list not available.
+                    </div>
+                  )}
+                </div>
+
+                {selectedScript.status !== 'Discontinued' && (
+                  <>
+                    {selectedScript.type === 'Premium' && selectedScript.displayType !== 'Free & Premium' ? (
+                       <Button className="w-full justify-center h-10 text-sm font-bold bg-gradient-to-r from-black via-black/90 to-black text-white hover:from-black/90 hover:via-black/80 hover:to-black/90 shadow-2xl border border-white/20 backdrop-blur-sm" onClick={() => window.location.href = '/premium'}>
+                        <Crown className="w-4 h-4 mr-2" />
+                        Get Premium Access
+                      </Button>
+                    ) : (
+                       <Button 
+                        className={`w-full justify-center h-10 text-sm font-bold transition-all shadow-2xl border border-white/20 backdrop-blur-sm ${
+                          copiedId === selectedScript.id 
+                            ? 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600' 
+                            : 'bg-gradient-to-r from-black via-black/90 to-black hover:from-black/90 hover:via-black/80 hover:to-black/90'
+                        } text-white`}
+                        onClick={(e) => handleCopy(e, selectedScript)}
+                      >
+                        {copiedId === selectedScript.id ? (
+                          <>
+                            <Check className="w-4 h-4 mr-2" />
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4 mr-2" />
+                            Copy Script
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

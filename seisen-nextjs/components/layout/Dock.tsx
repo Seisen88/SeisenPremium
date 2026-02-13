@@ -2,19 +2,20 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useRef, MouseEvent } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Home,
   Lock,
   Code,
   Key,
   Crown,
-  Handshake,
   HelpCircle,
   Youtube,
-  Zap,
+  Menu,
+  X,
 } from 'lucide-react';
 import { Logo } from '@/components/ui/Logo';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
@@ -105,56 +106,155 @@ function DockIcon({ item, mouseX, index }: DockIconProps) {
 export default function Dock() {
   const pathname = usePathname();
   const dockRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Close menu when route changes
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[2000] pointer-events-none">
-      <div
-        ref={dockRef}
-        className="flex items-end gap-2 px-3 py-2.5 backdrop-blur-xl rounded-3xl pointer-events-auto"
-        style={{
-          backgroundColor: '#0a0a0aa1', // Higher opacity (90%) but keeping it dark
-          border: '1px solid rgba(255, 255, 255, 0.12)', // Slightly brighter border
-          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 0, 0, 0.5)', // Stronger shadow for depth
-        }}
-      >
-        {/* Logo */}
-        <Link href="/">
-          <div className="relative flex flex-col items-center transition-transform duration-200 hover:scale-110">
-            <div className="flex items-center justify-center w-10 h-10" style={{ color: 'var(--accent)' }}>
-              <Logo className="w-6 h-6" />
-            </div>
-          </div>
-        </Link>
-
-        {/* Divider */}
-        <div className="w-px h-10 mx-2" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
-
-        {/* Nav Items */}
-        {navItems.map((item, index) => (
-          <DockIcon key={item.label} item={item} mouseX={null} index={index} />
-        ))}
-
-        {/* Divider */}
-        <div className="w-px h-10 mx-2" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
-
-        {/* Client Area */}
-        <Link href="/client/dashboard">
-          <div className="relative flex flex-col items-center transition-transform duration-200 hover:scale-110">
-            <div
-              className="flex items-center justify-center w-10 h-10 rounded-full transition-all"
-              style={pathname.startsWith('/client')
-                ? { backgroundColor: 'var(--accent)/20', color: 'var(--accent)', border: '2px solid var(--accent)/30' }
-                : { backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-muted)', border: '2px solid var(--border)' }
-              }
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
-            </div>
-          </div>
-        </Link>
+    <>
+      {/* Mobile Burger Menu Button */}
+      <div className="fixed top-5 left-5 z-[5000] md:hidden">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-3 bg-black/50 backdrop-blur-md border border-white/10 rounded-full text-white shadow-xl hover:bg-black/70 transition-all"
+        >
+          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
       </div>
-    </div>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(false)}
+              className="fixed inset-0 z-[4800] bg-black/60 backdrop-blur-sm md:hidden"
+            />
+            
+            {/* Sidebar */}
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 left-0 z-[4900] w-24 bg-[#0a0a0a]/95 border-r border-white/10 backdrop-blur-xl md:hidden flex flex-col items-center py-24 space-y-6 overflow-y-auto"
+            >
+              <div className="flex flex-col items-center gap-4 w-full">
+                {/* Logo - kept at top, maybe scaled down slightly if needed, but keeping consistently visible */}
+                <div className="mb-4">
+                  <Logo className="w-8 h-8 text-[var(--accent)]" />
+                </div>
+
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.href;
+                  
+                  return (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      onClick={() => !item.external && setIsOpen(false)}
+                      target={item.external ? "_blank" : undefined}
+                      className={`relative group flex items-center justify-center w-12 h-12 rounded-2xl transition-all ${
+                        isActive 
+                          ? 'bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20' 
+                          : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white hover:scale-110'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      {/* Tooltip on hover/tap-hold */}
+                      <div className="absolute left-14 px-2 py-1 bg-[#1a1a1a] border border-white/10 rounded text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                        {item.label}
+                      </div>
+                    </Link>
+                  );
+                })}
+
+                <div className="w-10 h-px bg-white/10 my-2"></div>
+
+                <Link 
+                  href="/client/dashboard"
+                  onClick={() => setIsOpen(false)}
+                  className={`relative group flex items-center justify-center w-12 h-12 rounded-2xl transition-all ${
+                    pathname.startsWith('/client')
+                      ? 'bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20'
+                      : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white hover:scale-110'
+                  }`}
+                >
+                  <div className="w-5 h-5 flex items-center justify-center">
+                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  {/* Tooltip */}
+                  <div className="absolute left-14 px-2 py-1 bg-[#1a1a1a] border border-white/10 rounded text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                    Client Area
+                  </div>
+                </Link>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Desktop Dock */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[2000] pointer-events-none hidden md:block">
+        <div
+          ref={dockRef}
+          className="flex items-end gap-2 px-3 py-2.5 backdrop-blur-xl rounded-3xl pointer-events-auto"
+          style={{
+            backgroundColor: '#0a0a0aa1', // Higher opacity (90%) but keeping it dark
+            border: '1px solid rgba(255, 255, 255, 0.12)', // Slightly brighter border
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 0, 0, 0.5)', // Stronger shadow for depth
+          }}
+        >
+          {/* Logo */}
+          <Link href="/">
+            <div className="relative flex flex-col items-center transition-transform duration-200 hover:scale-110">
+              <div className="flex items-center justify-center w-10 h-10" style={{ color: 'var(--accent)' }}>
+                <Logo className="w-6 h-6" />
+              </div>
+            </div>
+          </Link>
+
+          {/* Divider */}
+          <div className="w-px h-10 mx-2" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
+
+          {/* Nav Items */}
+          {navItems.map((item, index) => (
+            <DockIcon key={item.label} item={item} mouseX={null} index={index} />
+          ))}
+
+          {/* Divider */}
+          <div className="w-px h-10 mx-2" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
+
+          {/* Client Area */}
+          <Link href="/client/dashboard">
+            <div className="relative flex flex-col items-center transition-transform duration-200 hover:scale-110">
+              <div
+                className="flex items-center justify-center w-10 h-10 rounded-full transition-all"
+                style={pathname.startsWith('/client')
+                  ? { backgroundColor: 'var(--accent)/20', color: 'var(--accent)', border: '2px solid var(--accent)/30' }
+                  : { backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-muted)', border: '2px solid var(--border)' }
+                }
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </div>
+    </>
   );
 }

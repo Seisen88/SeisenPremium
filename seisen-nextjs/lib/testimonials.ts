@@ -85,6 +85,30 @@ function getScriptCategory(name: string): keyof typeof REVIEWS_BY_CATEGORY {
   return 'GENERAL';
 }
 
+const FEATURE_TEMPLATES = [
+  "The {feature} is incredibly smooth and reliable.",
+  "I love the {feature}, it makes the game so much easier.",
+  "Best {feature} I've used. Totally undetectable.",
+  "The {feature} works perfectly, exactly what I needed.",
+  "Finally a working {feature} that doesn't crash.",
+  "Super fast {feature}. I'm progressing way quicker now.",
+  "The {feature} is a game changer for me.",
+  "Highly recommend for the {feature} alone."
+];
+
+const GENERIC_REVIEWS = [
+    "This script hub is amazing! Works perfectly on every game I play.",
+    "Best investment I've made. The features are super stable.",
+    "Updates are always fast and the support is helpful.",
+    "I've tried many hubs, but Seisen is by far the smoothest.",
+    "Works exactly as described. 10/10 would recommend.",
+    "Clean UI and very easy to use. No errors at all.",
+    "Security is top notch. I feel safe using this on my main.",
+    "Great community and even better scripts. Worth the premium.",
+    "Finally a hub that actually delivers what it promises.",
+    "The execution is instant and the scripts are very optimized."
+];
+
 export async function getRecentTestimonials(): Promise<TestimonialData[]> {
   try {
     const { data: payments, error } = await supabase
@@ -106,6 +130,13 @@ export async function getRecentTestimonials(): Promise<TestimonialData[]> {
 
     const scripts = await fetchScripts();
     const scriptNames = scripts.map(s => s.name);
+    // Map script name to its features
+    const scriptFeaturesMap = new Map<string, string[]>();
+    scripts.forEach(s => {
+        if (s.features && s.features.length > 0) {
+            scriptFeaturesMap.set(s.name, s.features);
+        }
+    });
 
     return payments
       .filter(p => {
@@ -120,6 +151,7 @@ export async function getRecentTestimonials(): Promise<TestimonialData[]> {
             
         let scriptName = payment.tier;
         
+        // Resolve generic names to actual script names
         const lowerTier = scriptName.toLowerCase();
         if (lowerTier.includes('weekly') || lowerTier.includes('monthly') || lowerTier.includes('lifetime') || lowerTier === 'premium') {
              if (scriptNames.length > 0) {
@@ -137,12 +169,29 @@ export async function getRecentTestimonials(): Promise<TestimonialData[]> {
             }
         }
         
+        // Clean up script name
         scriptName = scriptName.replace(/\s*script$/i, '').trim();
 
-        const category = getScriptCategory(scriptName);
-        const templates = REVIEWS_BY_CATEGORY[category] || REVIEWS_BY_CATEGORY.GENERAL;
+        // Determine Content
+        let content = "";
+        const features = scriptFeaturesMap.get(scriptName);
         
-        const reviewIndex = (hashCode(seedString) + index + hashCode(payment.created_at || '')) % templates.length;
+        // 70% chance to use a feature-based review if features exist
+        const useFeature = features && features.length > 0 && (hashCode(seedString + index) % 10) < 7;
+        
+        if (useFeature && features) {
+            // Pick a random feature
+            const featureIndex = (hashCode(seedString) + index) % features.length;
+            const feature = features[featureIndex];
+            
+            // Pick a random template
+            const templateIndex = (hashCode(seedString) + index + 1) % FEATURE_TEMPLATES.length;
+            content = FEATURE_TEMPLATES[templateIndex].replace('{feature}', feature);
+        } else {
+            // Fallback to generic
+            const genericIndex = (hashCode(seedString) + index) % GENERIC_REVIEWS.length;
+            content = GENERIC_REVIEWS[genericIndex];
+        }
 
         let authorName = 'Verified User';
         if (payment.roblox_username) {
@@ -152,7 +201,7 @@ export async function getRecentTestimonials(): Promise<TestimonialData[]> {
         }
 
         return {
-          content: templates[reviewIndex],
+          content: content,
           author: authorName,
           role: scriptName,
           avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${seedString}`,

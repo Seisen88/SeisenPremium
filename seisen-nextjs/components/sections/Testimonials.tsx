@@ -9,7 +9,7 @@ export default async function Testimonials() {
     getRecentTestimonials()
   ]);
 
-  const memberCount = discordStats?.total ? discordStats.total.toLocaleString() : 'thousands of';
+  const memberCount = discordStats?.total ? discordStats.total.toLocaleString() : '15,000+';
   
   if (!testimonials || testimonials.length === 0) {
      return null; // Or return fallback content

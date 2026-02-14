@@ -11,57 +11,21 @@ export interface TestimonialData {
 }
 
 const REVIEWS_BY_CATEGORY = {
-  COMBAT: [
-    "Seisen has completely transformed my PvP. The aim and prediction are undetectable and mind-blowing.",
-    "The real-time updates have saved me in ranked matches countless times. Worth every penny.",
-    "My K/D ratio has skyrocketed since I started using Seisen. The prediction engine is unmatched.",
-    "Best investment I've made. The auto-parry is faster than any human reaction.",
-    "I was skeptical at first, but this script is legit. Safe, fast, and features are insane for war.",
-    "Beating teamers has never been this satisfying. The target selection is flawless.",
-    "The silent aim is actually silent. No one suspects a thing in ranked.",
-    "Updates are faster than the game devs themselves. Always working when I need it.",
-    "I've tried other hubs, but Seisen's smoothness in combat is on another level.",
-    "Finally a script that doesn't drop my FPS during intense fights. Optimized perfectly."
-  ],
-  FARMING: [
-    "Leveling up has never been easier. This tool autofarms exactly as promised while I sleep.",
-    "From complex raids to simple farming, Seisen handles it all brilliantly. Indispensable tool.",
-    "Seisen understands game mechanics better than any other tool. Dramatically improved my grinding efficiency.",
-    "The auto-quest features are bug-free and super efficient. Saved me hundreds of hours.",
-    "I maxed out my account in days thanks to this. The resource collection is completely automated.",
-    "Woke up to max level and millions in currency. This is the definition of efficiency.",
-    "The pathfinding is surprisingly smart. It doesn't get stuck like other free scripts.",
-    "Grinding events is a breeze now. I finish the battlepass in a day.",
-    "Stable enough to run 24/7 on my VPS. Zero crashes in a week.",
-    "Best auto-dungeon I've used. Clears rooms faster than a full squad."
-  ],
-  SIMULATOR: [
-    "I hatched 3 huge pets overnight thanks to the auto-hatch. Best simulator script out there.",
-    "The auto-clicker speed is insane, I'm topping the leaderboards effortlessly now.",
-    "Rebirthing is so tedious usually, but Seisen handles it automatically. Love it.",
-    "It collects every single coin and orb. My currency just keeps going up.",
-    "Perfect for egg opening events. I can afk all night and wake up to a full inventory.",
-    "The auto-upgrade feature is smart, it prioritizes exactly what I need for max efficiency.",
-    "Grinding strength has never been faster. It hits every training spot perfectly.",
-    "I unlocked all the worlds in one day. The teleport farming is super optimized."
-  ],
-  TYCOON: [
-    "The best automation for building my empire. It manages everything perfectly.",
-    "Cash flow maximized instantly. This script handles the complex math and timing for me.",
-    "I built the biggest base in the server overnight. The auto-build feature is flawless.",
-    "Perfect for AFK management. I come back to millions of cash every time.",
-    "It collects drops so fast I can't even see them correctly. Insane speed.",
-    "Rebirth grinding is painless now. It does the tedious clicking for me."
-  ],
+  COMBAT: [], // Will fallback to GENERAL
+  FARMING: [], // Will fallback to GENERAL
+  SIMULATOR: [], // Will fallback to GENERAL
+  TYCOON: [], // Will fallback to GENERAL
   GENERAL: [
-    "The customization options let me tailor the scripts perfectly to my playstyle. Game-changing.",
-    "Customer support helped me set everything up in minutes. Works perfectly!",
-    "Best investment I've made for this game. Updates are fast and the script is super stable.",
-    "Easy to safe, undetectable, and powerful. Exactly what I needed.",
-    "The UI is clean and the features just work. No hassle setup.",
-    "I appreciate how easy it is to switch between games. One hub for everything.",
-    "Security is top notch. Haven't had a single warning on my main account.",
-    "Worth the premium price for the peace of mind and constant updates."
+    "This script hub is amazing! Works perfectly on every game I play.",
+    "Best investment I've made. The features are super stable.",
+    "Updates are always fast and the support is helpful.",
+    "I've tried many hubs, but Seisen is by far the smoothest.",
+    "Works exactly as described. 10/10 would recommend.",
+    "Clean UI and very easy to use. No errors at all.",
+    "Security is top notch. I feel safe using this on my main.",
+    "Great community and even better scripts. Worth the premium.",
+    "Finally a hub that actually delivers what it promises.",
+    "The execution is instant and the scripts are very optimized."
   ]
 };
 

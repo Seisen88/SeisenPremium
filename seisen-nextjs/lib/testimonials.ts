@@ -75,15 +75,30 @@ const POPULAR_GAMES = [
     "Rivals", "Arsenal", "Murder Mystery 2"
 ];
 
+function hashCode(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash);
+}
+
 function getScriptCategory(name: string): keyof typeof REVIEWS_BY_CATEGORY {
   const lower = name.toLowerCase();
   
-  if (lower.includes('fruit') || lower.includes('blox') || lower.includes('combat') || lower.includes('war') || lower.includes('blade') || lower.includes('fight') || lower.includes('apex') || lower.includes('counter') || lower.includes('rivals')) {
+  // COMBAT Keywords
+  if (lower.includes('fruit') || lower.includes('blox') || lower.includes('combat') || lower.includes('war') || lower.includes('blade') || lower.includes('fight') || lower.includes('apex') || lower.includes('counter') || lower.includes('rivals') || lower.includes('shot') || lower.includes('gun') || lower.includes('fps') || lower.includes('blue heater')) {
     return 'COMBAT';
   }
-  if (lower.includes('pet') || lower.includes('sim') || lower.includes('farm') || lower.includes('tycoon') || lower.includes('build') || lower.includes('fish') || lower.includes('mining') || lower.includes('anime defenders')) {
+  
+  // FARMING Keywords
+  if (lower.includes('pet') || lower.includes('sim') || lower.includes('farm') || lower.includes('tycoon') || lower.includes('build') || lower.includes('fish') || lower.includes('mining') || lower.includes('anime defenders') || lower.includes('dig') || lower.includes('plant') || lower.includes('clicker')) {
     return 'FARMING';
   }
+  
+  // TYCOON (merged broadly into farming/tycoon logic above but kept for specific)
   if (lower.includes('tycoon') || lower.includes('restaurant') || lower.includes('cafe') || lower.includes('pizza') || lower.includes('business')) {
      return 'TYCOON'; 
   }
@@ -91,76 +106,14 @@ function getScriptCategory(name: string): keyof typeof REVIEWS_BY_CATEGORY {
   return 'GENERAL';
 }
 
-export async function getRecentTestimonials(): Promise<TestimonialData[]> {
-  try {
-    // Removed payment_status filter for wider results as requested
-    const { data: payments, error } = await supabase
-      .from('payments')
-      .select('payer_email, tier, created_at, roblox_username')
-      .neq('payer_email', 'sb-4328s33649666@personal.example.com') 
-      .not('payer_email', 'like', '%@personal.example.com')
-      .order('created_at', { ascending: false })
-      .limit(100);
-
-    if (error) {
-      console.error('Error fetching testimonials:', error);
-      return [];
-    }
-    
-    // Debug log
-    console.log(`Fetched ${payments?.length} payments. Filtering...`);
-
-    if (!payments || payments.length === 0) {
-      return [];
-    }
-
-    const scripts = await fetchScripts();
-    const scriptNames = scripts.map(s => s.name);
-
-    return payments
-      .filter(p => {
-        // Must have either a valid email (not EMPTY) or a roblox username
-        const hasEmail = p.payer_email && p.payer_email !== 'EMPTY';
-        const hasRoblox = !!p.roblox_username;
-        return hasEmail || hasRoblox;
-      })
-      .map((payment, index) => {
-        // Deterministic selection
-        // Use roblox username for seed/index if email is missing
-        const seedString = payment.payer_email === 'EMPTY' || !payment.payer_email 
-            ? (payment.roblox_username || 'user') 
-            : payment.payer_email;
-            
-        // Select a script name consistently
-        let scriptName = payment.tier;
-        
-        // Force specific game names for generic tiers
-        const lowerTier = scriptName.toLowerCase();
-        if (lowerTier.includes('weekly') || lowerTier.includes('monthly') || lowerTier.includes('lifetime') || lowerTier === 'premium') {
-             // Use actual scripts from the database if available
-             if (scriptNames.length > 0) {
-                 const scriptIndex = (seedString.length + index + payment.created_at.length) % scriptNames.length;
-                 scriptName = scriptNames[scriptIndex];
-             } else {
-                 // Fallback to popular games if no scripts found in DB
-                 const gameIndex = (seedString.length + index + payment.created_at.length) % POPULAR_GAMES.length;
-                 scriptName = POPULAR_GAMES[gameIndex];
-             }
-        } else if (!scriptName) {
-            if (scriptNames.length > 0) {
-                 scriptName = scriptNames[0];
-            } else {
-                 scriptName = "Blox Fruits"; 
-            }
-        }
-        
-        // Remove "Script" keyword if present (case insensitive)
-        scriptName = scriptName.replace(/\s*script$/i, '').trim();
+// ... inside getRecentTestimonials mapping ...
 
         // Determine Category and Review
         const category = getScriptCategory(scriptName);
         const templates = REVIEWS_BY_CATEGORY[category] || REVIEWS_BY_CATEGORY.GENERAL;
-        const reviewIndex = (seedString.length + index) % templates.length;
+        
+        // Use hash for better randomization than length
+        const reviewIndex = (hashCode(seedString) + index + hashCode(payment.created_at || '')) % templates.length;
 
         // Determine Author Name
         let authorName = 'Verified User';

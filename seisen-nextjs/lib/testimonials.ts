@@ -101,7 +101,21 @@ const FEATURE_TEMPLATES = [
   "The {feature} allows me to AFK with peace of mind.",
   "Incredible speed on the {feature}, unmatched by others.",
   "The {feature} bypass is solid, no bans so far.",
-  "Simple and effective {feature}, just 10/10."
+  "Simple and effective {feature}, just 10/10.",
+  "Bro the {feature} is actually insane wtf.",
+  "Never seen a {feature} work this well before.",
+  "The {feature} is just built different.",
+  "Seisen's {feature} is on another level.",
+  "I've been using the {feature} for 3 days straight lol.",
+  "The {feature} update fixed everything, works great.",
+  "Legit best {feature} on the market right now.",
+  "The {feature} makes farming so satisfying.",
+  "Can you add more options to the {feature}? It's so good.",
+  "The {feature} is faster than any other hub I tried.",
+  "Actually working {feature}, not like the other scams.",
+  "The {feature} is exactly what I was looking for.",
+  "My friends are jealous of this {feature} haha.",
+  "The new {feature} settings are perfect."
 ];
 
 const GENERIC_REVIEWS = [
@@ -134,7 +148,37 @@ const GENERIC_REVIEWS = [
     "Performance is buttery smooth even on low end PCs.",
     "Easy to config and save settings for each game.",
     "Just buy it, you won't regret it.",
-    "Automates the boring stuff so I can have fun."
+    "Automates the boring stuff so I can have fun.",
+    "W script hub honestly.",
+    "Been using since release, never disappointed.",
+    "The UI is so clean, reminds me of quality software.",
+    "Actually undetectable, been safe for weeks.",
+    "Worth every penny just for the auto farm.",
+    "Script works flawlessly on mobile too.",
+    "Keyless system for premium is a lifesaver.",
+    "I was skeptical but this is actually legit.",
+    "The community in discord is actually chill.",
+    "Admin added my suggestion in like 2 days.",
+    "Updating is auto so I don't have to redownload.",
+    "Fire scripts fr.",
+    "Goated status honestly.",
+    "Fastest updates in the game.",
+    "I refunded another hub to buy this one lol.",
+    "Seisen on top 💯",
+    "Don't waste money on pasted scripts, get this.",
+    "The bypasses are crazy good.",
+    "Customer support is actually human.",
+    "Makes the game actually fun again.",
+    "Grinding is painless now.",
+    "Recommended by a friend, glad I bought it.",
+    "The variety of games supported is huge.",
+    "Even the free scripts are good, but premium is next level.",
+    "Instant key delivery, no ad linkvertise bs for premium.",
+    "Smooth execution, 0 fps drops.",
+    "Best purchase I've made for Roblox.",
+    "They actually listen to feedback.",
+    "Simple, effective, powerful.",
+    "100% uptime so far."
 ];
 
 export async function getRecentTestimonials(): Promise<TestimonialData[]> {
@@ -145,7 +189,7 @@ export async function getRecentTestimonials(): Promise<TestimonialData[]> {
       .neq('payer_email', 'sb-4328s33649666@personal.example.com') 
       .not('payer_email', 'like', '%@personal.example.com')
       .order('created_at', { ascending: false })
-      .limit(100);
+      .limit(300);
 
     if (error) {
       console.error('Error fetching testimonials:', error);
@@ -196,7 +240,7 @@ export async function getRecentTestimonials(): Promise<TestimonialData[]> {
         const hasRoblox = !!p.roblox_username;
         return hasEmail || hasRoblox;
       })
-      .slice(0, 30) // Get 30 reviews for the carousel
+      .slice(0, 60) // Get 60 reviews for the carousel
       .map((payment, index) => {
         const seedString = payment.payer_email === 'EMPTY' || !payment.payer_email 
             ? (payment.roblox_username || 'user') 

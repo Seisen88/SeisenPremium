@@ -29,7 +29,7 @@ const MarqueeColumn = ({ reviews, reverse = false, speed = 40 }: { reviews: Test
     return (
         <div className="flex overflow-hidden relative w-full group">
              <div 
-                className={`flex gap-6 animate-marquee ${reverse ? 'flex-row-reverse' : ''}`}
+                className={`flex gap-6 animate-testimonial-marquee ${reverse ? 'flex-row-reverse' : ''}`}
                 style={{ 
                     animationDuration: `${speed}s`,
                     animationDirection: reverse ? 'reverse' : 'normal'
@@ -100,12 +100,12 @@ export default function TestimonialsMarquee({ initialTestimonials }: { initialTe
       </div>
       
       <style jsx global>{`
-        @keyframes marquee {
+        @keyframes testimonial-marquee {
             0% { transform: translateX(0); }
             100% { transform: translateX(-50%); }
         }
-        .animate-marquee {
-            animation: marquee linear infinite;
+        .animate-testimonial-marquee {
+            animation: testimonial-marquee linear infinite;
         }
         .mask-linear-fade {
             mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);

@@ -196,7 +196,7 @@ export async function getRecentTestimonials(): Promise<TestimonialData[]> {
         const hasRoblox = !!p.roblox_username;
         return hasEmail || hasRoblox;
       })
-      .slice(0, 6) // Slice BEFORE mapping to ensuring we only grab what we need and execute unique logic
+      .slice(0, 30) // Get 30 reviews for the carousel
       .map((payment, index) => {
         const seedString = payment.payer_email === 'EMPTY' || !payment.payer_email 
             ? (payment.roblox_username || 'user') 
@@ -264,9 +264,6 @@ export async function getRecentTestimonials(): Promise<TestimonialData[]> {
           highlight: false 
         };
       })
-      .map((item, index) => ({
-          ...item,
-          highlight: index === 0 || index === 5
       }));
 
   } catch (error) {

@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/client/auth';
 import { Card } from '@/components/ui/Card';
-import { Loader2, Copy, Check, ShoppingBag, Calendar, CreditCard, Key } from 'lucide-react';
+import Button from '@/components/ui/Button';
+import { Loader2, Copy, Check, ShoppingBag, Calendar, CreditCard, Key, MessageCircle } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -119,6 +120,48 @@ export default function OrderDetailsPage() {
                 <p className="text-xs text-gray-500 mt-4">
                     Delivered instantly on {new Date(order.created_at).toLocaleDateString()}
                 </p>
+            </Card>
+
+            {/* Premium Redemption Guide - IMPORTANT */}
+            <Card className="p-6 border-l-4 border-l-indigo-500 bg-indigo-500/10 print:border shadow-none">
+                <h3 className="text-lg font-semibold text-white mb-2 flex items-center gap-2 print:text-black">
+                    <MessageCircle className="w-5 h-5 text-indigo-400 print:text-black" />
+                    Activate Your Premium
+                </h3>
+                <p className="text-gray-300 mb-4 text-sm leading-relaxed">
+                    To activate your premium features, you must redeem your key in our verified Discord server. 
+                    This step links your Discord account to your premium access.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center bg-black/20 p-4 rounded-lg border border-indigo-500/20">
+                    <div className="flex-1">
+                        <div className="text-xs text-indigo-300 font-bold uppercase tracking-wider mb-1">Step 1</div>
+                        <div className="text-sm text-white">Copy your key from above</div>
+                    </div>
+                    <div className="hidden sm:block text-gray-600">→</div>
+                    <div className="flex-1">
+                        <div className="text-xs text-indigo-300 font-bold uppercase tracking-wider mb-1">Step 2</div>
+                        <div className="text-sm text-white">Join Discord & Go to Premium Script Channel</div>
+                    </div>
+                    <div className="hidden sm:block text-gray-600">→</div>
+                    <div className="flex-1">
+                        <div className="text-xs text-indigo-300 font-bold uppercase tracking-wider mb-1">Step 3</div>
+                        <div className="text-sm text-white">Send Key to Redeem</div>
+                    </div>
+                </div>
+                
+                <div className="mt-6">
+                    <a 
+                        href="https://discord.com/channels/1333251917098520628/1421560929425817662" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex"
+                    >
+                        <Button className="bg-[#5865F2] hover:bg-[#4752C4] text-white border-none shadow-lg shadow-indigo-500/20 px-4 py-2 rounded-lg flex items-center gap-2">
+                            <MessageCircle className="w-4 h-4 mr-2" />
+                            Go to Premium Script Channel
+                        </Button>
+                    </a>
+                </div>
             </Card>
 
             <div className="grid md:grid-cols-2 gap-6">

@@ -208,10 +208,21 @@ function PremiumContent() {
          // Verification is implicit since they just paid
          localStorage.setItem('client_auth', 'true'); 
 
-         // Redirect to Dashboard
+         // Redirect to Success Page
          setTimeout(() => {
-             router.push('/client/dashboard');
-         }, 2000);
+             const params = new URLSearchParams({
+                 orderId: successParams.orderId,
+                 tier: successParams.tier,
+                 amount: successParams.amount,
+                 currency: successParams.currency,
+                 key: successParams.key,
+                 email: successParams.email,
+                 payerId: successParams.payerId,
+                 method: successParams.method,
+                 date: new Date().toISOString()
+             });
+             router.push(`/success?${params.toString()}`);
+         }, 1000);
 
       } else {
          // EXPOSE THE ERROR TO THE USER

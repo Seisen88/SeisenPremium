@@ -137,11 +137,21 @@ export async function getRecentTestimonials(): Promise<TestimonialData[]> {
         // Force specific game names for generic tiers
         const lowerTier = scriptName.toLowerCase();
         if (lowerTier.includes('weekly') || lowerTier.includes('monthly') || lowerTier.includes('lifetime') || lowerTier === 'premium') {
-             // Pick a random popular game based on hash
-             const gameIndex = (seedString.length + index + payment.created_at.length) % POPULAR_GAMES.length;
-             scriptName = POPULAR_GAMES[gameIndex];
+             // Use actual scripts from the database if available
+             if (scriptNames.length > 0) {
+                 const scriptIndex = (seedString.length + index + payment.created_at.length) % scriptNames.length;
+                 scriptName = scriptNames[scriptIndex];
+             } else {
+                 // Fallback to popular games if no scripts found in DB
+                 const gameIndex = (seedString.length + index + payment.created_at.length) % POPULAR_GAMES.length;
+                 scriptName = POPULAR_GAMES[gameIndex];
+             }
         } else if (!scriptName) {
-            scriptName = "Blox Fruits"; // Default fallback
+            if (scriptNames.length > 0) {
+                 scriptName = scriptNames[0];
+            } else {
+                 scriptName = "Blox Fruits"; 
+            }
         }
         
         // Remove "Script" keyword if present (case insensitive)

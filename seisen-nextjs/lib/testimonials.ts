@@ -93,7 +93,15 @@ const FEATURE_TEMPLATES = [
   "Finally a working {feature} that doesn't crash.",
   "Super fast {feature}. I'm progressing way quicker now.",
   "The {feature} is a game changer for me.",
-  "Highly recommend for the {feature} alone."
+  "Highly recommend for the {feature} alone.",
+  "I can't believe how good the {feature} is.",
+  "The {feature} logic is improved and works like a charm.",
+  "Updates made the {feature} even faster.",
+  "Using the {feature} saved me hours of grinding.",
+  "The {feature} allows me to AFK with peace of mind.",
+  "Incredible speed on the {feature}, unmatched by others.",
+  "The {feature} bypass is solid, no bans so far.",
+  "Simple and effective {feature}, just 10/10."
 ];
 
 const GENERIC_REVIEWS = [
@@ -106,7 +114,27 @@ const GENERIC_REVIEWS = [
     "Security is top notch. I feel safe using this on my main.",
     "Great community and even better scripts. Worth the premium.",
     "Finally a hub that actually delivers what it promises.",
-    "The execution is instant and the scripts are very optimized."
+    "The execution is instant and the scripts are very optimized.",
+    "I've been using this for months without any issues.",
+    "Support team solved my key issue in minutes. Great service.",
+    "The best premium script for Roblox hands down.",
+    "Very reasonable price for the quality you get.",
+    "I love how often they add new games to the hub.",
+    "Bypasses Byfron perfectly, haven't had any kick issues.",
+    "The discord community is super active and helpful.",
+    "Setup was a breeze, got my key and started instantly.",
+    "No lag, no crashes, just pure performance.",
+    "Every update brings something new. Love it.",
+    "It's rare to find a dev team this dedicated.",
+    "My gaming experience has improved 100x with this.",
+    "Safe, reliable, and powerful. What else do you need?",
+    "Better than all the other paid scripts I've tried.",
+    "The key system is instant, no waiting around.",
+    "Legit the only script I trust on my main account.",
+    "Performance is buttery smooth even on low end PCs.",
+    "Easy to config and save settings for each game.",
+    "Just buy it, you won't regret it.",
+    "Automates the boring stuff so I can have fun."
 ];
 
 export async function getRecentTestimonials(): Promise<TestimonialData[]> {
@@ -130,7 +158,6 @@ export async function getRecentTestimonials(): Promise<TestimonialData[]> {
 
     const scripts = await fetchScripts();
     const scriptNames = scripts.map(s => s.name);
-    // Map script name to its features
     const scriptFeaturesMap = new Map<string, string[]>();
     scripts.forEach(s => {
         if (s.features && s.features.length > 0) {
@@ -138,12 +165,38 @@ export async function getRecentTestimonials(): Promise<TestimonialData[]> {
         }
     });
 
+    // Helper to shuffle array deterministically based on a seed
+    const shuffle = (array: any[], seed: number) => {
+        let m = array.length, t, i;
+        while (m) {
+            i = Math.floor(Math.abs(Math.sin(seed + m) * 10000)) % m--;
+            t = array[m];
+            array[m] = array[i];
+            array[i] = t;
+        }
+        return array;
+    }
+
+    // Prepare indices for unique selection
+    const genericIndices = Array.from({ length: GENERIC_REVIEWS.length }, (_, i) => i);
+    const featureIndices = Array.from({ length: FEATURE_TEMPLATES.length }, (_, i) => i);
+    
+    // We use the first payment's ID or time as a seed for the "page load" shuffle to keep it consistent but random-looking
+    const globalSeed = payments.length > 0 ? hashCode(payments[0].created_at) : Date.now();
+    
+    shuffle(genericIndices, globalSeed);
+    shuffle(featureIndices, globalSeed);
+
+    let genericPointer = 0;
+    let featureTemplatePointer = 0;
+
     return payments
       .filter(p => {
         const hasEmail = p.payer_email && p.payer_email !== 'EMPTY';
         const hasRoblox = !!p.roblox_username;
         return hasEmail || hasRoblox;
       })
+      .slice(0, 6) // Slice BEFORE mapping to ensuring we only grab what we need and execute unique logic
       .map((payment, index) => {
         const seedString = payment.payer_email === 'EMPTY' || !payment.payer_email 
             ? (payment.roblox_username || 'user') 
@@ -151,7 +204,6 @@ export async function getRecentTestimonials(): Promise<TestimonialData[]> {
             
         let scriptName = payment.tier;
         
-        // Resolve generic names to actual script names
         const lowerTier = scriptName.toLowerCase();
         if (lowerTier.includes('weekly') || lowerTier.includes('monthly') || lowerTier.includes('lifetime') || lowerTier === 'premium') {
              if (scriptNames.length > 0) {
@@ -169,7 +221,6 @@ export async function getRecentTestimonials(): Promise<TestimonialData[]> {
             }
         }
         
-        // Clean up script name
         scriptName = scriptName.replace(/\s*script$/i, '').trim();
 
         // Determine Content
@@ -184,13 +235,17 @@ export async function getRecentTestimonials(): Promise<TestimonialData[]> {
             const featureIndex = (hashCode(seedString) + index) % features.length;
             const feature = features[featureIndex];
             
-            // Pick a random template
-            const templateIndex = (hashCode(seedString) + index + 1) % FEATURE_TEMPLATES.length;
+            // Pick a UNIQUE template
+            const templateIndex = featureIndices[featureTemplatePointer % featureIndices.length];
+            featureTemplatePointer++;
+            
             content = FEATURE_TEMPLATES[templateIndex].replace('{feature}', feature);
         } else {
-            // Fallback to generic
-            const genericIndex = (hashCode(seedString) + index) % GENERIC_REVIEWS.length;
-            content = GENERIC_REVIEWS[genericIndex];
+            // Pick a UNIQUE generic review
+            const reviewIndex = genericIndices[genericPointer % genericIndices.length];
+            genericPointer++;
+            
+            content = GENERIC_REVIEWS[reviewIndex];
         }
 
         let authorName = 'Verified User';
@@ -209,7 +264,6 @@ export async function getRecentTestimonials(): Promise<TestimonialData[]> {
           highlight: false 
         };
       })
-      .slice(0, 6)
       .map((item, index) => ({
           ...item,
           highlight: index === 0 || index === 5

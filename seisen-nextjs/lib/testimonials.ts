@@ -263,8 +263,7 @@ export async function getRecentTestimonials(): Promise<TestimonialData[]> {
           rating: 5,
           highlight: false 
         };
-      })
-      }));
+      });
 
   } catch (error) {
     console.error('Unexpected error fetching testimonials:', error);

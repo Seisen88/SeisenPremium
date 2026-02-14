@@ -83,15 +83,7 @@ export default function TestimonialsMarquee({ initialTestimonials }: { initialTe
 
   return (
     <section className="py-24 relative overflow-hidden bg-[#050505]">
-      {/* Background gradients */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-green-500/10 rounded-full blur-[128px] pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-[128px] pointer-events-none" />
-
       <div className="container mx-auto px-6 mb-16 text-center relative z-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-medium mb-6">
-          <Quote className="w-4 h-4" />
-          <span>Testimonials</span>
-        </div>
         
         <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
           Loved by gamers <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">worldwide</span>

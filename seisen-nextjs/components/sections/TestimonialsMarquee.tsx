@@ -82,7 +82,7 @@ export default function TestimonialsMarquee({ initialTestimonials }: { initialTe
   const secondRow = initialTestimonials.slice(Math.ceil(initialTestimonials.length / 2));
 
   return (
-    <section className="py-24 relative overflow-hidden bg-[#050505]">
+    <section className="py-24 relative overflow-hidden">
       <div className="container mx-auto px-6 mb-16 text-center relative z-10">
         
         <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">

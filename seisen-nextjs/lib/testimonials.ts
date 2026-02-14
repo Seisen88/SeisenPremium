@@ -65,32 +65,55 @@ const REVIEWS_BY_CATEGORY = {
   ]
 };
 
-// ... keep mask functions and POPULAR_GAMES ...
+function maskEmail(email: string): string {
+  const [name, domain] = email.split('@');
+  if (!name || !domain) return email;
+  const visibleLen = Math.min(3, Math.max(1, Math.floor(name.length / 2)));
+  const maskedName = name.substring(0, visibleLen) + '***';
+  return `${maskedName}@${domain}`;
+}
+
+function maskUsername(username: string): string {
+  if (!username || username.length < 3) return username;
+  const visibleLen = Math.min(3, Math.max(1, Math.floor(username.length / 2)));
+  return username.substring(0, visibleLen) + '***';
+}
+
+const POPULAR_GAMES = [
+    "Blox Fruits", "Pet Simulator 99", "Da Hood", "Blade Ball", 
+    "The Strongest Battlegrounds", "BedWars", "Anime Defenders", 
+    "Rivals", "Arsenal", "Murder Mystery 2"
+];
+
+function hashCode(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash);
+}
 
 function getScriptCategory(name: string): keyof typeof REVIEWS_BY_CATEGORY {
   const lower = name.toLowerCase();
   
-  // COMBAT Keywords
   if (lower.includes('fruit') || lower.includes('blox') || lower.includes('combat') || lower.includes('war') || lower.includes('blade') || lower.includes('fight') || lower.includes('apex') || lower.includes('counter') || lower.includes('rivals') || lower.includes('shot') || lower.includes('gun') || lower.includes('fps') || lower.includes('blue heater')) {
     return 'COMBAT';
   }
   
-  // SIMULATOR Keywords - Prioritize specific simulator terms
   if (lower.includes('sim') || lower.includes('clicker') || lower.includes('tap') || lower.includes('legends') || lower.includes('lifting') || lower.includes('strongman') || lower.includes('punch') || lower.includes('run') || lower.includes('race') || lower.includes('hat') || lower.includes('pet') || lower.includes('anime defenders') || lower.includes('dig') || lower.includes('mining') || lower.includes('magnet')) {
     return 'SIMULATOR';
   }
 
-  // FARMING Keywords - General RPG/Grinding
   if (lower.includes('farm') || lower.includes('build') || lower.includes('fish') || lower.includes('plant') || lower.includes('quest') || lower.includes('adventure') || lower.includes('dungeon') || lower.includes('rpg')) {
     return 'FARMING';
   }
   
-  // TYCOON
   if (lower.includes('tycoon') || lower.includes('restaurant') || lower.includes('cafe') || lower.includes('pizza') || lower.includes('business')) {
      return 'TYCOON'; 
   }
   
-  // Default fallback for simulators if undetected but likely
   if (lower.includes('2') || lower.includes('3') || lower.includes('x') || lower.includes('simulator')) {
       return 'SIMULATOR';
   }
@@ -112,9 +135,6 @@ export async function getRecentTestimonials(): Promise<TestimonialData[]> {
       console.error('Error fetching testimonials:', error);
       return [];
     }
-    
-    // Debug log
-    console.log(`Fetched ${payments?.length} payments. Filtering...`);
 
     if (!payments || payments.length === 0) {
       return [];

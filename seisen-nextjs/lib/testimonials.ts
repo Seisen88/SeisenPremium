@@ -88,17 +88,12 @@ function hashCode(str: string): number {
 function getScriptCategory(name: string): keyof typeof REVIEWS_BY_CATEGORY {
   const lower = name.toLowerCase();
   
-  // COMBAT Keywords
   if (lower.includes('fruit') || lower.includes('blox') || lower.includes('combat') || lower.includes('war') || lower.includes('blade') || lower.includes('fight') || lower.includes('apex') || lower.includes('counter') || lower.includes('rivals') || lower.includes('shot') || lower.includes('gun') || lower.includes('fps') || lower.includes('blue heater')) {
     return 'COMBAT';
   }
-  
-  // FARMING Keywords
   if (lower.includes('pet') || lower.includes('sim') || lower.includes('farm') || lower.includes('tycoon') || lower.includes('build') || lower.includes('fish') || lower.includes('mining') || lower.includes('anime defenders') || lower.includes('dig') || lower.includes('plant') || lower.includes('clicker')) {
     return 'FARMING';
   }
-  
-  // TYCOON (merged broadly into farming/tycoon logic above but kept for specific)
   if (lower.includes('tycoon') || lower.includes('restaurant') || lower.includes('cafe') || lower.includes('pizza') || lower.includes('business')) {
      return 'TYCOON'; 
   }
@@ -106,16 +101,68 @@ function getScriptCategory(name: string): keyof typeof REVIEWS_BY_CATEGORY {
   return 'GENERAL';
 }
 
-// ... inside getRecentTestimonials mapping ...
+export async function getRecentTestimonials(): Promise<TestimonialData[]> {
+  try {
+    const { data: payments, error } = await supabase
+      .from('payments')
+      .select('payer_email, tier, created_at, roblox_username')
+      .neq('payer_email', 'sb-4328s33649666@personal.example.com') 
+      .not('payer_email', 'like', '%@personal.example.com')
+      .order('created_at', { ascending: false })
+      .limit(100);
 
-        // Determine Category and Review
+    if (error) {
+      console.error('Error fetching testimonials:', error);
+      return [];
+    }
+    
+    // Debug log
+    console.log(`Fetched ${payments?.length} payments. Filtering...`);
+
+    if (!payments || payments.length === 0) {
+      return [];
+    }
+
+    const scripts = await fetchScripts();
+    const scriptNames = scripts.map(s => s.name);
+
+    return payments
+      .filter(p => {
+        const hasEmail = p.payer_email && p.payer_email !== 'EMPTY';
+        const hasRoblox = !!p.roblox_username;
+        return hasEmail || hasRoblox;
+      })
+      .map((payment, index) => {
+        const seedString = payment.payer_email === 'EMPTY' || !payment.payer_email 
+            ? (payment.roblox_username || 'user') 
+            : payment.payer_email;
+            
+        let scriptName = payment.tier;
+        
+        const lowerTier = scriptName.toLowerCase();
+        if (lowerTier.includes('weekly') || lowerTier.includes('monthly') || lowerTier.includes('lifetime') || lowerTier === 'premium') {
+             if (scriptNames.length > 0) {
+                 const scriptIndex = (hashCode(seedString) + index + hashCode(payment.created_at)) % scriptNames.length;
+                 scriptName = scriptNames[scriptIndex];
+             } else {
+                 const gameIndex = (hashCode(seedString) + index + hashCode(payment.created_at)) % POPULAR_GAMES.length;
+                 scriptName = POPULAR_GAMES[gameIndex];
+             }
+        } else if (!scriptName) {
+            if (scriptNames.length > 0) {
+                 scriptName = scriptNames[0];
+            } else {
+                 scriptName = "Blox Fruits"; 
+            }
+        }
+        
+        scriptName = scriptName.replace(/\s*script$/i, '').trim();
+
         const category = getScriptCategory(scriptName);
         const templates = REVIEWS_BY_CATEGORY[category] || REVIEWS_BY_CATEGORY.GENERAL;
         
-        // Use hash for better randomization than length
         const reviewIndex = (hashCode(seedString) + index + hashCode(payment.created_at || '')) % templates.length;
 
-        // Determine Author Name
         let authorName = 'Verified User';
         if (payment.roblox_username) {
             authorName = maskUsername(payment.roblox_username);
@@ -129,7 +176,7 @@ function getScriptCategory(name: string): keyof typeof REVIEWS_BY_CATEGORY {
           role: scriptName,
           avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${seedString}`,
           rating: 5,
-          highlight: false // We'll set this after slicing
+          highlight: false 
         };
       })
       .slice(0, 6)
